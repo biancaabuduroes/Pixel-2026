@@ -28,10 +28,3 @@ export async function findAddress(query: string): Promise<{ label: string; posit
   const [place] = (await response.json()) as NominatimPlace[];
   return place ? toResult(place) : null;
 }
-
-export async function addressAt(position: LatLng): Promise<string | null> {
-  const url = `${BASE}/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=ro&lat=${position.lat}&lon=${position.lng}`;
-  const response = await fetch(url);
-  if (!response.ok) return null;
-  return toResult((await response.json()) as NominatimPlace).label;
-}

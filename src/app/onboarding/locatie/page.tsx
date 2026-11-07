@@ -10,25 +10,13 @@ import { SegmentedControl } from "@/components/ds/segmented-control";
 import { OnboardingScreen, ScreenTitle } from "@/components/onboarding/onboarding-screen";
 import { RealMap, type LatLng } from "@/components/onboarding/real-map";
 import { Button } from "@/components/ui/button";
-import { addressAt, findAddress } from "@/lib/geocode";
+import { findAddress } from "@/lib/geocode";
 import { DEMO_ADDRESS, DEMO_POSITION, NEARBY_MOCK, RADIUS_KM, stepNumber, TOTAL_STEPS } from "@/lib/onboarding";
 import { savePreferencesAction } from "@/server/actions/onboarding";
 
 type Radius = (typeof RADIUS_KM)[number];
 type Place = { label: string; position: LatLng };
 const RADII = RADIUS_KM.map((r) => ({ value: String(r) as `${Radius}`, label: `${r} km` }));
-
-/** The browser's location, or null if unavailable/refused (no prompt loop: one attempt). */
-function currentPosition(): Promise<LatLng | null> {
-  return new Promise((resolve) => {
-    if (!("geolocation" in navigator)) return resolve(null);
-    navigator.geolocation.getCurrentPosition(
-      (p) => resolve({ lat: p.coords.latitude, lng: p.coords.longitude }),
-      () => resolve(null),
-      { timeout: 8000, maximumAge: 60_000 },
-    );
-  });
-}
 
 // Figma B1.4 Location and radius (empty + address found), with a real map.
 export default function LocationPage() {
@@ -53,16 +41,11 @@ export default function LocationPage() {
       if (found) show(found);
       else setNotice("Nu am găsit adresa. Încearcă strada, numărul și orașul.");
     });
-  const useMyLocation = () =>
-    startSearch(async () => {
-      setNotice(null);
-      const position = await currentPosition();
-      if (!position) {
-        setNotice("Nu avem acces la locație, așa că îți arătăm adresa demo.");
-        return show({ label: DEMO_ADDRESS, position: DEMO_POSITION });
-      }
-      show({ label: (await addressAt(position).catch(() => null)) ?? "Locația mea", position });
-    });
+  // Demo: "my location" is always the fixed demo address (no browser permission prompt).
+  const useMyLocation = () => {
+    setNotice(null);
+    show({ label: DEMO_ADDRESS, position: DEMO_POSITION });
+  };
   const next = () =>
     startTransition(async () => {
       if (!place) return;
@@ -107,9 +90,9 @@ export default function LocationPage() {
       ) : (
         <div className="flex w-full flex-col items-center gap-3 rounded-lg bg-bg-subtle py-4" aria-busy={searching}>
           <EmptyState icon="location-32-brand" title="Unde locuiești?" body="Caută adresa ca să vezi magazinele partenere din jurul tău." />
-          <Button variant="secondary" size="md" disabled={searching} onClick={useMyLocation}>
+          <Button variant="secondary" size="md" onClick={useMyLocation}>
             <Icon name="compass-20" size={20} />
-            {searching ? "Se caută…" : "Folosește locația mea"}
+            Folosește locația mea
           </Button>
         </div>
       )}

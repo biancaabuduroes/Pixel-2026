@@ -9,12 +9,12 @@
 |---|---|---|---|
 | ✅ | Discovery | Rules, scope, architecture approved | Done |
 | 0:00–0:20 | Documentation | `docs/`, README, CLAUDE.md | Docs reviewed; first commit approved |
-| 0:20–0:45 | Project setup | Next.js, Tailwind, shadcn/ui, Prisma, Supabase connection, `.env.example`, `main` branch | App runs locally |
+| 0:20–0:45 | Project setup | Next.js, Tailwind, shadcn/ui, Prisma, Supabase connection, `.env.example`, `main` branch, **Vercel connected** (preview URL per PR, production on merge to `main`) | App runs locally and deploys |
 | 0:45–1:45 | **Business logic core** | Prisma schema; `domain/pricing`, `groups`, `wallet`, `ai` + Vitest tests; server services for join, cancel, settle, pickup, top-up | **All money tests pass** |
 | 1:45–3:15 | Buyer flow | User switcher, product list/detail, group cards, join, my purchases, wallet | Buyer journey works end to end |
 | 3:15–4:00 | Seller dashboard | Product + tier editor, groups overview, orders, pickup code, earnings, statistics card | Seller journey works |
 | 4:00–4:30 | Demo panel + AI | Simulate buyers, close a group, expire deadlines, reset; forecast + template insights | Full demo script runs |
-| 4:30–5:00 | Seed, deploy, rehearse | Demo data, Vercel + Supabase deploy, dry run, backup screen recording | Ready to present |
+| 4:30–5:00 | Seed, rehearse | Demo data, final production check (Vercel is already deploying since setup), dry run, backup screen recording | Ready to present |
 
 **Runs in parallel:** the designer shares Figma access; if it arrives before ~1:45, key screens are followed.
 

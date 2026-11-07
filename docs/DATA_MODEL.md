@@ -1,7 +1,7 @@
 # BunDeals – Data Model
 
-> Approved conceptual model (2026-11-07). The Prisma schema implements this; if the two disagree, update both.
-> All money fields are integers in bani. All timestamps are UTC.
+> Approved conceptual model (2026-11-07). Implemented by `prisma/schema.prisma` and the first migration (`prisma/migrations/20261107150000_init`); if the two disagree, update both.
+> All money fields are integers in bani (Postgres `INTEGER`, up to about 21.4 million RON per amount). All timestamps are UTC.
 
 ## Entities
 
@@ -16,13 +16,13 @@
 | `Group` | productId, durationHours, opensAt, closesAt, status (`OPEN` / `SETTLING` / `SETTLED` / `CANCELLED`), totalQty, finalUnitPrice? | **partial unique (productId, durationHours) where status = OPEN** |
 | `Commitment` | groupId, productId, buyerId, quantity, committedUnitPrice, reservedAmount, finalUnitPrice?, amountCharged?, status (`ACTIVE` / `CANCELLED` / `AWAITING_PICKUP` / `COLLECTED` / `EXPIRED_PAID` / `DISPUTED` / `REFUNDED`), pickupCodeHash?, pickupDeadline?, failedCodeAttempts, codeLockedUntil? | **partial unique (buyerId, productId) where status = ACTIVE**; quantity ≥ 1 |
 | `LedgerAccount` | ownerUserId?, type (`BUYER_AVAILABLE` / `BUYER_RESERVED` / `PENDING_PICKUP` / `SELLER_EARNINGS` / `PLATFORM_REVENUE` / `EXTERNAL_FUNDING`), currency | unique (ownerUserId, type, currency) |
-| `LedgerTransaction` | id, operationId, type (`TOPUP` / `RESERVE` / `RELEASE` / `SETTLE` / `PAYOUT` / `REFUND`), commitmentId?, groupId?, createdAt | **operationId unique** (prevents duplicate charges) |
+| `LedgerTransaction` | id, operationId, type (`TOPUP` / `RESERVE` / `RELEASE` / `SETTLE` / `PAYOUT` / `REFUND`), commitmentId?, groupId?, topUpId?, createdAt | **operationId unique** (prevents duplicate charges) |
 | `LedgerEntry` | transactionId, accountId, amount (signed) | entries of one transaction add up to 0; never updated or deleted |
 | `PlatformSetting` | key, value | e.g. `commissionRate = 0.05` |
 | `JoinEvent` | groupId, quantity, createdAt, simulated (bool) | Join history used by the AI forecast (demo data + real joins) |
-| `Dispute` (P1) | commitmentId, reason, status, resolution | — |
-| `Notification` (P1) | userId, type, payload, readAt | — |
-| `AiInsight` (P1) | groupId, stateHash, text, createdAt | Cache for generated insight text |
+| `Dispute` (P1, not in the schema yet) | commitmentId, reason, status, resolution | — |
+| `Notification` (P1, not in the schema yet) | userId, type, payload, readAt | — |
+| `AiInsight` (P1, not in the schema yet) | groupId, stateHash, text, createdAt | Cache for generated insight text |
 
 ## Relationships
 
@@ -43,7 +43,7 @@
 | Ledger | The account owner; admins | Server only (append-only) |
 | Platform settings | Admin | Admin |
 
-> Implementation note: so the buyer can see the code at any time, the plain code may also be stored encrypted on the commitment. Decide during implementation; the hash is always used for checking.
+> Pickup code (decided 2026-11-07): the 6-digit code is derived on the server from a secret (`PICKUP_CODE_SECRET`) and the commitment ID, so the buyer can see it at any time without the plain code being stored. Only the hash is stored and used for checking.
 
 ## Integrity requirements
 
@@ -53,3 +53,13 @@
 4. A seller can't lower `stockTotal` below the committed quantity.
 5. `Group.totalQty` is updated in the same transaction as each commitment change, and can be recalculated from the commitments.
 6. Settlement asserts `finalUnitPrice ≤ committedUnitPrice` for every commitment.
+
+## Enforced by the database
+
+Besides the unique constraints above, the first migration adds rules the app can't bypass:
+
+- **CHECK constraints:** stock ≥ 0, cap ≥ 1, prices > 0, quantities ≥ 1, `closesAt > opensAt`; on `Commitment`: `reservedAmount = quantity × committedUnitPrice`, `finalUnitPrice ≤ committedUnitPrice`, `amountCharged ≤ reservedAmount`, and settled commitments must have their final price, amount, code hash and deadline.
+- **Commitment ↔ group:** `(groupId, productId)` references the group, so a commitment's product always matches its group's product.
+- **Ledger accounts:** system accounts (`PLATFORM_REVENUE`, `EXTERNAL_FUNDING`) have no owner and exist once; every other account has an owner.
+- **Append-only ledger:** a trigger rejects `UPDATE` and `DELETE` on `LedgerTransaction` and `LedgerEntry`.
+- **Balanced transactions:** a deferred trigger checks at commit that each ledger transaction has ≥ 2 non-zero entries summing to 0.

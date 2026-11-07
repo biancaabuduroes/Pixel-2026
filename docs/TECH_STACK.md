@@ -90,6 +90,8 @@ Next.js 16 differs from older versions: its own docs ship in `node_modules/next/
 | Demo (Vercel production + previews) | Hackathon presentation, `DEMO_MODE=true` | Supabase project (demo), shared by production and preview deployments |
 | Production | Future — not part of the hackathon | Separate project, `DEMO_MODE` off |
 
+**Database access from a Claude cloud session:** the session container can't open Postgres connections (its proxy only carries HTTPS). It uses the **Supabase Management API** over HTTPS instead (`POST https://api.supabase.com/v1/projects/<ref>/database/query`). The personal access token is a network secret on the cloud environment, added by the proxy, never in the repo or chat. Checks are read-only by default; writes (e.g. demo seed) only with approval. Migrations still run through Prisma on production deploys.
+
 ## 6. Environment variables (names only)
 
 | Name | Purpose |

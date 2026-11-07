@@ -15,12 +15,14 @@ import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { tierLadder, type Segment } from "@/domain/ai";
 import { formatRon, multiplyBani } from "@/domain/money";
+import { isFirstDiscountUnlocked } from "@/domain/pricing";
 import { dayLabel, formatToken, inDuration, priceNumber, timeLabel, units } from "@/lib/format";
 import { joinGroupAction } from "@/server/actions/buyer";
 import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
 import type { CompareRow } from "@/server/buyer-queries";
 import { CompareSellersSheet } from "./compare-sellers-sheet";
+import { ConfirmJoinSheet } from "./confirm-join-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
 import { useGroupProgress } from "./use-group-progress";
 
@@ -137,6 +139,7 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState<Joined | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -166,6 +169,7 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         setError(JOIN_ERRORS[result.reason] ?? JOIN_ERRORS.INVALID_INPUT);
         return;
       }
+      setConfirmOpen(false);
       setJoined({ quantity, committedUnitPrice: result.committedUnitPrice, reservedAmount: result.reservedAmount });
       await queryClient.invalidateQueries({ queryKey: ["group-progress", group.id] });
     });
@@ -335,7 +339,7 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
             ) : null}
             <div className="flex items-center gap-3">
               <QuantityStepper label="Cantitate" value={quantity} max={maxQty} onChange={setQuantity} />
-              <Button className="min-w-0 flex-1" disabled={pending || soldOut || closed || short} onClick={join}>
+              <Button className="min-w-0 flex-1" disabled={pending || soldOut || closed || short} onClick={() => setConfirmOpen(true)}>
                 {pending ? "Se blochează…" : `Intră în grup · ${priceNumber(offer.currentUnitPrice)}`}
               </Button>
             </div>
@@ -354,6 +358,21 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
       </BottomSheet>
 
       <CompareSellersSheet open={compareOpen} onOpenChange={setCompareOpen} rows={alternatives} currentProductId={product.id} />
+
+      <ConfirmJoinSheet
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        productName={product.name}
+        storeName={product.pickupLocation.name}
+        quantity={quantity}
+        unitPrice={offer.currentUnitPrice}
+        lockAmount={lockAmount}
+        tierUnlocked={isFirstDiscountUnlocked(product.priceTiers, offer.totalQty)}
+        joinUnlocksTier={!isFirstDiscountUnlocked(product.priceTiers, offer.totalQty) && isFirstDiscountUnlocked(product.priceTiers, offer.totalQty + quantity)}
+        pending={pending}
+        error={error}
+        onConfirm={join}
+      />
 
       {joined && (
         <JoinedSheet

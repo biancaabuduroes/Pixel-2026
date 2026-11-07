@@ -34,13 +34,13 @@ export function multiplyBani(quantity: number, unitPrice: Bani): Bani {
   return result;
 }
 
-/** 28500 → "285 RON", 27075 → "270.75 RON". Integer maths only. */
+/** Romanian format: 28500 → "285 RON", 27075 → "270,75 RON", 160000 → "1.600 RON". Integer maths only. */
 export function formatRon(amount: Bani): string {
   assertBani(amount);
   const sign = amount < 0 ? "-" : "";
   const abs = Math.abs(amount);
-  const ron = Math.floor(abs / 100);
+  const ron = String(Math.floor(abs / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
   const bani = abs % 100;
-  const decimals = bani === 0 ? "" : `.${String(bani).padStart(2, "0")}`;
+  const decimals = bani === 0 ? "" : `,${String(bani).padStart(2, "0")}`;
   return `${sign}${ron}${decimals} RON`;
 }

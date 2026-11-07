@@ -23,11 +23,16 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      Role
-  createdAt DateTime @default(now())
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  role         Role
+  /// "scrypt$<salt>$<hash>" for the demo login (src/server/password.ts). Null = cannot log in with a password.
+  passwordHash String?
+  /// Onboarding answers (name, shopping preferences, budget in bani, mock address). Display only;
+  /// validated by src/server/onboarding.ts. Never used for prices or money.
+  preferences  Json?
+  createdAt    DateTime @default(now())
 
   sellerProfile   SellerProfile?
   pickupLocations PickupLocation[]

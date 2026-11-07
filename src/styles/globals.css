@@ -2,119 +2,311 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
+/*
+ * BunDeals design tokens — mirrored from the Figma file "DS-BunDeals" (Core brand mode).
+ * Figma is the source of truth: every Figma variable's code syntax is var(--token-name), and the
+ * same name is used here, so a Figma change is a one-line edit in :root below.
+ * Mapping table: docs/DESIGN_SYSTEM.md. Light mode only (no dark mode, decided 2026-11-07).
+ */
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Typography — families come from next/font (src/app/layout.tsx): --font-dm-sans, --font-barlow */
+  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-display: var(--font-barlow), "Barlow Condensed", system-ui, sans-serif;
+  --display-xl-font-size: 56px;
+  --display-xl-line-height: 64px;
+  --display-lg-font-size: 36px;
+  --display-lg-line-height: 40px;
+  --display-md-font-size: 28px;
+  --display-md-line-height: 32px;
+  --text-lg-font-size: 17px;
+  --text-lg-line-height: 24px;
+  --text-md-font-size: 15px;
+  --text-md-line-height: 24px;
+  --text-sm-font-size: 13px;
+  --text-sm-line-height: 16px;
+
+  /* Color · text */
+  --text-primary: #161618;
+  --text-secondary: #6e6e75;
+  --text-inverse: #ffffff;
+  --text-brand: #b8320f;
+  --text-on-brand: #0b0b0c;
+  --text-deal: #8a6100;
+  --text-success: #0b6545;
+  --text-danger: #b3181c;
+  --text-info: #1f54a8;
+
+  /* Color · icon (each aliases its text twin) */
+  --icon-primary: #161618;
+  --icon-secondary: #6e6e75;
+  --icon-inverse: #ffffff;
+  --icon-brand: #b8320f;
+  --icon-deal: #8a6100;
+  --icon-success: #0b6545;
+  --icon-danger: #b3181c;
+
+  /* Color · backgrounds */
+  --bg-canvas: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f4f4f5;
+  --bg-muted: #ececee;
+  --bg-strong: #c4c4c8;
+  --bg-disabled: #dcdcdf;
+  --bg-action: #0b0b0c;
+  --bg-inverse: #0b0b0c;
+  --bg-brand: #ff5a36;
+  --bg-brand-strong: #e8431f;
+  --bg-brand-soft: #fff1ec;
+  --bg-deal: #ffc83d;
+  --bg-deal-soft: #fff8e1;
+  --bg-success: #0b6545;
+  --bg-success-strong: #17a673;
+  --bg-success-soft: #e8f6f1;
+  --bg-danger: #e5262b;
+  --bg-danger-soft: #fdecec;
+  --bg-info: #1f54a8;
+  --bg-info-soft: #eaf3ff;
+  --bg-scrim: #0b0b0c80;
+
+  /* Color · borders */
+  --border-default: #dcdcdf;
+  --border-subtle: #ececee;
+  --border-control: #8e8e95;
+  --border-strong: #0b0b0c;
+  --border-surface: #ffffff;
+  --border-brand: #e8431f;
+  --border-danger: #e5262b;
+
+  /* Component-level colors exposed by Figma */
+  --action-secondary-fg: #0b0b0c;
+  --action-disabled-fg: #6e6e75;
+  --button-primary-fg: #ffffff;
+
+  /* Layout */
+  --space-2: 2px;
+  --space-4: 4px;
+  --space-6: 6px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --inset-page: 16px;
+  --control-sm: 32px;
+  --control-md: 44px;
+  --control-lg: 56px;
+  --navbar-h: 52px;
+  --otp-cell: 48px;
+  --stroke-hairline: 1px;
+  --stroke-strong: 2px;
+  --opacity-disabled: 0.45;
+
+  /* shadcn/ui semantic variables, pointed at the Figma tokens so every shadcn component follows Figma */
+  --background: var(--bg-canvas);
+  --foreground: var(--text-primary);
+  --card: var(--bg-surface);
+  --card-foreground: var(--text-primary);
+  --popover: var(--bg-surface);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--bg-action);
+  --primary-foreground: var(--text-inverse);
+  --secondary: var(--bg-muted);
+  --secondary-foreground: var(--text-primary);
+  --muted: var(--bg-subtle);
+  --muted-foreground: var(--text-secondary);
+  --accent: var(--bg-muted);
+  --accent-foreground: var(--text-primary);
+  --destructive: var(--bg-danger);
+  --border: var(--border-default);
+  --input: var(--border-control);
+  --ring: var(--border-strong);
+  --radius: 12px;
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+@theme inline {
+  /* Fonts → font-sans / font-display */
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  --font-heading: var(--font-display);
+
+  /* Radius → rounded-xs … rounded-xl, rounded-pill (Figma Layout/radius) */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  /* Sizes → h-control-lg, size-control-md, h-navbar, w-otp-cell … (Tailwind's 4px grid = Figma space-*) */
+  --spacing-control-sm: var(--control-sm);
+  --spacing-control-md: var(--control-md);
+  --spacing-control-lg: var(--control-lg);
+  --spacing-navbar: var(--navbar-h);
+  --spacing-otp-cell: var(--otp-cell);
+  --spacing-page: var(--inset-page);
+
+  /* Effects → shadow-card / shadow-raised / shadow-sheet (Figma Shadow/*) */
+  --shadow-card: 0 1px 2px #0b0b0c0f;
+  --shadow-raised: 0 6px 20px #0b0b0c24;
+  --shadow-sheet: 0 -8px 24px #0b0b0c1f;
+
+  /* Figma colors, prefixed by role so the class reads like the Figma name:
+     bg-bg-brand-soft, text-text-secondary, border-border-control, text-icon-brand */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-inverse: var(--text-inverse);
+  --color-text-brand: var(--text-brand);
+  --color-text-on-brand: var(--text-on-brand);
+  --color-text-deal: var(--text-deal);
+  --color-text-success: var(--text-success);
+  --color-text-danger: var(--text-danger);
+  --color-text-info: var(--text-info);
+  --color-icon-primary: var(--icon-primary);
+  --color-icon-secondary: var(--icon-secondary);
+  --color-icon-inverse: var(--icon-inverse);
+  --color-icon-brand: var(--icon-brand);
+  --color-icon-deal: var(--icon-deal);
+  --color-icon-success: var(--icon-success);
+  --color-icon-danger: var(--icon-danger);
+  --color-bg-canvas: var(--bg-canvas);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-bg-muted: var(--bg-muted);
+  --color-bg-strong: var(--bg-strong);
+  --color-bg-disabled: var(--bg-disabled);
+  --color-bg-action: var(--bg-action);
+  --color-bg-inverse: var(--bg-inverse);
+  --color-bg-brand: var(--bg-brand);
+  --color-bg-brand-strong: var(--bg-brand-strong);
+  --color-bg-brand-soft: var(--bg-brand-soft);
+  --color-bg-deal: var(--bg-deal);
+  --color-bg-deal-soft: var(--bg-deal-soft);
+  --color-bg-success: var(--bg-success);
+  --color-bg-success-strong: var(--bg-success-strong);
+  --color-bg-success-soft: var(--bg-success-soft);
+  --color-bg-danger: var(--bg-danger);
+  --color-bg-danger-soft: var(--bg-danger-soft);
+  --color-bg-info: var(--bg-info);
+  --color-bg-info-soft: var(--bg-info-soft);
+  --color-bg-scrim: var(--bg-scrim);
+  --color-border-default: var(--border-default);
+  --color-border-subtle: var(--border-subtle);
+  --color-border-control: var(--border-control);
+  --color-border-strong: var(--border-strong);
+  --color-border-surface: var(--border-surface);
+  --color-border-brand: var(--border-brand);
+  --color-border-danger: var(--border-danger);
+  --color-action-disabled-fg: var(--action-disabled-fg);
+
+  /* shadcn semantic colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+/* Figma text styles, one class each: Display/display-lg → `display-lg`, Text/body-md → `body-md` … */
+@utility display-xl {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--display-xl-font-size);
+  line-height: var(--display-xl-line-height);
+  letter-spacing: -0.5px;
+}
+@utility display-lg {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--display-lg-font-size);
+  line-height: var(--display-lg-line-height);
+  letter-spacing: -0.3px;
+}
+@utility display-md {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--display-md-font-size);
+  line-height: var(--display-md-line-height);
+}
+@utility title-lg {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--text-lg-font-size);
+  line-height: var(--text-lg-line-height);
+}
+@utility title-md {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--text-md-font-size);
+  line-height: var(--text-md-line-height);
+}
+@utility title-sm {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: var(--text-sm-font-size);
+  line-height: var(--text-sm-line-height);
+}
+@utility label-lg {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-lg-font-size);
+  line-height: var(--text-lg-line-height);
+}
+@utility label-md {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-md-font-size);
+  line-height: var(--text-md-line-height);
+}
+@utility label-sm {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: var(--text-sm-font-size);
+  line-height: var(--text-sm-line-height);
+}
+@utility body-lg {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-lg-font-size);
+  line-height: var(--text-lg-line-height);
+}
+@utility body-md {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-md-font-size);
+  line-height: var(--text-md-line-height);
+}
+@utility body-compact {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+}
+@utility body-sm {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--text-sm-font-size);
+  line-height: var(--text-sm-line-height);
+}
+@utility caption {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 17px;
 }
 
 @layer base {
@@ -122,7 +314,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground body-md;
   }
   html {
     @apply font-sans;

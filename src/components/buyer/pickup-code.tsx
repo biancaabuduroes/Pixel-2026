@@ -8,15 +8,15 @@ import QRCode from "qrcode";
 export async function PickupCode({ code, url }: { code: string; url: string }) {
   const svg = await QRCode.toString(url, { type: "svg", margin: 1, errorCorrectionLevel: "M" });
   return (
-    <div className="flex flex-col items-center gap-2 rounded-xl border p-4">
-      <div className="w-48" aria-label="Pickup QR code" role="img" dangerouslySetInnerHTML={{ __html: svg }} />
-      <p className="font-mono text-2xl tracking-[0.3em]" aria-label="Pickup code">
+    <div className="flex flex-col items-center gap-2 rounded-lg border p-4">
+      <div className="w-48" aria-label="Cod QR de ridicare" role="img" dangerouslySetInnerHTML={{ __html: svg }} />
+      <p className="display-md tracking-[0.3em]" aria-label="Cod de ridicare">
         {code}
       </p>
-      <p className="text-sm text-muted-foreground">Show this to the seller. It works once, only for this order.</p>
+      <p className="body-sm text-muted-foreground">Arată-l vânzătorului. Funcționează o singură dată, doar pentru această comandă.</p>
       {/* Demo convenience: lets the presenter "scan" on the same laptop. */}
-      <a href={url} className="text-sm underline underline-offset-4">
-        Open the seller&apos;s confirm page
+      <a href={url} className="body-sm underline underline-offset-4">
+        Deschide pagina de confirmare a vânzătorului
       </a>
     </div>
   );

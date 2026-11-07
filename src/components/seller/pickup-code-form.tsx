@@ -9,12 +9,12 @@ import { confirmPickupAction } from "@/server/actions/seller";
 type Result = Awaited<ReturnType<typeof confirmPickupAction>>;
 
 const MESSAGES: Record<Extract<Result, { ok: false }>["reason"], string> = {
-  WRONG_CODE: "Wrong code. Check it with the buyer.",
-  LOCKED: "Too many wrong codes. Try again in 15 minutes.",
-  NOT_AWAITING_PICKUP: "This order is already collected.",
-  NOT_FOUND: "Order not found.",
-  UNAUTHORIZED: "Switch to the seller account first.",
-  INVALID_INPUT: "Enter the 6-digit code.",
+  WRONG_CODE: "Cod greșit. Verifică-l cu cumpărătorul.",
+  LOCKED: "Prea multe coduri greșite. Încearcă din nou peste 15 minute.",
+  NOT_AWAITING_PICKUP: "Comanda a fost deja ridicată.",
+  NOT_FOUND: "Comanda nu a fost găsită.",
+  UNAUTHORIZED: "Intră mai întâi în contul de vânzător.",
+  INVALID_INPUT: "Introdu codul de 6 cifre.",
 };
 
 /** Seller confirms one pickup. The code is pre-filled when the buyer's QR was scanned. */
@@ -26,8 +26,8 @@ export function PickupCodeForm({ commitmentId, defaultCode }: { commitmentId: st
 
   if (state?.ok) {
     return (
-      <p role="status" className="font-medium">
-        Collected ✓ You receive {formatRon(state.sellerAmount)} (commission {formatRon(state.commission)}).
+      <p role="status" className="label-md">
+        Ridicat ✓ Primești {formatRon(state.sellerAmount)} (comision {formatRon(state.commission)}).
       </p>
     );
   }
@@ -41,17 +41,17 @@ export function PickupCodeForm({ commitmentId, defaultCode }: { commitmentId: st
           autoComplete="one-time-code"
           pattern="\d{6}"
           maxLength={6}
-          placeholder="6-digit code"
-          aria-label="Pickup code"
-          className="font-mono tracking-widest"
+          placeholder="Cod de 6 cifre"
+          aria-label="Cod de ridicare"
+          className="label-lg tracking-widest"
           required
         />
         <Button type="submit" disabled={pending}>
-          {pending ? "Checking…" : "Confirm pickup"}
+          {pending ? "Se verifică…" : "Confirmă"}
         </Button>
       </div>
       {state && !state.ok && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="body-sm text-destructive">
           {MESSAGES[state.reason]}
         </p>
       )}

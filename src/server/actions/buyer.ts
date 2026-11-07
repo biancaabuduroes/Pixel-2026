@@ -28,8 +28,8 @@ export async function cancelCommitmentAction(input: unknown) {
 
 /** Simulated top-up. `topUpId` is a client-generated UUID so a double click credits once. */
 export async function topUpAction(input: unknown) {
-  // Upper bound only protects the integer column (100,000 RON per top-up); not a business rule.
-  const parsed = z.object({ topUpId: z.uuid(), amount: z.number().int().min(1).max(10_000_000) }).safeParse(input);
+  // Minimum 10 RON (decision 2026-11-07). The upper bound only protects the integer column.
+  const parsed = z.object({ topUpId: z.uuid(), amount: z.number().int().min(1_000).max(10_000_000) }).safeParse(input);
   if (!parsed.success) return INVALID;
   const buyer = await currentUser("BUYER");
   if (!buyer) return UNAUTHORIZED;

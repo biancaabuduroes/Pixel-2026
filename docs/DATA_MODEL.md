@@ -7,7 +7,7 @@
 
 | Entity | Key fields | Constraints |
 |---|---|---|
-| `User` | id, email, name, role (`BUYER` / `SELLER` / `ADMIN`) | email unique |
+| `User` | id, email, name, role (`BUYER` / `SELLER` / `ADMIN`), passwordHash? (demo login, scrypt), preferences? (JSON: onboarding answers, display only; budget in bani) | email unique |
 | `SellerProfile` | userId, businessName | one per seller |
 | `PickupLocation` | sellerId, name, address, openingHours | MVP: one per seller (the schema allows several) |
 | `Product` | sellerId, pickupLocationId, name, description, imageUrl, stockTotal, perBuyerCap, pickupDeadlineDays, status (`ACTIVE` / `INACTIVE`) | stockTotal ≥ 0; perBuyerCap ≥ 1 |

@@ -9,12 +9,13 @@ import { BottomSheet } from "@/components/ds/bottom-sheet";
 import { EmptyState } from "@/components/ds/empty-state";
 import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
+import { ListRow } from "@/components/ds/list-row";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { tierLadder, type Segment } from "@/domain/ai";
 import { formatRon, multiplyBani } from "@/domain/money";
-import { dayLabel, formatToken, priceNumber, timeLabel, units } from "@/lib/format";
+import { dayLabel, formatToken, inDuration, priceNumber, timeLabel, units } from "@/lib/format";
 import { joinGroupAction } from "@/server/actions/buyer";
 import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
@@ -24,6 +25,7 @@ import { JoinedSheet, type Joined } from "./joined-sheet";
 import { useGroupProgress } from "./use-group-progress";
 
 const SEGMENT_LABEL: Record<Segment, string> = { RAPID: "Rapid", ECHILIBRAT: "Echilibrat", CEL_MAI_IEFTIN: "Cel mai ieftin" };
+const CHANCE = { LIKELY: "mari", POSSIBLE: "medii", UNLIKELY: "mici" } as const;
 
 const JOIN_ERRORS: Record<string, string> = {
   GROUP_NOT_OPEN: "Grupul s-a închis între timp. Alege alt grup.",
@@ -98,71 +100,21 @@ function Hero({ name, productId }: { name: string; productId: string }) {
       >
         <ShareIcon />
       </button>
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-1.5" aria-hidden>
-        <span className="h-1.5 w-4 rounded-pill bg-text-primary" />
-        <span className="size-1.5 rounded-pill bg-bg-strong" />
-        <span className="size-1.5 rounded-pill bg-bg-strong" />
+      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
+        <span className="size-2 rounded-pill bg-text-primary" />
+        <span className="size-2 rounded-pill bg-bg-strong" />
+        <span className="size-2 rounded-pill bg-bg-strong" />
       </div>
     </section>
   );
 }
 
-function Fact({ icon, label }: { icon: "spark" | "lock" | "store"; label: string }) {
+function Fact({ icon, label }: { icon: "users-20-deal" | "lock-20" | "store-20-success"; label: string }) {
   return (
-    <li className="flex flex-col items-center gap-2 px-1 text-center text-icon-brand">
-      {icon === "spark" ? <SparkIcon /> : icon === "lock" ? <LockIcon /> : <StoreIcon />}
+    <li className="flex flex-col items-center gap-2 text-center">
+      <Icon name={icon} size={22} />
       <span className="body-sm text-text-secondary">{label}</span>
     </li>
-  );
-}
-
-function SparkIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <path d="M11 2.5 12.4 8.2 18 9.5 12.4 10.8 11 16.5 9.6 10.8 4 9.5 9.6 8.2 11 2.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M17 14.5 17.6 16.4 19.5 17 17.6 17.6 17 19.5 16.4 17.6 14.5 17 16.4 16.4 17 14.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function LockIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <rect x="5" y="9.5" width="12" height="9" rx="2" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M8 9.5V7.2a3 3 0 0 1 6 0v2.3" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
-  );
-}
-
-function PoolRow({ icon, title, subtitle, onClick }: { icon: React.ReactNode; title: string; subtitle: string; onClick: () => void }) {
-  return (
-    <button type="button" onClick={onClick} className="flex w-full items-center gap-3 border-b border-border-subtle py-3 text-left outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
-      <span className="text-icon-brand">{icon}</span>
-      <span className="min-w-0 flex-1">
-        <span className="block label-md text-text-primary">{title}</span>
-        <span className="block truncate body-sm text-text-secondary">{subtitle}</span>
-      </span>
-      <Icon name="chevron-right-20" size={20} />
-    </button>
-  );
-}
-
-function TagIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <path d="M4 11.2 10.8 4.4h6.2v6.2L10.2 17.4 4 11.2Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <circle cx="14.2" cy="7.6" r="0.9" fill="currentColor" />
-    </svg>
-  );
-}
-
-function StoreIcon() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden>
-      <path d="M4 9.5 5.2 4.8h11.6L18 9.5" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-      <path d="M4 9.5h14v7.2a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V9.5Z" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M9 17.7v-4.2h4v4.2" stroke="currentColor" strokeWidth="1.6" />
-    </svg>
   );
 }
 
@@ -177,7 +129,7 @@ function ShareIcon() {
   );
 }
 
-function GroupSection({ product, groups, availableBalance, activeCommitment, stockRemaining, signedIn, alternatives, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, alternatives, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
@@ -224,17 +176,21 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
       <header className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           {offer.discountPct > 0 ? (
-            <span className="rounded-pill bg-bg-deal px-2.5 py-1 label-sm text-text-primary">−{offer.discountPct}%</span>
+            <span className="rounded-md bg-bg-deal px-2 py-1 label-sm text-text-primary">−{offer.discountPct}%</span>
           ) : (
             <span />
           )}
-          <span className="rounded-pill bg-bg-brand px-2.5 py-1 text-text-inverse">
-            <DealCountdown closesAt={closesAt.toISOString()} tone="inverse" />
+          <span className="rounded-pill bg-bg-subtle px-2.5 py-1">
+            <DealCountdown closesAt={closesAt.toISOString()} />
           </span>
         </div>
-        <div className="flex flex-col gap-0.5">
-          <h1 className="title-lg text-text-primary">{product.name}</h1>
-          <p className="body-sm text-text-secondary">{product.pickupLocation.name}</p>
+        <div className="flex flex-col gap-1">
+          <h1 className="title-xl text-text-primary">{product.name}</h1>
+          <p className="flex items-center gap-1.5 body-sm text-text-secondary">
+            <Icon name="store-14" size={14} />
+            {product.pickupLocation.name}
+            {group.id === recommendedGroupId && groups.length > 1 ? " · recomandat" : ""}
+          </p>
         </div>
         <p className="flex items-baseline gap-2">
           <span className="display-lg text-text-primary">{formatRon(offer.currentUnitPrice)}</span>
@@ -245,7 +201,7 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
 
       {quantities.length > 1 && (
         <div className="flex items-center gap-3">
-          <span className="body-md text-text-primary">Cantitate</span>
+          <span className="label-md text-text-primary">Cantitate</span>
           <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Cantitate">
             {quantities.map((n) => (
               <button
@@ -254,8 +210,8 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
                 aria-pressed={quantity === n}
                 onClick={() => setQuantity(n)}
                 className={cn(
-                  "flex h-10 min-w-12 items-center justify-center rounded-pill bg-bg-muted px-3 label-md text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
-                  quantity === n && "ring-2 ring-border-strong",
+                  "flex h-8 min-w-10 items-center justify-center rounded-pill px-3 label-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
+                  quantity === n ? "bg-bg-action text-text-inverse" : "bg-bg-muted text-text-primary",
                 )}
               >
                 {n}
@@ -265,10 +221,10 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
         </div>
       )}
 
-      <ul className="grid grid-cols-3 border-y border-border-subtle py-4">
-        <Fact icon="spark" label="Preț de grup" />
-        <Fact icon="lock" label="Plătești la final" />
-        <Fact icon="store" label={`Ridici ${pickupDay}`} />
+      <ul className="grid grid-cols-3 gap-2 py-1">
+        <Fact icon="users-20-deal" label="Preț de grup" />
+        <Fact icon="lock-20" label="Plătești la final" />
+        <Fact icon="store-20-success" label={`Ridici ${pickupDay}`} />
       </ul>
 
       {segments.length > 1 && (
@@ -280,41 +236,43 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
         />
       )}
 
-      <section className="flex flex-col gap-3" aria-label="Prețul grupului">
+      <section className="flex flex-col gap-4 rounded-xl border border-border-subtle bg-bg-surface p-4" aria-label="Prețul grupului">
         <h2 className="title-xl text-text-primary">Prețul grupului</h2>
-        <div className="flex flex-col gap-3 rounded-xl border border-border-subtle p-4">
-          <div className="flex items-start justify-between gap-3">
-            <p className="body-sm text-text-primary">
-              {offer.next ? (
-                <>
-                  Încă <b>{units(offer.next.unitsMissing)}</b> și scade la <b>{formatRon(offer.next.unitPrice)}</b>
-                </>
-              ) : (
-                "Cel mai bun preț e atins"
-              )}
-            </p>
-            <span className="shrink-0 label-sm text-text-secondary">
-              {offer.totalQty} / {tierTarget}
-            </span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-pill bg-bg-muted" role="progressbar" aria-label="Progres grup" aria-valuemin={0} aria-valuemax={tierTarget} aria-valuenow={offer.totalQty}>
-            <div className="h-full rounded-pill bg-bg-deal" style={{ width: `${tierPct}%` }} />
-          </div>
-          <ol className="grid grid-cols-3 gap-2">
-            {tierLadder(product.priceTiers, offer).map((t) => (
-              <li
-                key={t.minQty}
-                className={cn(
-                  "flex flex-col items-center gap-0.5 rounded-lg px-1 py-3 text-center",
-                  t.state === "current" ? "bg-bg-deal-soft" : "bg-bg-subtle",
-                )}
-              >
-                <span className="caption text-text-secondary">{t.maxQty === null ? `${t.minQty}+` : `${t.minQty}–${t.maxQty}`} unit.</span>
-                <span className={cn("title-md", t.state === "passed" ? "text-text-secondary line-through" : "text-text-primary")}>{priceNumber(t.unitPrice)}</span>
-              </li>
-            ))}
-          </ol>
+        <div className="flex items-start justify-between gap-3">
+          <p className="body-md text-text-primary">
+            {offer.next ? (
+              <>
+                Încă <b>{units(offer.next.unitsMissing)}</b> și scade la <b>{formatRon(offer.next.unitPrice)}</b>
+              </>
+            ) : (
+              "Cel mai bun preț e atins"
+            )}
+          </p>
+          <span className="shrink-0 label-sm text-text-secondary">
+            {offer.totalQty} / {tierTarget}
+          </span>
         </div>
+        <div className="h-1.5 w-full overflow-hidden rounded-pill bg-bg-muted" role="progressbar" aria-label="Progres grup" aria-valuemin={0} aria-valuemax={tierTarget} aria-valuenow={offer.totalQty}>
+          <div className="h-full rounded-pill bg-bg-deal" style={{ width: `${tierPct}%` }} />
+        </div>
+        <ol className="grid grid-cols-3 gap-2">
+          {tierLadder(product.priceTiers, offer).map((t) => (
+            <li
+              key={t.minQty}
+              className={cn(
+                "flex flex-col items-center gap-0.5 rounded-lg px-2 py-3 text-center",
+                t.state === "current" ? "bg-bg-deal text-text-primary" : "bg-bg-subtle text-text-secondary",
+              )}
+            >
+              <span className="body-sm">{t.maxQty === null ? `${t.minQty}+` : `${t.minQty}–${t.maxQty}`}</span>
+              <span className="title-md text-text-primary">{priceNumber(t.unitPrice)}</span>
+            </li>
+          ))}
+        </ol>
+        <p className="caption text-text-secondary">
+          Probabil plătești {formatRon(offer.probableUnitPrice)} (estimare). Niciodată peste {formatRon(offer.currentUnitPrice)}.
+          {offer.next && offer.forecast ? ` Șanse ${CHANCE[offer.forecast]} să ajungă la pragul următor.` : ""} Se închide {inDuration(closesAt.getTime() - now)}.
+        </p>
       </section>
 
       {product.kind === "BASKET" && product.basketItems.length > 0 && (
@@ -332,20 +290,15 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
         </section>
       )}
 
-      <div className="flex flex-col">
-        <PoolRow
-          icon={<StoreIcon />}
-          title={`Ridici ${pickupDay}, după ${timeLabel(closesAt)}`}
-          subtitle={`${product.pickupLocation.name}, ${product.pickupLocation.address}`}
-          onClick={() => setPickupOpen(true)}
-        />
-        <PoolRow
-          icon={<TagIcon />}
-          title="Compară vânzătorii"
-          subtitle="Preț curent și când se închide"
-          onClick={() => setCompareOpen(true)}
-        />
-      </div>
+      <ListRow
+        icon="calendar-24"
+        title={`Ridici ${dayLabel(closesAt, new Date(now))}, după ${timeLabel(closesAt)}`}
+        subtitle={`${product.pickupLocation.name}, ${product.pickupLocation.address}`}
+        onClick={() => setPickupOpen(true)}
+      />
+      {alternatives.length > 1 && (
+        <ListRow icon="store-20-success" title="Compară vânzătorii" subtitle="Preț curent și când se închide" onClick={() => setCompareOpen(true)} />
+      )}
 
       <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-border-subtle bg-bg-surface px-page pt-3 pb-6">
         {error && <InlineAlert tone="danger" icon="info-24">{error}</InlineAlert>}
@@ -382,7 +335,7 @@ function GroupSection({ product, groups, availableBalance, activeCommitment, sto
             ) : null}
             <div className="flex items-center gap-3">
               <QuantityStepper label="Cantitate" value={quantity} max={maxQty} onChange={setQuantity} />
-              <Button className="min-w-0 flex-1" size="md" disabled={pending || soldOut || closed || short} onClick={join}>
+              <Button className="min-w-0 flex-1" disabled={pending || soldOut || closed || short} onClick={join}>
                 {pending ? "Se blochează…" : `Intră în grup · ${priceNumber(offer.currentUnitPrice)}`}
               </Button>
             </div>

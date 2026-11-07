@@ -4,12 +4,13 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ProgressBar } from "@/components/ds/progress-bar";
 import { SearchBar } from "@/components/ds/search-bar";
-import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Tag } from "@/components/ds/tag";
 import { formatRon } from "@/domain/money";
 import type { SellerGroupStatus } from "@/domain/seller";
 import { dayLabel, inDuration, units } from "@/lib/format";
+import { MetricPills } from "./metric-pills";
 import { StatusTag } from "./status-tag";
+
 
 export type GroupListItem = {
   id: string;
@@ -29,14 +30,15 @@ export type GroupListItem = {
 
 type Tab = "all" | "active" | "tier" | "near" | "won" | "empty";
 
-const TABS: { value: Tab; label: string }[] = [
-  { value: "all", label: "Toate" },
-  { value: "active", label: "Active" },
-  { value: "tier", label: "Prag deblocat" },
-  { value: "near", label: "Aproape de prag" },
-  { value: "won", label: "Câștigate" },
-  { value: "empty", label: "Fără participanți" },
+const TABS: { value: Tab; label: string; tone: "neutral" | "brand" | "deal" | "success" | "info" }[] = [
+  { value: "all", label: "Toate", tone: "neutral" },
+  { value: "active", label: "Active", tone: "brand" },
+  { value: "tier", label: "Prag deblocat", tone: "success" },
+  { value: "near", label: "Aproape de prag", tone: "deal" },
+  { value: "won", label: "Câștigate", tone: "success" },
+  { value: "empty", label: "Fără participanți", tone: "info" },
 ];
+
 
 const OPEN: SellerGroupStatus[] = ["ACTIVE", "NEAR_TIER", "TIER_UNLOCKED", "BEST_PRICE"];
 
@@ -76,7 +78,7 @@ export function GroupsFilter({ groups, nowIso }: { groups: readonly GroupListIte
 
   return (
     <div className="flex flex-col gap-4">
-      <SegmentedControl label="Filtrează grupurile" value={tab} onValueChange={setTab} options={TABS} />
+      <MetricPills label="Filtrează grupurile" value={tab} onValueChange={setTab} options={TABS} />
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <div className="min-w-0 flex-1">
           <SearchBar value={q} onValueChange={setQ} onSubmit={() => undefined} label="Caută după produs" placeholder="Caută după produs" />
@@ -84,7 +86,7 @@ export function GroupsFilter({ groups, nowIso }: { groups: readonly GroupListIte
         <label className="flex items-center gap-2 body-sm text-text-secondary">
           Sortează
           <select
-            className="h-control-md rounded-md border border-border-control bg-bg-surface px-3 text-text-primary"
+            className="h-control-md rounded-pill border border-border-subtle bg-bg-subtle px-4 text-text-primary outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
             value={sort}
             onChange={(e) => setSort(e.target.value as SortKey)}
           >
@@ -108,7 +110,7 @@ export function GroupsFilter({ groups, nowIso }: { groups: readonly GroupListIte
               <li key={g.id}>
                 <Link
                   href={`/seller/grupuri/${g.id}`}
-                  className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+                  className="flex flex-col gap-3 rounded-xl border border-border-subtle bg-bg-surface p-5 shadow-card outline-none transition-colors hover:border-border-default focus-visible:ring-2 focus-visible:ring-border-strong"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">

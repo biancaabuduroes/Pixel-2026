@@ -32,10 +32,10 @@ export function MarginCalculator({
   const marginPct = gross !== null && revenue > 0 ? Math.round((gross * 100) / revenue) : null;
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card">
+    <div className="flex flex-col gap-3 rounded-xl border border-border-subtle bg-bg-surface p-5 shadow-card sm:p-6">
       <div>
         <h3 className="title-md text-text-primary">Marjă de profit (estimare)</h3>
-        <p className="body-sm text-text-secondary">Costul de achiziție nu se salvează. Calculezi local, doar pentru tine.</p>
+        <p className="mt-1 body-sm text-text-secondary">Costul de achiziție nu se salvează. Calculezi local, doar pentru tine.</p>
       </div>
       <TextField
         label="Cost de achiziție / unitate (RON)"

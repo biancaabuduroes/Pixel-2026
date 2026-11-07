@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "cn";
 
-/** Desktop KPI tile: large number, short label, optional href. */
+/** Desktop KPI tile — micro label, large figure, restrained tone accents. */
 export function KpiCard({
   label,
   value,
@@ -15,18 +15,24 @@ export function KpiCard({
   href?: string;
   tone?: "default" | "success" | "deal" | "danger";
 }) {
-  const toneClass =
+  const accent =
     tone === "success"
-      ? "border-bg-success-soft bg-bg-success-soft"
+      ? "before:bg-bg-success"
       : tone === "deal"
-        ? "border-bg-deal-soft bg-bg-deal-soft"
+        ? "before:bg-bg-deal"
         : tone === "danger"
-          ? "border-bg-danger-soft bg-bg-danger-soft"
-          : "border-border-default bg-bg-surface";
+          ? "before:bg-bg-danger"
+          : "before:bg-bg-brand";
 
   const body = (
-    <div className={cn("flex h-full flex-col gap-2 rounded-lg border p-5 shadow-card", toneClass)}>
-      <span className="label-sm text-text-secondary">{label}</span>
+    <div
+      className={cn(
+        "relative flex h-full flex-col gap-2 overflow-hidden rounded-xl border border-border-subtle bg-bg-surface p-5 shadow-card",
+        "before:absolute before:inset-y-0 before:left-0 before:w-1 before:rounded-l-xl",
+        accent,
+      )}
+    >
+      <span className="label-sm uppercase tracking-[0.06em] text-text-secondary">{label}</span>
       <span className="display-md text-text-primary">{value}</span>
       {hint && <div className="body-sm text-text-secondary">{hint}</div>}
     </div>
@@ -34,7 +40,7 @@ export function KpiCard({
 
   if (!href) return body;
   return (
-    <Link href={href} className="block outline-none focus-visible:ring-2 focus-visible:ring-border-strong rounded-lg">
+    <Link href={href} className="block rounded-xl outline-none transition-transform hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-border-strong">
       {body}
     </Link>
   );

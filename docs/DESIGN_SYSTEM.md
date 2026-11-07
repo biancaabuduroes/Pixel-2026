@@ -64,7 +64,7 @@
 | PriceTierList (38:374) + Tier row (38:373) | `ds/price-tier-list.tsx` |
 | Buyer frames B3.1 Home, B3.3 Pool, B4.1 Joined, B5.1 Profile, B5.1b Pickup code | `src/app/page.tsx`, `src/app/produs/[id]`, `src/app/profil`, `components/buyer/**` |
 | Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
-| Seller dashboard (not in Figma; desktop, composed from tokens) | `src/app/seller/**`, `components/seller/**` (KPI cards, catalog, SVG bar chart, insight cards, groups filter, orders table, margin calculator) |
+| Seller dashboard (not in Figma; desktop analytics shell from tokens) | `src/app/seller/**`, `components/seller/**` (SellerPanel, MetricPills, KPI accent cards, catalog/orders tables, SVG area chart, insight cards, groups filter, margin calculator) |
 
 Text styles added for the buyer flow: `title-xl` (20/26 bold) and `display-sm` (Barlow 800, 22/32).
 
@@ -83,7 +83,7 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - **Buyer flow states not in Figma** (built from existing components): insufficient balance, already in the group, group closed, sold out, not signed in (InlineAlert / EmptyState); cancel button and cancel-locked note on order cards; wallet history list; quantity row in the bottom bar; pickup details sheet; 6-digit manual code row in the pickup sheet.
 - **Baskets (not in Figma):** "Coșuri de cumpărături" / "Produse individuale" section titles, "Coș · N produse" line on deal cards, "Ce conține coșul" list on the Pool page. The search field has no clear (×) button yet (Filled state).
 - **Skipped (out of scope):** share button, carousel dots, "Compară vânzătorii", invite card in the Joined sheet, edit profile (B5.1a), notifications bell, account/notification rows.
-- **Seller dashboard:** no Figma frames; desktop layout from existing tokens. No group-level pickup QR (only the buyer's order QR, BL §8). Charts are plain SVG (no chart library). Margin calculator is local/unsaved. Product pickup editing deferred.
+- **Seller dashboard:** no Figma frames; desktop analytics layout from existing light-mode tokens (not a dark theme). Shared `SellerPanel` / `MetricPills` chrome, denser tables, sticky nav with active state, SVG area chart (no chart library). No group-level pickup QR (only the buyer's order QR, BL §8). Margin calculator is local/unsaved. Product pickup editing deferred.
 
 ## 5. BunDeals screens still to build (map to the Figma components above)
 

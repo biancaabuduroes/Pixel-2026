@@ -7,7 +7,7 @@ import { KpiCard } from "@/components/seller/kpi-card";
 import { PeriodTabs } from "@/components/seller/period-tabs";
 import { SalesChart } from "@/components/seller/sales-chart";
 import { StatusTag } from "@/components/seller/status-tag";
-import { SectionHeader } from "@/components/ds/section-header";
+import { SellerPanel, SellerPanelHeader } from "@/components/seller/seller-panel";
 import { Tag } from "@/components/ds/tag";
 import { formatRon } from "@/domain/money";
 import { dayLabel, units } from "@/lib/format";
@@ -39,9 +39,10 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">[
     change === null ? "fără comparație" : change === 0 ? "0% față de perioada anterioară" : `${change > 0 ? "+" : ""}${change}% față de perioada anterioară`;
 
   return (
-    <main className="flex flex-col gap-8">
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+    <main className="flex flex-col gap-8 md:gap-10">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="flex flex-col gap-1">
+          <p className="label-sm uppercase tracking-[0.08em] text-text-secondary">Panou vânzător</p>
           <h1 className="display-lg text-text-primary">Dashboard</h1>
           <p className="body-lg text-text-secondary">{data.seller.name} · performanță și grupuri</p>
         </div>
@@ -98,31 +99,46 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">[
         />
       </section>
 
-      <section aria-labelledby="catalog-title" className="flex flex-col gap-4">
-        <SectionHeader id="catalog-title" title="Catalog produse & stocuri" />
+      <section aria-label="Catalog">
         <CatalogTable rows={data.catalog} />
       </section>
 
-      <section aria-labelledby="sales-title" className="flex flex-col gap-4">
-        <SectionHeader id="sales-title" title="Analiză vânzări" />
-        <SalesChart points={data.series} />
-        {data.productPerformance.length > 0 && (
-          <ul className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {data.productPerformance.slice(0, 6).map((p) => (
-              <li key={p.id} className="rounded-lg border border-border-default bg-bg-surface p-4 shadow-card">
-                <p className="title-md text-text-primary">{p.name}</p>
-                <p className="body-sm text-text-secondary">
-                  {formatRon(p.revenue)} · {units(p.units)} · {p.orderCount} comenzi
-                </p>
-              </li>
-            ))}
-          </ul>
-        )}
+      <section aria-labelledby="sales-title" className="grid gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(280px,1fr)]">
+        <div id="sales-title">
+          <SalesChart points={data.series} />
+        </div>
+        <SellerPanel>
+          <SellerPanelHeader title="Top produse" description="Pe venit în perioada selectată" />
+          {data.productPerformance.length === 0 ? (
+            <p className="body-md text-text-secondary">Nicio vânzare încă.</p>
+          ) : (
+            <ul className="flex flex-col">
+              {data.productPerformance.slice(0, 6).map((p, i) => (
+                <li key={p.id} className="flex items-baseline justify-between gap-3 border-b border-border-subtle py-3 last:border-b-0">
+                  <div className="min-w-0">
+                    <p className="label-md truncate text-text-primary">
+                      <span className="mr-2 caption text-text-secondary">{i + 1}</span>
+                      {p.name}
+                    </p>
+                    <p className="caption text-text-secondary">
+                      {units(p.units)} · {p.orderCount} comenzi
+                    </p>
+                  </div>
+                  <p className="shrink-0 label-md text-text-primary">{formatRon(p.revenue)}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </SellerPanel>
       </section>
 
-      <section aria-labelledby="insights-title" className="flex flex-col gap-4 rounded-lg bg-bg-brand-soft p-5">
-        <SectionHeader id="insights-title" title="BunDeals AI Insights" trailing={<Tag tone="brand">Estimări</Tag>} />
-        <p className="body-sm text-text-secondary">Insight-urile folosesc doar numere calculate. Nu influențează prețurile sau plățile.</p>
+      <SellerPanel className="bg-bg-brand-soft/40">
+        <SellerPanelHeader
+          id="insights-title"
+          title="BunDeals AI Insights"
+          description="Insight-urile folosesc doar numere calculate. Nu influențează prețurile sau plățile."
+          trailing={<Tag tone="brand">Estimări</Tag>}
+        />
         <ul className="grid gap-3 lg:grid-cols-2">
           {data.insights.map((insight, i) => (
             <li key={`${insight.category}-${i}`}>
@@ -130,10 +146,10 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">[
             </li>
           ))}
         </ul>
-      </section>
+      </SellerPanel>
 
       <section aria-labelledby="won-title" className="flex flex-col gap-4">
-        <SectionHeader
+        <SellerPanelHeader
           id="won-title"
           title="Ultimele grupuri câștigate"
           trailing={
@@ -150,7 +166,7 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">[
               <li key={g.id}>
                 <Link
                   href={`/seller/grupuri/${g.id}`}
-                  className="flex flex-col gap-2 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+                  className="flex flex-col gap-2 rounded-xl border border-border-subtle bg-bg-surface p-5 shadow-card outline-none transition-colors hover:border-border-default focus-visible:ring-2 focus-visible:ring-border-strong"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <h3 className="title-md text-text-primary">{g.productName}</h3>
@@ -174,18 +190,18 @@ async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">[
         )}
       </section>
 
-      <aside className="grid gap-4 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card md:grid-cols-3">
+      <aside className="grid gap-6 rounded-xl border border-border-subtle bg-bg-surface p-5 shadow-card sm:p-6 md:grid-cols-3">
         <div>
-          <p className="label-sm text-text-secondary">Câștiguri încasate</p>
-          <p className="display-sm text-text-primary">{formatRon(data.earnings.net)}</p>
+          <p className="label-sm uppercase tracking-[0.06em] text-text-secondary">Câștiguri încasate</p>
+          <p className="mt-1 display-sm text-text-primary">{formatRon(data.earnings.net)}</p>
         </div>
         <div>
-          <p className="label-sm text-text-secondary">Comision BunDeals</p>
-          <p className="display-sm text-text-primary">{formatRon(data.earnings.commission)}</p>
+          <p className="label-sm uppercase tracking-[0.06em] text-text-secondary">Comision BunDeals</p>
+          <p className="mt-1 display-sm text-text-primary">{formatRon(data.earnings.commission)}</p>
         </div>
         <div>
-          <p className="label-sm text-text-secondary">De ridicat</p>
-          <p className="display-sm text-text-primary">{data.awaitingPickupCount}</p>
+          <p className="label-sm uppercase tracking-[0.06em] text-text-secondary">De ridicat</p>
+          <p className="mt-1 display-sm text-text-primary">{data.awaitingPickupCount}</p>
           <Link href="/seller/pickup" className="label-sm text-text-brand underline-offset-4 hover:underline">
             Confirmă ridicări
           </Link>

@@ -17,7 +17,7 @@ export function InsightCard({ insight }: { insight: SellerInsight }) {
     <button
       type="button"
       onClick={() => setOpen((v) => !v)}
-      className="flex w-full flex-col gap-2 rounded-lg border border-border-default bg-bg-surface p-4 text-left shadow-card outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+      className="flex w-full flex-col gap-2 rounded-xl border border-border-subtle bg-bg-surface p-4 text-left transition-colors hover:border-border-default outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
     >
       <div className="flex flex-wrap items-center gap-2">
         <Tag tone={TONE[insight.category]}>{INSIGHT_CATEGORY_LABEL[insight.category]}</Tag>

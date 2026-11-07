@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { PickupCodeForm } from "@/components/seller/pickup-code-form";
+import { SellerPanel } from "@/components/seller/seller-panel";
 import { formatRon } from "@/domain/money";
 import { sellerOrdersAwaitingPickup } from "@/server/queries";
 import { currentUser } from "@/server/session";
@@ -8,15 +9,16 @@ import { currentUser } from "@/server/session";
 /** Opened by scanning the buyer's QR (?order=…&code=…), or filtered by ?group= from group details. */
 export default function SellerPickupPage({ searchParams }: PageProps<"/seller/pickup">) {
   return (
-    <main className="flex flex-col gap-4">
+    <main className="flex flex-col gap-6 md:gap-8">
       <div className="flex flex-col gap-1">
-        <p className="body-sm text-text-secondary">
+        <p className="label-sm uppercase tracking-[0.08em] text-text-secondary">
           <Link href="/seller" className="underline-offset-4 hover:underline">
             Dashboard
           </Link>{" "}
           / Ridicări
         </p>
         <h1 className="display-lg text-text-primary">Confirmă ridicarea</h1>
+        <p className="body-lg text-text-secondary">Introdu sau scanează codul de 6 cifre al cumpărătorului.</p>
       </div>
       <Suspense fallback={<p className="body-md text-text-secondary">Se încarcă…</p>}>
         <Orders searchParams={searchParams} />
@@ -37,12 +39,14 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/seller/picku
 
   if (orders.length === 0) {
     return (
-      <p className="body-md text-text-secondary">
-        Nicio comandă nu așteaptă ridicarea{groupId ? " pentru acest grup" : ""}.{" "}
-        <Link href="/seller/grupuri" className="text-text-brand underline-offset-4 hover:underline">
-          Înapoi la grupuri
-        </Link>
-      </p>
+      <SellerPanel>
+        <p className="body-md text-text-secondary">
+          Nicio comandă nu așteaptă ridicarea{groupId ? " pentru acest grup" : ""}.{" "}
+          <Link href="/seller/grupuri" className="text-text-brand underline-offset-4 hover:underline">
+            Înapoi la grupuri
+          </Link>
+        </p>
+      </SellerPanel>
     );
   }
 
@@ -50,17 +54,19 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/seller/picku
   return (
     <ul className="flex flex-col gap-3">
       {sorted.map((o) => (
-        <li key={o.id} className={`flex flex-col gap-3 rounded-lg border bg-bg-surface p-4 shadow-card ${o.id === scanned ? "border-border-brand" : "border-border-default"}`}>
-          <div>
-            <p className="title-md text-text-primary">
-              {o.buyer.name} · {o.quantity} × {o.product.name}
-            </p>
-            <p className="body-sm text-text-secondary">
-              {o.amountCharged === null ? "–" : formatRon(o.amountCharged)}
-              {o.pickupDeadline && ` · de ridicat până pe ${o.pickupDeadline.toLocaleDateString("ro-RO")}`}
-            </p>
-          </div>
-          <PickupCodeForm commitmentId={o.id} defaultCode={o.id === scanned ? code : undefined} />
+        <li key={o.id}>
+          <SellerPanel className={o.id === scanned ? "border-border-brand ring-1 ring-border-brand/30" : undefined}>
+            <div className="mb-3">
+              <p className="title-md text-text-primary">
+                {o.buyer.name} · {o.quantity} × {o.product.name}
+              </p>
+              <p className="body-sm text-text-secondary">
+                {o.amountCharged === null ? "–" : formatRon(o.amountCharged)}
+                {o.pickupDeadline && ` · de ridicat până pe ${o.pickupDeadline.toLocaleDateString("ro-RO")}`}
+              </p>
+            </div>
+            <PickupCodeForm commitmentId={o.id} defaultCode={o.id === scanned ? code : undefined} />
+          </SellerPanel>
         </li>
       ))}
     </ul>

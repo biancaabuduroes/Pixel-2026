@@ -6,8 +6,8 @@ import { InsightCard } from "@/components/seller/insight-card";
 import { MarginCalculator } from "@/components/seller/margin-calculator";
 import { OrdersTable } from "@/components/seller/orders-table";
 import { StatusTag } from "@/components/seller/status-tag";
+import { SellerPanel, SellerPanelHeader } from "@/components/seller/seller-panel";
 import { ProgressBar } from "@/components/ds/progress-bar";
-import { SectionHeader } from "@/components/ds/section-header";
 import { SummaryRow } from "@/components/ds/summary-row";
 import { Tag } from "@/components/ds/tag";
 import { buttonVariants } from "@/components/ui/button";
@@ -39,17 +39,17 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
   const open = data.groupStatus === "OPEN";
 
   return (
-    <main className="flex flex-col gap-8">
+    <main className="flex flex-col gap-8 md:gap-10">
       <div className="flex flex-col gap-3">
-        <p className="body-sm text-text-secondary">
+        <p className="label-sm uppercase tracking-[0.08em] text-text-secondary">
           <Link href="/seller" className="underline-offset-4 hover:underline">
             Dashboard
           </Link>{" "}
           /{" "}
           <Link href="/seller/grupuri" className="underline-offset-4 hover:underline">
-            Listare de grupuri
+            Grupuri
           </Link>{" "}
-          / Detalii grup
+          / Detalii
         </p>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
@@ -68,7 +68,7 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
         </div>
       </div>
 
-      <section className="rounded-lg border border-border-default bg-bg-surface p-6 shadow-card">
+      <SellerPanel>
         <p className="display-md text-text-primary">
           {open ? "Estimezi vânzări de " : "Ai vândut produse în valoare de "}
           {formatRon(data.headlineRevenue)}
@@ -82,10 +82,10 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
           <SummaryRow label="Comision BunDeals" value={formatRon(data.financials.commission)} />
           <SummaryRow label="Câștig net" value={formatRon(data.financials.net)} emphasis divider={false} />
         </div>
-      </section>
+      </SellerPanel>
 
-      <section aria-labelledby="progress-title" className="flex flex-col gap-4 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card">
-        <SectionHeader id="progress-title" title="Progresul grupului" />
+      <SellerPanel>
+        <SellerPanelHeader id="progress-title" title="Progresul grupului" />
         <ProgressBar
           label={`Progres ${data.totalQty}`}
           value={data.totalQty}
@@ -93,12 +93,12 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
           size="md"
           tone={data.next ? "brand" : "success"}
         />
-        <p className="body-sm text-text-secondary">
+        <p className="mt-3 body-sm text-text-secondary">
           {data.next
             ? `Mai ai nevoie de ${data.next.unitsMissing} ${data.next.unitsMissing === 1 ? "unitate" : "unități"} pentru a debloca ${formatRon(data.next.unitPrice)}.`
             : "Cel mai bun preț este atins (sau grupul este închis)."}
         </p>
-        <ul className="flex flex-col">
+        <ul className="mt-2 flex flex-col">
           {data.tiers.map((t) => (
             <li key={t.minQty} className="flex items-center justify-between gap-3 border-b border-border-subtle py-3 last:border-b-0">
               <span className="body-md text-text-secondary">
@@ -113,20 +113,20 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
             </li>
           ))}
         </ul>
-      </section>
+      </SellerPanel>
 
       <div className="grid items-start gap-6 lg:grid-cols-2">
-        <section aria-labelledby="pickup-title" className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card">
-          <SectionHeader id="pickup-title" title="Locație de ridicare" />
+        <SellerPanel>
+          <SellerPanelHeader id="pickup-title" title="Locație de ridicare" />
           <p className="title-md text-text-primary">{data.product.pickupLocation.name}</p>
           <p className="body-md text-text-secondary">{data.product.pickupLocation.address}</p>
           <p className="body-sm text-text-secondary">Program: {data.product.pickupLocation.openingHours}</p>
-          <div className="flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Tag tone="deal">{data.pickupCounts.awaiting} gata</Tag>
             <Tag tone="success">{data.pickupCounts.collected} ridicate</Tag>
             {data.pickupCounts.active > 0 && <Tag tone="neutral">{data.pickupCounts.active} în grup</Tag>}
           </div>
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div className="mt-4 flex flex-wrap gap-3">
             <a href={mapUrl} target="_blank" rel="noreferrer" className={cn(buttonVariants({ variant: "secondary", size: "md" }))}>
               Vezi locația pe hartă
             </a>
@@ -134,7 +134,7 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
               Confirmă ridicări
             </Link>
           </div>
-        </section>
+        </SellerPanel>
 
         <MarginCalculator
           unitsSold={open ? data.totalQty : data.financials.unitsSold}
@@ -144,7 +144,7 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
       </div>
 
       <section aria-labelledby="orders-title" className="flex flex-col gap-4">
-        <SectionHeader id="orders-title" title="Cumpărători și comenzi" />
+        <SellerPanelHeader id="orders-title" title="Cumpărători și comenzi" />
         <OrdersTable
           nowIso={now.toISOString()}
           orders={data.orders.map((o) => ({
@@ -155,8 +155,8 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
         />
       </section>
 
-      <section aria-labelledby="ai-title" className="flex flex-col gap-4 rounded-lg bg-bg-info-soft p-5">
-        <SectionHeader id="ai-title" title="BunDeals AI – Analiza grupului" trailing={<Tag tone="info">Estimări</Tag>} />
+      <SellerPanel className="bg-bg-info-soft/50">
+        <SellerPanelHeader id="ai-title" title="BunDeals AI – Analiza grupului" trailing={<Tag tone="info">Estimări</Tag>} />
         <ul className="grid gap-3 lg:grid-cols-2">
           {data.insights.map((insight, i) => (
             <li key={`${insight.category}-${i}`}>
@@ -164,7 +164,7 @@ async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["
             </li>
           ))}
         </ul>
-      </section>
+      </SellerPanel>
     </main>
   );
 }

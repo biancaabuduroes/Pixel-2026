@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PriceTierList } from "@/components/ds/price-tier-list";
+import { ProductImage } from "@/components/ds/product-image";
 import { ProgressBar } from "@/components/ds/progress-bar";
 import { SectionHeader } from "@/components/ds/section-header";
 import { SummaryRow } from "@/components/ds/summary-row";
@@ -49,7 +50,8 @@ export default function SellerDashboardPage() {
               {groups.map((g) => (
                 <li key={`${g.productId}-${g.durationHours}`} className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="flex min-w-0 flex-col gap-1">
+                    <ProductImage src={g.productImageUrl} alt={g.productName} variant="thumb" iconSize={24} className="size-14 shrink-0 rounded-md" />
+                    <div className="flex min-w-0 flex-1 flex-col gap-1">
                       <h3 className="title-md text-text-primary">{g.productName}</h3>
                       <div className="flex flex-wrap items-center gap-2">
                         <Tag tone="neutral">Grup {durationLabel(g.durationHours)}</Tag>
@@ -119,6 +121,7 @@ export default function SellerDashboardPage() {
           <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {products.map((p) => (
               <li key={p.id} className="flex flex-col gap-2 rounded-lg border border-border-default bg-bg-surface p-5 shadow-card">
+                <ProductImage src={p.imageUrl} alt={p.name} className="mb-1 aspect-[4/3] w-full rounded-md" />
                 <h3 className="title-md text-text-primary">{p.name}</h3>
                 <div className="flex flex-wrap gap-2">
                   {p.durationsHours.map((h) => (

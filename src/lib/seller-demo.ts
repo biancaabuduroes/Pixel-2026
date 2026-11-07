@@ -9,16 +9,17 @@ import type { TierRowState } from "@/components/ds/price-tier-list";
 
 const COMMISSION_BPS = 500; // 5 % (APP_PLAN §5 default)
 
-type DemoProduct = { id: string; name: string; stockTotal: number; perBuyerCap: number; tiers: PriceTier[]; durationsHours: number[] };
+// imageUrl: /products/<id>.webp once a photo exists (docs/PRODUCT_IMAGES.md); null → bag-icon fallback.
+type DemoProduct = { id: string; name: string; imageUrl: string | null; stockTotal: number; perBuyerCap: number; tiers: PriceTier[]; durationsHours: number[] };
 type DemoGroup = { productId: string; durationHours: number; totalQty: number; buyers: number; closesInMinutes: number };
 type DemoOrder = { buyer: string; productId: string; quantity: number; finalUnitPrice: number; status: "AWAITING_PICKUP" | "COLLECTED"; deadline: string };
 
 export const SELLER = { name: "Brutăria Ana", address: "Bulevardul Lascăr Catargiu 47, București" };
 
 const PRODUCTS: DemoProduct[] = [
-  { id: "paine", name: "Pâine cu maia", stockTotal: 200, perBuyerCap: 5, durationsHours: [24, 168], tiers: [{ minQty: 1, unitPrice: 2000 }, { minQty: 30, unitPrice: 1800 }, { minQty: 60, unitPrice: 1600 }] },
-  { id: "ulei", name: "Ulei de măsline extravirgin 1 L", stockTotal: 120, perBuyerCap: 3, durationsHours: [72, 168], tiers: [{ minQty: 1, unitPrice: 6500 }, { minQty: 20, unitPrice: 5900 }, { minQty: 50, unitPrice: 5400 }] },
-  { id: "cafea", name: "Cafea boabe 1 kg", stockTotal: 150, perBuyerCap: 4, durationsHours: [168], tiers: [{ minQty: 1, unitPrice: 8900 }, { minQty: 25, unitPrice: 7900 }, { minQty: 60, unitPrice: 7400 }] },
+  { id: "paine", name: "Pâine cu maia", imageUrl: null, stockTotal: 200, perBuyerCap: 5, durationsHours: [24, 168], tiers: [{ minQty: 1, unitPrice: 2000 }, { minQty: 30, unitPrice: 1800 }, { minQty: 60, unitPrice: 1600 }] },
+  { id: "ulei", name: "Ulei de măsline extravirgin 1 L", imageUrl: null, stockTotal: 120, perBuyerCap: 3, durationsHours: [72, 168], tiers: [{ minQty: 1, unitPrice: 6500 }, { minQty: 20, unitPrice: 5900 }, { minQty: 50, unitPrice: 5400 }] },
+  { id: "cafea", name: "Cafea boabe 1 kg", imageUrl: null, stockTotal: 150, perBuyerCap: 4, durationsHours: [168], tiers: [{ minQty: 1, unitPrice: 8900 }, { minQty: 25, unitPrice: 7900 }, { minQty: 60, unitPrice: 7400 }] },
 ];
 
 const GROUPS: DemoGroup[] = [
@@ -69,6 +70,7 @@ export function sellerDashboard() {
     return {
       ...g,
       productName: p.name,
+      productImageUrl: p.imageUrl,
       currentPrice: tierPrice(p.tiers, g.totalQty),
       unlocked: isFirstDiscountUnlocked(p.tiers, g.totalQty),
       next: next ? { minQty: next.tier.minQty, unitsMissing: next.unitsMissing, unitPrice: next.tier.unitPrice } : null,

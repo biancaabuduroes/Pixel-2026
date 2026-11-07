@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { PoolView } from "@/components/buyer/pool-view";
 import { BuyerScreen } from "@/components/buyer/buyer-screen";
-import { compareCategoryOffers, productData } from "@/server/buyer-queries";
+import { productData } from "@/server/buyer-queries";
 import { currentUser } from "@/server/session";
 
 /** B3.3 Pool page: product detail, tier ladder, open groups, join. */
@@ -16,7 +16,7 @@ export default function ProductPage(props: PageProps<"/produs/[id]">) {
 
 async function Pool({ params }: { params: PageProps<"/produs/[id]">["params"] }) {
   const [{ id }, buyer] = await Promise.all([params, currentUser("BUYER")]);
-  const [data, alternatives] = await Promise.all([productData(id, buyer?.id ?? null), compareCategoryOffers(id)]);
+  const data = await productData(id, buyer?.id ?? null);
   if (!data || data.product.status !== "ACTIVE") notFound();
-  return <PoolView {...data} signedIn={buyer !== null} alternatives={alternatives} />;
+  return <PoolView {...data} signedIn={buyer !== null} />;
 }

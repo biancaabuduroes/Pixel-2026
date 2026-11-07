@@ -12,6 +12,8 @@
   `scripts/prepare-product-image.sh <photo> <product-id> [fuzz % | keep]` — needs ImageMagick (reads jpg/png/webp/avif); `keep` centre-crops photos with a scene background instead of recolouring it (dev machine only, not an app dependency). It turns the background into #FFF1EC, trims, centres and writes both WebP files.
 - `Product.imageUrl` (existing column) is set by `prisma/demo-seed.mjs` only when the file exists; regenerate `prisma/seed-demo.sql` and run it.
 
+Scene backgrounds (not plain) are removed on a dev machine with the free, open IS-Net model (`isnet-general-use.onnx` from the open-source rembg project, run with onnxruntime; not an app dependency), composited on #FFF1EC, then passed through the script above.
+
 ## Where images appear
 Home deal cards, Pool page hero, Search rows and "Propuse pentru tine", Profile order cards (buyer); seller dashboard product and group cards (`feat/seller-dashboard`).
 
@@ -28,8 +30,8 @@ Shared prompt suffix: *"professional e-commerce studio photograph, centered, squ
 | seed-servetele | a neat stack of 12 soft packs of baby wet wipes with plain white packaging | missing |
 | seed-miere | a 1 kg glass jar of golden polyfloral honey with a plain lid and a wooden honey dipper | ✅ supplied photo — ⚠️ real brand (Dapis), label says 700 g vs product 1 kg |
 | seed-detergent | a 5 liter plain white plastic canister of dishwashing liquid with a green cap | ✅ supplied photo (white bottle: prepared with fuzz 1 %) |
-| seed-cos-baza | a natural wicker basket containing 2 bottles of sunflower oil 1 L, 2 paper bags of white flour 1 kg, a bag of sugar 1 kg, a bag of rice 1 kg, 3 packs of dry pasta 500 g and 2 cans of tomato passata | ✅ supplied photo, background kept (`keep`) — ⚠️ contents (vegetables, eggs, bread, salmon) differ from the listed items; to confirm |
-| seed-cos-ingrijire | a natural wicker basket containing a shampoo bottle, 2 shower gel bottles, 2 toothpaste tubes, a liquid soap pump bottle and a deodorant spray | ✅ supplied photo, background kept (`keep`) — ⚠️ spa gift set, not the exact listed items |
+| seed-cos-baza | a natural wicker basket containing 2 bottles of sunflower oil 1 L, 2 paper bags of white flour 1 kg, a bag of sugar 1 kg, a bag of rice 1 kg, 3 packs of dry pasta 500 g and 2 cans of tomato passata | ✅ supplied photo (confirmed 2026-11-07), background removed — contents (vegetables, eggs, bread, salmon) differ from the listed items |
+| seed-cos-ingrijire | a natural wicker basket containing a shampoo bottle, 2 shower gel bottles, 2 toothpaste tubes, a liquid soap pump bottle and a deodorant spray | ✅ supplied photo, background and props removed — ⚠️ spa gift set, not the exact listed items |
 | seed-cos-premium | a natural wicker basket containing a bottle of extra virgin olive oil 750 ml, a wedge of Parmigiano Reggiano, 2 packs of artisan pasta, a bag of coffee beans 1 kg and 2 bars of dark chocolate | missing |
 | paine (seller demo) | a round rustic sourdough bread loaf | missing |
 | ulei (seller demo) | a 1 liter glass bottle of extra virgin olive oil | missing |

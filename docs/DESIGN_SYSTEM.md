@@ -52,9 +52,19 @@
 | BottomSheet (37:305) | `ds/bottom-sheet.tsx` (Base UI Drawer) |
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
 | Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
+| QuantityStepper | `ds/quantity-stepper.tsx` |
+| SearchDock · compact (85:4519) + Search drawer B3.2 (85:4587) | `buyer/home-deals.tsx`, `buyer/search-drawer.tsx`, `ds/bottom-sheet.tsx` (`header="nav"`) |
+| SummaryRow (Joined / Pickup code sheets) | `ds/summary-row.tsx` |
+| BottomSheet with left title (B4.1, B5.1b) | `ds/bottom-sheet.tsx` (`header="left"`) |
+| GroupDealCard (B3.1) | `buyer/group-deal-card.tsx` |
+| Countdown · Inline, not urgent (`02z 06h 00m`) | `buyer/deal-countdown.tsx` |
+| Group progress bar (pool price card, Joined sheet) | `buyer/group-progress-bar.tsx` |
+| Buyer frames B3.1 Home, B3.3 Pool, B4.1 Joined, B5.1 Profile, B5.1b Pickup code | `src/app/page.tsx`, `src/app/produs/[id]`, `src/app/profil`, `components/buyer/**` |
 | Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
 
-Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond back/close, Avatar, ProductCard, TierProgress, GroupDealCard, Toast, Skeleton, Accordion, QuantityStepper, PriceDisplay, PromoBanner, and the other cards. They are built when their screens are.
+Text styles added for the buyer flow: `title-xl` (20/26 bold) and `display-sm` (Barlow 800, 22/32).
+
+Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond back/close, ProductCard, Toast, Skeleton, Accordion, and the other cards. They are built when their screens are.
 
 ## 4. Deviations from Figma (all approved or to confirm)
 
@@ -65,6 +75,10 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - **Top-up under 10 RON:** not designed in 64:1385; uses the TextField error style and the Disabled button.
 - The NavBar progress follows the step (1/7 … 7/7); Figma shows a fixed 40% placeholder, as its description says to resize it per step.
 - On screens wider than a phone, the column stays 430px wide and centred.
+- **Buyer flow copy:** "persoane" → "unități" (thresholds are units); "Probabil plătești" carries "(estimare)"; no store distance (no store coordinates yet).
+- **Buyer flow states not in Figma** (built from existing components): insufficient balance, already in the group, group closed, sold out, not signed in (InlineAlert / EmptyState); cancel button and cancel-locked note on order cards; wallet history list; quantity row in the bottom bar; pickup details sheet; 6-digit manual code row in the pickup sheet.
+- **Baskets (not in Figma):** "Coșuri de cumpărături" / "Produse individuale" section titles, "Coș · N produse" line on deal cards, "Ce conține coșul" list on the Pool page. The search field has no clear (×) button yet (Filled state).
+- **Skipped (out of scope):** share button, carousel dots, "Compară vânzătorii", invite card in the Joined sheet, edit profile (B5.1a), notifications bell, account/notification rows.
 
 ## 5. BunDeals screens still to build (map to the Figma components above)
 

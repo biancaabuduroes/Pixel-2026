@@ -7,11 +7,11 @@ import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
  * Buyer = this deployment's own app (same origin, so the session and onboarding cookies work in
- * the iframe). Seller = the seller dashboard preview, which only exists on feat/seller-dashboard.
+ * the iframe). Seller = the seller dashboard preview, which only exists on feat/seller-dashboard-v2.
  */
 const EXPERIENCES = {
   buyer: { label: "Buyer", src: "/", device: "phone" },
-  seller: { label: "Seller", src: "https://pixel-2026-git-feat-seller-dashboard-bun-deals.vercel.app/seller/dashboard", device: "desktop" },
+  seller: { label: "Seller", src: "https://pixel-2026-git-feat-seller-dashboard-v2-bun-deals.vercel.app/seller", device: "desktop" },
 } as const;
 type Experience = keyof typeof EXPERIENCES;
 

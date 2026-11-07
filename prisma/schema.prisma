@@ -75,6 +75,8 @@ model Product {
   name               String
   description        String
   imageUrl           String?
+  /// One of the onboarding categories (src/lib/onboarding.ts CATEGORIES); filters the buyer home list.
+  category           String?
   stockTotal         Int // CHECK >= 0
   perBuyerCap        Int // CHECK >= 1
   pickupDeadlineDays Int           @default(7) // CHECK >= 1, calendar days

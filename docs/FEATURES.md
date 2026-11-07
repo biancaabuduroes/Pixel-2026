@@ -21,27 +21,32 @@
 - **Screens:** home/product list, product detail.
 - **Behaviour:** each product shows image, seller, pickup location, base price, the tier ladder with the current tier highlighted, and the best active group's progress.
 - **Acceptance:** tiers are shown in ascending order of quantity; sold-out products show "Sold out" and can't be joined.
+- **Built (Figma B3.1 / B3.3):** Home `/` (location header, savings banner, "Grupurile mele", category chips from `Product.category`, "Se închid curând" rail, "Grupuri lângă tine" list — one GroupDealCard per product, showing its recommended group); Pool page `/produs/[id]` (hero, price card, "Prețuri pe trepte" ladder in units, pickup row).
 
 ### F3. Group selection with recommendations — buyer (AI)
 - **Story:** As a buyer, I want to compare the open groups and see which one is most likely to get me a lower price.
 - **Behaviour:** one card per open group: time left, total quantity, buyer count, current price, units to the next tier, forecast (Likely / Possible / Unlikely). Labels "Recommended" (AI) and "Closest to unlocking" (calculated). Every recommendation shows its reasons. BL §11.
 - **Acceptance:** every AI statement is labelled as an estimate; "units to the next tier" is exact.
+- **Built:** the Pool page selector maps open groups by closing time (Rapid / Echilibrat / Cel mai ieftin; hidden with one group), the AI-recommended group is pre-selected and marked "Recomandat pentru tine". Live progress is polled every 10 s (TanStack Query, `GET /api/groups/[id]/progress`).
 
 ### F4. Join a group — buyer
 - **Story:** As a buyer, I want to choose a quantity and join, knowing my maximum cost.
 - **Behaviour:** quantity selector (1…cap); shows the committed price per unit and the maximum amount; warns if the group has already unlocked a tier (cancelling won't be possible); confirm → funds reserved. BL §4.
 - **Edge cases:** insufficient balance (link to top-up); already committed to this product; group closed meanwhile; stock exhausted meanwhile.
 - **Acceptance:** two simultaneous joins can't oversell stock; the reserved amount = quantity × the displayed price; one active commitment per product.
+- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → `joinGroupAction` → "Ești în grup!" sheet (funds lock card, estimated final price and difference, live progress, "Ce urmează"). Edge cases shown with InlineAlert (not in Figma).
 
 ### F5. My purchases — buyer
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.
 - **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code and its QR**. Completed and cancelled history.
 - **Acceptance:** the cancel button is hidden or disabled with an explanation after a tier unlocks; the shown amounts match the ledger.
+- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
 
 ### F6. Wallet — buyer
 - **Story:** As a buyer, I want to see my available, reserved and pending money and add funds.
 - **Behaviour:** balances calculated from the ledger; simulated top-up labelled as demo money; transaction history; total savings. BL §9.
 - **Acceptance:** submitting the same top-up twice credits it only once; available + reserved + pending = top-ups − payouts.
+- **Built:** wallet card on `/profil` (available, reserved, "Încarcă" → top-up screen, "Cum funcționează" sheet) and "Istoric portofel" (last 20 movements of the available balance). Savings are on the Home banner.
 
 ### F7. Product management with tier editor — seller
 - **Story:** As a seller, I want to publish a product with price tiers, stock, a per-buyer cap and group durations.
@@ -69,6 +74,7 @@
 ### F12. Tier forecast and insight text — AI
 - **Behaviour:** forecast from join history; template sentences such as "83 buyers joined. 17 more units unlock 95 RON. Likely before this group closes (estimate)."
 - **Acceptance:** text is generated only from computed values; it never affects price or payments.
+- **Built:** "Probabil plătești X (estimare)" = next tier price when the forecast is Likely, else the current price; "Probabil" ladder tag; "Estimare AI: șanse mari/medii/mici…" caption (`src/domain/ai/offer.ts`).
 
 ### F13. Platform commission setting — admin
 - **Behaviour:** commission rate (default 5%) used at payout.

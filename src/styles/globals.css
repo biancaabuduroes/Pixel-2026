@@ -242,6 +242,12 @@
   font-size: var(--display-md-font-size);
   line-height: var(--display-md-line-height);
 }
+@utility title-xl {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 26px;
+}
 @utility title-lg {
   font-family: var(--font-sans);
   font-weight: 700;
@@ -307,6 +313,13 @@
   font-weight: 400;
   font-size: 12px;
   line-height: 17px;
+}
+/* Figma Display/display-sm: card prices (GroupDealCard). */
+@utility display-sm {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  line-height: 32px;
 }
 
 @layer base {

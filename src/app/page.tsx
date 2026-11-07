@@ -1,58 +1,150 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { OnboardingScreen, ScreenLead, ScreenTitle } from "@/components/onboarding/onboarding-screen";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { logoutAction } from "@/server/actions/onboarding";
+import { cn } from "cn";
+import { EmptyState } from "@/components/ds/empty-state";
+import { GroupDealCard } from "@/components/buyer/group-deal-card";
+import { BuyerScreen, SectionTitle } from "@/components/buyer/buyer-screen";
+import { Icon } from "@/components/ds/icon";
+import { Tag } from "@/components/ds/tag";
+import { formatRon } from "@/domain/money";
+import { CATEGORIES } from "@/lib/onboarding";
+import { dayLabel, units } from "@/lib/format";
+import { homeData } from "@/server/buyer-queries";
 import { currentProfile } from "@/server/session";
 
-// Home placeholder (decision 2026-11-07) until the buyer flow is built. src/proxy.ts sends
-// visitors who haven't finished onboarding to /onboarding first.
-export default function Home() {
+/** B3.1 Home: product list as group deal cards. src/proxy.ts sends new visitors to /onboarding first. */
+export default function Home(props: PageProps<"/">) {
   return (
-    <Suspense fallback={<OnboardingScreen>{null}</OnboardingScreen>}>
-      <Welcome />
+    <Suspense fallback={<BuyerScreen>{null}</BuyerScreen>}>
+      <HomeContent searchParams={props.searchParams} />
     </Suspense>
   );
 }
 
-async function Welcome() {
-  const profile = await currentProfile();
-  if (!profile) {
-    return (
-      <OnboardingScreen
-        footer={
-          <Link href="/autentificare" className={buttonVariants({ className: "w-full" })}>
-            Intră în cont
-          </Link>
-        }
-      >
-        <ScreenTitle>BunDeals</ScreenTitle>
-        <ScreenLead>Cumpără împreună, plătește mai puțin.</ScreenLead>
-      </OnboardingScreen>
-    );
-  }
-  const prefs = (profile.preferences ?? {}) as { firstName?: string };
-  const name = prefs.firstName || profile.name.split(" ")[0];
+const SOON_COUNT = 5;
+
+async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
+  const [profile, params] = await Promise.all([currentProfile(), searchParams]);
+  if (profile?.role === "SELLER") redirect("/seller/pickup");
+  const category = typeof params.categorie === "string" && CATEGORIES.some((c) => c.value === params.categorie) ? params.categorie : null;
+  const now = new Date();
+  const { cards, myGroups, totalSavings, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
+
+  const visible = category ? cards.filter((c) => c.category === category) : cards;
+  const soon = [...visible].sort((a, b) => a.closesAt.getTime() - b.closesAt.getTime()).slice(0, SOON_COUNT);
+  const usedCategories = CATEGORIES.filter((c) => cards.some((card) => card.category === c.value));
+
   return (
-    <OnboardingScreen
-      footer={
+    <BuyerScreen>
+      <header className="flex items-center justify-between gap-3 pt-2">
+        <Link href="/onboarding/locatie" className="flex min-w-0 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
+          <span className="flex size-control-md shrink-0 items-center justify-center rounded-md bg-bg-brand-soft">
+            <Icon name="location-20-brand" size={20} />
+          </span>
+          <span className="flex min-w-0 flex-col">
+            <span className="body-sm text-text-secondary">Ridici din zona</span>
+            <span className="flex items-center gap-1 title-md text-text-primary">
+              <span className="truncate">
+                {preferences.address ?? "Alege zona"}
+                {preferences.radiusKm ? ` · ${preferences.radiusKm} km` : ""}
+              </span>
+              <Icon name="chevron-down-16" size={16} />
+            </span>
+          </span>
+        </Link>
+        <Link
+          href={profile ? "/profil" : "/autentificare"}
+          aria-label={profile ? "Profil" : "Intră în cont"}
+          className="flex size-control-md shrink-0 items-center justify-center rounded-pill bg-bg-muted outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+        >
+          <Icon name="user-24" size={24} />
+        </Link>
+      </header>
+
+      <section className="relative overflow-hidden rounded-lg bg-bg-success p-4 text-text-inverse" aria-label="Economiile tale">
+        <Icon name="promo-shape-back" size={90} className="absolute top-[65px] right-[60px]" />
+        <Icon name="promo-shape" size={150} className="absolute top-[86px] -right-[30px]" />
+        <div className="relative flex max-w-[190px] flex-col items-start gap-2">
+          <Tag tone="deal" className="bg-bg-deal text-text-primary">
+            Economiile tale
+          </Tag>
+          <p className="display-md">{formatRon(totalSavings)} economisiți</p>
+          <p className="body-compact">
+            {totalSavings > 0 ? "Față de prețul întreg, în grupurile încheiate." : "Intră în primul tău grup. La închidere vezi aici cât ai economisit față de prețul întreg."}
+          </p>
+        </div>
+      </section>
+
+      {myGroups.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <SectionTitle>Grupurile mele</SectionTitle>
+          {myGroups.map((g) => (
+            <Link
+              key={g.productId}
+              href={`/produs/${g.productId}`}
+              className="flex items-center gap-3 rounded-lg border border-border-default bg-bg-surface p-4 outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+            >
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="truncate title-md text-text-primary">{g.name}</span>
+                <span className="body-sm text-text-secondary">
+                  {g.offer.next ? (
+                    <>
+                      Încă {units(g.offer.next.unitsMissing)} și scade la <b className="text-text-primary">{formatRon(g.offer.next.unitPrice)}</b>
+                    </>
+                  ) : (
+                    "Cel mai bun preț e atins"
+                  )}{" "}
+                  · {dayLabel(g.closesAt, now)}
+                </span>
+              </span>
+              <Icon name="chevron-right-20" size={20} />
+            </Link>
+          ))}
+        </section>
+      )}
+
+      {usedCategories.length > 0 && (
+        <nav aria-label="Categorii" className="-mx-page flex gap-2 overflow-x-auto px-page [scrollbar-width:none]">
+          {[{ value: null, label: "Toate" }, ...usedCategories].map((c) => {
+            const selected = c.value === category;
+            return (
+              <Link
+                key={c.label}
+                href={c.value ? `/?categorie=${c.value}` : "/"}
+                aria-current={selected ? "page" : undefined}
+                className={cn(
+                  "flex h-control-sm shrink-0 items-center rounded-pill px-4 label-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
+                  selected ? "bg-bg-action text-text-inverse" : "bg-bg-muted text-text-primary",
+                )}
+              >
+                {c.label}
+              </Link>
+            );
+          })}
+        </nav>
+      )}
+
+      {visible.length === 0 ? (
+        <EmptyState icon="users-96-brand" title="Niciun grup deschis" body="Revino curând: grupurile noi apar aici imediat ce se deschid." />
+      ) : (
         <>
-          <Link
-            href={profile.role === "SELLER" ? "/seller/pickup" : "/purchases"}
-            className={buttonVariants({ variant: "secondary", className: "w-full" })}
-          >
-            {profile.role === "SELLER" ? "Confirmă ridicări" : "Achizițiile mele"}
-          </Link>
-          <form action={logoutAction} className="flex justify-center">
-            <Button type="submit" variant="link" size="md">
-              Ieși din cont
-            </Button>
-          </form>
+          <section className="flex flex-col gap-3">
+            <SectionTitle>Se închid curând</SectionTitle>
+            <div className="-mx-page flex gap-3 overflow-x-auto px-page pb-1 [scrollbar-width:none]">
+              {soon.map((c) => (
+                <GroupDealCard key={c.productId} {...c} className="w-[300px] shrink-0" />
+              ))}
+            </div>
+          </section>
+          <section className="flex flex-col gap-3">
+            <SectionTitle>Grupuri lângă tine</SectionTitle>
+            {visible.map((c) => (
+              <GroupDealCard key={c.productId} {...c} />
+            ))}
+          </section>
         </>
-      }
-    >
-      <ScreenTitle>Bun venit, {name}!</ScreenTitle>
-      <ScreenLead>Grupurile din zona ta apar aici în curând.</ScreenLead>
-    </OnboardingScreen>
+      )}
+    </BuyerScreen>
   );
 }

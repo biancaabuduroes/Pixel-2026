@@ -10,7 +10,7 @@
 | `User` | id, email, name, role (`BUYER` / `SELLER` / `ADMIN`), passwordHash? (demo login, scrypt), preferences? (JSON: onboarding answers, display only; budget in bani) | email unique |
 | `SellerProfile` | userId, businessName | one per seller |
 | `PickupLocation` | sellerId, name, address, openingHours | MVP: one per seller (the schema allows several) |
-| `Product` | sellerId, pickupLocationId, name, description, imageUrl, stockTotal, perBuyerCap, pickupDeadlineDays, status (`ACTIVE` / `INACTIVE`) | stockTotal ≥ 0; perBuyerCap ≥ 1 |
+| `Product` | sellerId, pickupLocationId, name, description, imageUrl, category? (onboarding category value, Home chips), stockTotal, perBuyerCap, pickupDeadlineDays, status (`ACTIVE` / `INACTIVE`) | stockTotal ≥ 0; perBuyerCap ≥ 1 |
 | `PriceTier` | productId, minQty, unitPrice | unique (productId, minQty); validation rules in BUSINESS_LOGIC §2 |
 | `ProductDuration` | productId, durationHours | unique (productId, durationHours) |
 | `Group` | productId, durationHours, opensAt, closesAt, status (`OPEN` / `SETTLING` / `SETTLED` / `CANCELLED`), totalQty, finalUnitPrice? | **partial unique (productId, durationHours) where status = OPEN** |

@@ -3,18 +3,16 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { DEMO_BUYER_EMAIL } from "@/lib/onboarding";
-import { PreferencesSchema, savePreferences } from "../onboarding";
+import { createSignupBuyer, PreferencesSchema, savePreferences } from "../onboarding";
 import { verifyPassword } from "../password";
 import { currentUser, endSession, markOnboardingDone, startSession } from "../session";
 
-/** B1.2b mock: any 6 digits "verify" the phone and sign in as the demo buyer. No SMS is sent. */
+/** B1.2b mock: any 6 digits "verify" the phone and sign up a new buyer (empty wallet). No SMS is sent. */
 export async function verifyPhoneCodeAction(input: unknown) {
-  if (!z.object({ code: z.string().regex(/^\d{6}$/) }).safeParse(input).success) return { ok: false, reason: "INVALID_CODE" } as const;
+  const parsed = z.object({ code: z.string().regex(/^\d{6}$/), phone: z.string().regex(/^\d{9}$/).optional() }).safeParse(input);
+  if (!parsed.success) return { ok: false, reason: "INVALID_CODE" } as const;
   if (process.env.DEMO_MODE !== "true") return { ok: false, reason: "UNAVAILABLE" } as const;
-  const buyer = await db.user.findUnique({ where: { email: DEMO_BUYER_EMAIL }, select: { id: true } });
-  if (!buyer) return { ok: false, reason: "DEMO_USERS_MISSING" } as const;
-  await startSession(buyer.id);
+  await startSession(await createSignupBuyer(parsed.data.phone ?? null));
   return { ok: true } as const;
 }
 

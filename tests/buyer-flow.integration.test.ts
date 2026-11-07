@@ -47,8 +47,9 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     ]);
     const scutece = home.cards.find((c) => c.productId === "seed-scutece");
     expect(scutece).toMatchObject({ name: "Scutece nr. 4, 104 buc", groupCount: 3, fromUnitPrice: 9499 });
-    // No photo file committed yet → imageUrl stays NULL and the UI shows its fallback.
-    expect(home.cards.every((c) => c.imageUrl === null)).toBe(true);
+    // imageUrl is set only for products with a photo in public/products; the rest show the fallback.
+    expect(scutece?.imageUrl).toBeNull();
+    expect(home.cards.find((c) => c.productId === "seed-ulei")?.imageUrl).toBe("/products/seed-ulei.webp");
     expect(home.myGroups.map((g) => g.productId)).toEqual(["seed-ulei"]);
     expect(home.totalSavings).toBe(1000); // honey: 49,99 committed → 39,99 final, 1 unit
     const honey = await db.commitment.findFirstOrThrow({ where: { buyerId: "demo-buyer", productId: "seed-miere" } });

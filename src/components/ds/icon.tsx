@@ -8,7 +8,7 @@ import { cn } from "cn";
 export type FigmaIconName =
   | "users-96-brand" | "lock-96-brand" | "compass-96-brand"
   | "chevron-left-24" | "chevron-right-20" | "close-24" | "close-12"
-  | "mail-20" | "clock-16-danger" | "lock-20" | "check-14-inverse" | "check-circle-20-success"
+  | "mail-20" | "clock-16-danger" | "lock-20" | "check-14-inverse" | "check-12-inverse" | "check-circle-20-success"
   | "store-20-success" | "wallet-20-deal" | "wallet-16-deal" | "wallet-20-inverse" | "wallet-20-secondary"
   | "info-24-primary" | "search-20" | "search-20-active" | "home-pin-28" | "location-16" | "location-32-brand"
   | "users-20-deal" | "compass-20" | "info-24"

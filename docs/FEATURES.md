@@ -21,26 +21,26 @@
 - **Screens:** home/product list, product detail.
 - **Behaviour:** each product shows image, seller, pickup location, base price, the tier ladder with the current tier highlighted, and the best active group's progress.
 - **Acceptance:** tiers are shown in ascending order of quantity; sold-out products show "Sold out" and can't be joined.
-- **Built (Figma B3.1 / B3.2 / B3.3):** category chips filter in the browser (no reload); every category splits into "Coșuri de cumpărături" (seller-defined baskets, kind `BASKET`, contents listed on the Pool page) and "Produse individuale"; the floating "Caută" button opens the Search drawer (recent products opened from search, "Propuse pentru tine" = biggest discounts, diacritic-insensitive name search). Home `/` (location header, savings banner, "Grupurile mele", category chips from `Product.category`, "Se închid curând" rail, "Grupuri lângă tine" list — one GroupDealCard per product, showing its recommended group); Pool page `/produs/[id]` (hero, price card, "Prețuri pe trepte" ladder in units, pickup row).
+- **Built (Figma discover-flow v2 B3.1 / B3.2 / B3.3 / B3.6):** category chips filter in the browser (no reload); every category splits into "Coșuri de cumpărături" and "Produse individuale"; the floating "Caută" button opens the Search drawer (clear button, recent products, "Propuse pentru tine"). Home `/` adds a "Supermarketuri" rail. Store page `/magazin/[id]` lists that pickup location's open groups. Pool page `/produs/[id]` has share (system share or copy link) and a "Compară vânzătorii" row.
 
 ### F3. Group selection with recommendations — buyer (AI)
 - **Story:** As a buyer, I want to compare the open groups and see which one is most likely to get me a lower price.
 - **Behaviour:** one card per open group: time left, total quantity, buyer count, current price, units to the next tier, forecast (Likely / Possible / Unlikely). Labels "Recommended" (AI) and "Closest to unlocking" (calculated). Every recommendation shows its reasons. BL §11.
 - **Acceptance:** every AI statement is labelled as an estimate; "units to the next tier" is exact.
-- **Built:** the Pool page selector maps open groups by closing time (Rapid / Echilibrat / Cel mai ieftin; hidden with one group), the AI-recommended group is pre-selected and marked "Recomandat pentru tine". Live progress is polled every 10 s (TanStack Query, `GET /api/groups/[id]/progress`).
+- **Built:** the Pool page selector maps open groups by closing time (Rapid / Echilibrat / Cel mai ieftin; hidden with one group), the AI-recommended group is pre-selected and marked "Recomandat pentru tine". Live progress is polled every 10 s. Compare sheet (B3.4) lists other active products in the same category; the cheapest current price is labelled "Recomandat de AI" (display only).
 
 ### F4. Join a group — buyer
 - **Story:** As a buyer, I want to choose a quantity and join, knowing my maximum cost.
 - **Behaviour:** quantity selector (1…cap); shows the committed price per unit and the maximum amount; warns if the group has already unlocked a tier (cancelling won't be possible); confirm → funds reserved. BL §4.
 - **Edge cases:** insufficient balance (link to top-up); already committed to this product; group closed meanwhile; stock exhausted meanwhile.
 - **Acceptance:** two simultaneous joins can't oversell stock; the reserved amount = quantity × the displayed price; one active commitment per product.
-- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → `joinGroupAction` → "Ești în grup!" sheet (funds lock card, estimated final price and difference, live progress, "Ce urmează"). Edge cases shown with InlineAlert (not in Figma).
+- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → confirm sheet (not in Figma: locked amount, final price, cancel rule from BL §5) → `joinGroupAction` → "Ești în grup!" sheet. The funds card is unchanged (Figma rows are still placeholders). Progress says how many units remain until the next price, the invite copies the real product URL, and "Ce urmează" is join → group close → final price. "Te anunțăm când prețul scade" is copy only; there is no notification. Edge cases shown with InlineAlert (not in Figma).
 
 ### F5. My purchases — buyer
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.
 - **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code and its QR**. Completed and cancelled history.
 - **Acceptance:** the cancel button is hidden or disabled with an explanation after a tier unlocks; the shown amounts match the ledger.
-- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare; "Gata de ridicare" first), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. **Demo button** (DEMO_MODE only) on "În grup" orders: "Demo: închide grupul acum" closes that group now with the real settlement code (BL §7), so the order becomes "Gata de ridicare" and shows "Arată codul de ridicare". It settles the whole group for every buyer in it. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
+- **Built (Figma B5.1 / B5.1a / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare; "Gata de ridicare" first), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code, "Editează profilul" (first name, last name, phone in preferences; email read-only), and "Renunță la grup" when allowed. `/purchases` redirects to `/profil`. **Demo button** (DEMO_MODE only) on "În grup" orders: "Demo: închide grupul acum" closes that group now with the real settlement code (BL §7), so the order becomes "Gata de ridicare". It settles the whole group for every buyer in it. Groups past closing that the buyer is in are settled when Home or Profile loads.
 
 ### F6. Wallet — buyer
 - **Story:** As a buyer, I want to see my available, reserved and pending money and add funds.
@@ -54,14 +54,15 @@
 - **Acceptance:** overlapping or non-decreasing tiers and a cap ≥ the first discount threshold are rejected, both in the form and on the server.
 
 ### F8. Groups and demand overview — seller
-- **Story:** As a seller, I want to see each open group's progress and simple demand statistics.
-- **Behaviour:** table of groups: quantity, buyers, current tier, time left. Statistics card: total committed, tiers unlocked, most popular duration.
-- **Acceptance:** numbers match the commitments in the database.
+- **Story:** As a seller, I want a desktop intelligence dashboard: stock, sales, potential units, group performance and AI insights, plus a group list and per-group details.
+- **Screens:** `/seller` (Dashboard), `/seller/grupuri` (list), `/seller/grupuri/[id]` (details). Login as the demo seller redirects here.
+- **Behaviour:** all numbers from the database + `src/domain/seller` (status, stock, metrics, insights). KPI period 7/30/90 days. Catalog filter/sort in the browser. Group list tabs: Toate / Active / Prag deblocat / Aproape de prag / Câștigate / Fără participanți. Details: financials, tier progress, pickup location, orders table, template AI insights, client-only margin calculator (not saved). No group-level QR (BL §8: only the buyer's pickup QR). Seller past-due groups settle lazily on page load (same demo assumption as the buyer flow).
+- **Acceptance:** KPI and lists match commitments/ledger; AI text is labelled as estimates; margin calculator never writes to the DB.
 
 ### F9. Orders and pickup confirmation — seller
 - **Story:** As a seller, I want to see orders to prepare and confirm pickups with the buyer's code.
-- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8.
-- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order. Screens: buyer `/purchases` (QR + code), seller `/seller/pickup`.
+- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8. Optional `?group=<id>` filters to that group's awaiting orders (from group details).
+- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order. Screens: buyer `/profil` (QR + code), seller `/seller/pickup`.
 
 ### F10. Group settlement and renewal — system
 - **Behaviour:** close → final tier → `SETTLE` ledger entries → pickup codes → next group opens. Idempotent. BL §7.

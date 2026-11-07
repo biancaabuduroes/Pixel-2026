@@ -49,7 +49,7 @@ The environment variables are listed in [`.env.example`](.env.example) (names on
 
 **Demo users:** `prisma/seed.sql` (idempotent) creates `cumparator@bundeals.ro` and `vanzator@bundeals.ro`, password `bundeals2026`. It is never run by the build; run it once per database (a Claude session uses the Supabase Management API).
 
-**Temporary demo data (buyer flow):** `prisma/seed-demo.sql`, generated with `node prisma/demo-seed.mjs > prisma/seed-demo.sql`. Run it after `seed.sql` (`psql "$DIRECT_URL" -f prisma/seed-demo.sql`); it is idempotent and its times are relative to when it runs.
+**Temporary demo data (buyer + seller dashboard):** `prisma/seed-demo.sql`, generated with `node prisma/demo-seed.mjs > prisma/seed-demo.sql`. Run it after `seed.sql` (`psql "$DIRECT_URL" -f prisma/seed-demo.sql`); it is idempotent and its times are relative to when it runs. Includes open groups for the buyer flow and ~90 days of settled sales history for the seller dashboard.
 
 **Database tests** (`tests/*.integration.test.ts`: concurrent joins, retries, settlement, cancellation) run against a disposable, migrated local database, never Supabase, because they truncate every table: `TEST_DATABASE_URL=postgresql://… npm test`. Point it at a PgBouncer in transaction mode to match Supabase's pooler. Without it they are skipped.
 

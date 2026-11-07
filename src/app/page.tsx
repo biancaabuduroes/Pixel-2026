@@ -22,10 +22,10 @@ export default function Home(props: PageProps<"/">) {
 
 async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const [profile, params] = await Promise.all([currentProfile(), searchParams]);
-  if (profile?.role === "SELLER") redirect("/seller/pickup");
+  if (profile?.role === "SELLER") redirect("/seller");
   const category = typeof params.categorie === "string" && CATEGORIES.some((c) => c.value === params.categorie) ? params.categorie : null;
   const now = new Date();
-  const { cards, myGroups, totalSavings, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
+  const { cards, myGroups, totalSavings, stores, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
 
   const usedCategories = CATEGORIES.filter((c) => cards.some((card) => card.category === c.value));
 
@@ -95,6 +95,28 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
               <Icon name="chevron-right-20" size={20} />
             </Link>
           ))}
+        </section>
+      )}
+
+      {stores.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <SectionTitle>Supermarketuri</SectionTitle>
+          <div className="-mx-page flex gap-3 overflow-x-auto px-page pb-1 [scrollbar-width:none]">
+            {stores.map((s) => (
+              <Link
+                key={s.id}
+                href={`/magazin/${s.id}`}
+                className="flex w-[220px] shrink-0 flex-col gap-1 rounded-xl border border-border-subtle bg-bg-surface p-4 shadow-card outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+              >
+                <span className="flex size-10 items-center justify-center rounded-md bg-bg-brand-soft">
+                  <Icon name="store-20-success" size={20} />
+                </span>
+                <span className="truncate title-md text-text-primary">{s.name}</span>
+                <span className="line-clamp-2 body-sm text-text-secondary">{s.address}</span>
+                <span className="label-sm text-text-secondary">{s.openGroupCount} grupuri active</span>
+              </Link>
+            ))}
+          </div>
         </section>
       )}
 

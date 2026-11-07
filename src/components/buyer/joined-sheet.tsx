@@ -1,12 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { BottomSheet } from "@/components/ds/bottom-sheet";
 import { Icon } from "@/components/ds/icon";
 import { SummaryRow } from "@/components/ds/summary-row";
 import { Timeline } from "@/components/ds/timeline";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import type { GroupOffer } from "@/domain/ai";
 import { formatRon, multiplyBani } from "@/domain/money";
 import { dayLabel, formatToken, timeLabel } from "@/lib/format";
@@ -18,6 +17,7 @@ export type Joined = { quantity: number; committedUnitPrice: number; reservedAmo
 /** Figma B4.1 "Joined" sheet: confirmation, funds lock card, live progress, what happens next. */
 export function JoinedSheet({
   joined,
+  productId,
   productName,
   storeName,
   closesAt,
@@ -25,6 +25,7 @@ export function JoinedSheet({
   onDone,
 }: {
   joined: Joined;
+  productId: string;
   productName: string;
   storeName: string;
   closesAt: Date;
@@ -35,10 +36,12 @@ export function JoinedSheet({
   // Estimate only (BL §11): never above the locked price.
   const estimatedUnit = Math.min(offer.probableUnitPrice, joined.committedUnitPrice);
   const estimatedBack = joined.reservedAmount - multiplyBani(joined.quantity, estimatedUnit);
+  const [copied, setCopied] = useState(false);
   const close = () => {
     setOpen(false);
     onDone();
   };
+  const invitePath = `/produs/${productId}`;
 
   return (
     <BottomSheet open={open} onOpenChange={(o) => !o && close()} title="Ești în grup!" header="left">
@@ -68,13 +71,35 @@ export function JoinedSheet({
         <GroupProgressBar offer={offer} />
       </section>
 
-      <section className="flex flex-col gap-3">
-        <h3 className="title-lg text-text-primary">Ce urmează</h3>
+      <section className="flex flex-col gap-3 rounded-xl bg-bg-brand-soft p-4">
+        <h3 className="title-lg text-text-primary">Invită vecinii</h3>
+        <p className="body-md text-text-primary">Fiecare persoană nouă scade prețul pentru toți, inclusiv pentru tine.</p>
+        <div className="flex h-12 items-center gap-2 rounded-lg bg-bg-surface pr-1 pl-3">
+          <p className="min-w-0 flex-1 truncate body-md text-text-secondary">{invitePath}</p>
+          <Button
+            type="button"
+            variant="tertiary"
+            size="sm"
+            onClick={() => {
+              const url = `${window.location.origin}${invitePath}`;
+              void navigator.clipboard.writeText(url).then(() => {
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 1500);
+              });
+            }}
+          >
+            {copied ? "Copiat" : "Copiază"}
+          </Button>
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-4">
+        <h3 className="title-xl text-text-primary">Ce urmează</h3>
         <Timeline
           steps={[
-            { label: "Grupul se închide", caption: `${dayLabel(closesAt, new Date())}, la ${timeLabel(closesAt)}`, state: "current" },
+            { label: "Ai intrat în grup", caption: `${dayLabel(new Date(), new Date())} · ${formatToken(joined.reservedAmount)} blocați`, state: "current" },
+            { label: `Grupul se închide ${dayLabel(closesAt, new Date())}, la ${timeLabel(closesAt)}`, caption: "Te anunțăm când prețul scade", state: "upcoming" },
             { label: "Plătești prețul final", caption: "Diferența revine automat în portofel", state: "upcoming" },
-            { label: "Ridici comanda", caption: `${storeName} · cu codul din Profil`, state: "upcoming" },
           ]}
         />
       </section>
@@ -82,9 +107,6 @@ export function JoinedSheet({
       <Button className="w-full" onClick={close}>
         Am înțeles
       </Button>
-      <Link href="/" className={buttonVariants({ variant: "link", size: "md", className: "self-center" })}>
-        Înapoi la Acasă
-      </Link>
     </BottomSheet>
   );
 }

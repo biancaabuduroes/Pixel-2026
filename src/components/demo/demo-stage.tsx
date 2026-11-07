@@ -6,12 +6,11 @@ import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
 
 /**
- * Buyer = this deployment's own app (same origin, so the session and onboarding cookies work in
- * the iframe). Seller = the seller dashboard preview, which only exists on feat/seller-dashboard-v2.
+ * Buyer and seller are this deployment (same origin, so the session cookies work in the iframe).
  */
 const EXPERIENCES = {
   buyer: { label: "Buyer", src: "/", device: "phone" },
-  seller: { label: "Seller", src: "https://pixel-2026-git-feat-seller-dashboard-v2-bun-deals.vercel.app/seller", device: "desktop" },
+  seller: { label: "Seller", src: "/seller", device: "desktop" },
 } as const;
 type Experience = keyof typeof EXPERIENCES;
 

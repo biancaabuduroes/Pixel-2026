@@ -51,7 +51,7 @@ export type DealCard = {
 /** Home (B3.1): one card per active product with an open group, plus the buyer's own groups and savings. 2 queries. */
 export async function homeData(buyerId: string | null, now = new Date()) {
   if (buyerId) await settleDueGroups(buyerId, now);
-  const [products, buyer] = await Promise.all([
+  const [products, buyer, stores] = await Promise.all([
     db.product.findMany({
       where: { status: "ACTIVE" },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }], // stable order for products created together
@@ -84,6 +84,7 @@ export async function homeData(buyerId: string | null, now = new Date()) {
           },
         })
       : null,
+    storesForHome(now),
   ]);
 
   const cards: DealCard[] = [];
@@ -114,7 +115,139 @@ export async function homeData(buyerId: string | null, now = new Date()) {
     .filter((c) => c.status !== "ACTIVE" && c.finalUnitPrice !== null)
     .reduce((sum, c) => sum + savings(c.product.priceTiers, c.quantity, c.finalUnitPrice!), 0);
 
-  return { cards, myGroups, totalSavings, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+  return { cards, myGroups, totalSavings, stores, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+}
+
+export type StoreCard = {
+  id: string;
+  name: string;
+  address: string;
+  openingHours: string;
+  openGroupCount: number;
+};
+
+/** Home rail: pickup locations that still have an open group. */
+export async function storesForHome(now = new Date()): Promise<StoreCard[]> {
+  const locations = await db.pickupLocation.findMany({
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      openingHours: true,
+      products: {
+        where: { status: "ACTIVE" },
+        select: { groups: { where: { status: "OPEN", closesAt: { gt: now } }, select: { id: true } } },
+      },
+    },
+  });
+  return locations
+    .map((l) => ({
+      id: l.id,
+      name: l.name,
+      address: l.address,
+      openingHours: l.openingHours,
+      openGroupCount: l.products.reduce((sum, p) => sum + p.groups.length, 0),
+    }))
+    .filter((l) => l.openGroupCount > 0);
+}
+
+/** Store page (B3.6): one pickup location and its open-group products. */
+export async function storePageData(locationId: string, now = new Date()) {
+  const location = await db.pickupLocation.findUnique({
+    where: { id: locationId },
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      openingHours: true,
+      products: {
+        where: { status: "ACTIVE" },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          kind: true,
+          _count: { select: { basketItems: true } },
+          priceTiers: tiersAsc,
+          groups: { ...openGroups(now), select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } } },
+        },
+      },
+    },
+  });
+  if (!location) return null;
+
+  const cards: DealCard[] = [];
+  for (const p of location.products) {
+    const g = recommendedGroup(p.priceTiers, p.groups, now);
+    if (!g) continue;
+    const offers = p.groups.map((x) => offerFor(p.priceTiers, x, now));
+    cards.push({
+      productId: p.id,
+      name: p.name,
+      category: p.category,
+      kind: p.kind,
+      itemCount: p._count.basketItems,
+      closesAt: g.closesAt,
+      offer: offerFor(p.priceTiers, g, now),
+      groupCount: p.groups.length,
+      buyers: p.groups.reduce((sum, x) => sum + x._count.commitments, 0),
+      fromUnitPrice: Math.min(...offers.map((o) => o.currentUnitPrice)),
+    });
+  }
+  const nextClose = cards.reduce<Date | null>((min, c) => (!min || c.closesAt < min ? c.closesAt : min), null);
+  return {
+    store: { id: location.id, name: location.name, address: location.address, openingHours: location.openingHours },
+    openGroupCount: cards.reduce((sum, c) => sum + c.groupCount, 0),
+    nextClose,
+    cards,
+  };
+}
+
+export type CompareRow = {
+  productId: string;
+  name: string;
+  storeName: string;
+  closesAt: Date;
+  currentUnitPrice: number;
+  recommended: boolean;
+};
+
+/**
+ * Compare drawer (B3.4): other active products in the same category that still have an open group.
+ * Demo data has one seller and several pickup locations — not the same SKU across sellers.
+ * "Recomandat" = lowest current unit price (display only; never a price input).
+ */
+export async function compareCategoryOffers(productId: string, now = new Date()): Promise<CompareRow[]> {
+  const current = await db.product.findUnique({ where: { id: productId }, select: { category: true, status: true } });
+  if (!current || current.status !== "ACTIVE" || !current.category) return [];
+  const products = await db.product.findMany({
+    where: { status: "ACTIVE", category: current.category },
+    select: {
+      id: true,
+      name: true,
+      priceTiers: tiersAsc,
+      pickupLocation: { select: { name: true } },
+      groups: openGroups(now),
+    },
+  });
+  const rows: CompareRow[] = [];
+  for (const p of products) {
+    const g = recommendedGroup(p.priceTiers, p.groups, now);
+    if (!g) continue;
+    rows.push({
+      productId: p.id,
+      name: p.name,
+      storeName: p.pickupLocation.name,
+      closesAt: g.closesAt,
+      currentUnitPrice: offerFor(p.priceTiers, g, now).currentUnitPrice,
+      recommended: false,
+    });
+  }
+  rows.sort((a, b) => a.currentUnitPrice - b.currentUnitPrice || a.closesAt.getTime() - b.closesAt.getTime());
+  if (rows[0]) rows[0].recommended = true;
+  return rows;
 }
 
 export type PoolGroup = { id: string; segment: Segment | null; closesAt: Date; buyers: number; offer: GroupOffer };

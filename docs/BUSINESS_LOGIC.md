@@ -56,7 +56,7 @@ Joining is **one database transaction**:
 1. Lock the group row. Check it is `open` and `now < closesAt`.
 2. Check that the buyer has no active commitment for this product.
 3. Check that `1 ≤ quantity ≤ perBuyerCap`.
-4. Check stock: `quantity ≤ stockTotal − sum(quantity of all non-cancelled commitments for this product)`.
+4. Check stock: `quantity ≤ stockTotal − sum(quantity of all commitments for this product that are not cancelled or refunded)`.
 5. `committedUnitPrice = tierPrice(group.totalQty)`, the price shown to the buyer *before* joining. *(Assumption: if this join itself crosses a threshold, the buyer still commits at the price shown and pays the lower price at settlement.)*
 6. `reservedAmount = quantity × committedUnitPrice`. Check the buyer's available balance is ≥ `reservedAmount`.
 7. Create the commitment (`active`), post a ledger transaction `RESERVE` (available → reserved), and update the group's total quantity.
@@ -96,7 +96,7 @@ For each group, in one transaction:
 3. For each `active` commitment:
    - `amountCharged = quantity × finalUnitPrice`; assert `≤ reservedAmount`.
    - Ledger `SETTLE`: reserved → pending pickup (`amountCharged`); reserved → available (the difference).
-   - Commitment → `awaiting_pickup`, generate a 6-digit pickup code (stored hashed), set `pickupDeadline = closesAt + pickupDeadlineDays`.
+   - Commitment → `awaiting_pickup`, generate a 6-digit pickup code (stored hashed), set `pickupDeadline = closesAt + pickupDeadlineDays` (calendar days: `pickupDeadlineDays × 24h`, UTC).
 4. Group → `settled`; open the next group (renewal rules).
 
 If no tier was unlocked, buyers pay the base price (= their committed price) and nothing is released.
@@ -105,7 +105,7 @@ If no tier was unlocked, buyers pay the base price (= their committed price) and
 
 - The buyer sees the 6-digit code in "My purchases". The seller types it on the order.
 - Correct code → commitment `collected`; ledger `PAYOUT`: pending pickup → seller earnings (amount − commission) and → platform revenue (commission).
-- **Commission** = `round(amountCharged × commissionRate)`, rounding half up to whole bani. The seller gets the remainder, so the two parts always add up exactly to the amount.
+- **Commission** = `round(amountCharged × commissionRate)`, rounding half up to whole bani. The seller gets the remainder, so the two parts always add up exactly to the amount. The rate is handled as integer basis points (`0.05` = 500 bp), so no floating-point maths touches money.
 - Wrong code: after 5 failed attempts on an order, entry is locked for 15 minutes. *(Assumption)*
 - Each code works once, only for that order, and only for that seller.
 
@@ -157,8 +157,10 @@ active ──group settles──> awaiting_pickup ──code entered──> coll
 ## 11. AI (estimates only)
 
 - **Tier forecast:** from the group's join history (quantity added per hour) and the time remaining, estimate whether the next threshold will be reached. Shown as Likely / Possible / Unlikely, never as a guarantee.
+  - `pace = units joined since the group opened ÷ max(1, hours elapsed)`; `projected = pace × hours left`; `ratio = projected ÷ units missing`.
+  - **Likely** if ratio ≥ 1.25, **Possible** if ≥ 0.75, otherwise **Unlikely**. No forecast once the top tier is reached.
 - **"Closest to unlocking":** the exact number of units missing to the next tier. This is a calculation, not AI.
-- **Recommendation:** rank the open groups the buyer can join by expected saving (forecast × size of the discount); earlier closing breaks ties. Always show the reasons.
+- **Recommendation:** rank the open groups the buyer can join by **expected unit price** = `p × next-tier price + (1 − p) × current price`, with p = 80% (Likely), 50% (Possible), 20% (Unlikely); lowest first, so a discount already unlocked counts. Earlier closing breaks ties. Always show the reasons.
 - **Insight text:** generated from computed numbers only (templates in the hackathon MVP; Claude Haiku 5.5 later, with a template fallback).
 - AI output never feeds into pricing, settlement or the wallet.
 

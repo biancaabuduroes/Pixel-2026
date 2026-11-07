@@ -23,6 +23,7 @@ export const LOCAL_PREFERENCE = [
 ] as const;
 
 export const CATEGORIES = [
+  { value: "birotica", label: "Birotică" },
   { value: "alimente", label: "Alimente" },
   { value: "ulei-camara", label: "Ulei și cămară" },
   { value: "scutece-bebelusi", label: "Scutece și bebeluși" },

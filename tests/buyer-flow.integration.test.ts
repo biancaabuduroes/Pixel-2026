@@ -80,6 +80,20 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     expect(pool?.product.basketItems).toHaveLength(6);
   });
 
+  it("a phone sign-up gets its own empty wallet, so Profile shows exactly the onboarding top-up", async () => {
+    const { createSignupBuyer } = await import("@/server/onboarding");
+    const { topUp } = await import("@/server/top-up");
+    const first = await createSignupBuyer("712345678");
+    const second = await createSignupBuyer("712345678");
+    expect(second).not.toBe(first); // every sign-up is a new account
+    expect((await q.profileData(first))?.wallet).toEqual({ available: 0, reserved: 0 });
+    expect(await topUp({ buyerId: first, topUpId: crypto.randomUUID(), amount: 10_000 })).toMatchObject({ ok: true });
+    const profile = await q.profileData(first);
+    expect(profile?.wallet).toEqual({ available: 10_000, reserved: 0 });
+    expect(profile?.user.preferences.phone).toBe("712345678");
+    expect(profile?.history.map((h) => [h.type, h.amount])).toEqual([["TOPUP", 10_000]]);
+  });
+
   it("group progress returns server-computed offer", async () => {
     const p = await q.groupProgress("seed-scutece-g24");
     expect(p?.offer).toMatchObject({ totalQty: 17, currentUnitPrice: 12499, next: { minQty: 20, unitsMissing: 3, unitPrice: 9499 } });

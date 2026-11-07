@@ -19,7 +19,7 @@ import { logoutAction } from "@/server/actions/onboarding";
 import type { ProfileOrder } from "@/server/buyer-queries";
 
 type Props = {
-  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string } };
+  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string; phone?: string } };
   wallet: { available: number; reserved: number };
   history: { id: string; amount: number; type: string; createdAt: Date; productName: string | null }[];
   orders: ProfileOrder[];
@@ -68,7 +68,10 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
           </span>
           <div className="flex min-w-0 flex-col">
             <p className="truncate title-lg text-text-primary">{name}</p>
-            <p className="truncate body-sm text-text-secondary">{user.email}</p>
+            <p className="truncate body-sm text-text-secondary">
+              {/* Phone sign-ups have a generated email: show their number instead. */}
+              {user.preferences.phone ? `+40 ${user.preferences.phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3")}` : user.email}
+            </p>
           </div>
         </section>
 

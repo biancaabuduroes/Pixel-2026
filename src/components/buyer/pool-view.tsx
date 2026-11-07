@@ -22,7 +22,7 @@ import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
 import { ConfirmJoinSheet } from "./confirm-join-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
-import { useGroupProgress } from "./use-group-progress";
+import { useGroupProgress, type GroupProgressJson } from "./use-group-progress";
 
 const SEGMENT_LABEL: Record<Segment, string> = { RAPID: "Rapid", ECHILIBRAT: "Echilibrat", CEL_MAI_IEFTIN: "Cel mai ieftin" };
 const CHANCE = { LIKELY: "mari", POSSIBLE: "medii", UNLIKELY: "mici" } as const;
@@ -64,19 +64,33 @@ export function PoolView(props: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
-      <Hero name={product.name} productId={product.id} />
-      <main className="flex flex-col gap-6 px-page pt-5">
-        {group ? (
-          <GroupSection key={group.id} {...props} group={group} onSelect={setGroupId} />
-        ) : (
-          <EmptyState icon="users-96-brand" title="Niciun grup deschis" body="Grupurile pentru acest produs s-au închis. Un grup nou se deschide automat cât timp există stoc." />
-        )}
-      </main>
+      {group ? (
+        <ActivePool key={group.id} {...props} group={group} onSelect={setGroupId} />
+      ) : (
+        <>
+          <Hero name={product.name} productId={product.id} discountPct={0} closesAt={null} />
+          <main className="flex flex-col gap-6 px-page pt-5">
+            <EmptyState icon="users-96-brand" title="Niciun grup deschis" body="Grupurile pentru acest produs s-au închis. Un grup nou se deschide automat cât timp există stoc." />
+          </main>
+        </>
+      )}
     </div>
   );
 }
 
-function Hero({ name, productId }: { name: string; productId: string }) {
+function ActivePool({ group, onSelect, ...props }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+  const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
+  return (
+    <>
+      <Hero name={props.product.name} productId={props.product.id} discountPct={live.offer.discountPct} closesAt={new Date(group.closesAt).toISOString()} />
+      <main className="flex flex-col gap-6 px-page pt-5">
+        <GroupSection {...props} group={group} live={live} onSelect={onSelect} />
+      </main>
+    </>
+  );
+}
+
+function Hero({ name, productId, discountPct, closesAt }: { name: string; productId: string; discountPct: number; closesAt: string | null }) {
   return (
     <section className="relative h-[280px] overflow-hidden bg-bg-brand-soft">
       <Icon name="bag-150-brand" size={96} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
@@ -99,6 +113,18 @@ function Hero({ name, productId }: { name: string; productId: string }) {
       >
         <ShareIcon />
       </button>
+      {closesAt && (
+        <div className="absolute inset-x-page top-28 z-10 flex items-center justify-between gap-3">
+          {discountPct > 0 ? (
+            <span className="rounded-pill bg-bg-deal px-2.5 py-1 label-sm text-text-primary shadow-raised">−{discountPct}%</span>
+          ) : (
+            <span />
+          )}
+          <span className="rounded-pill bg-bg-surface px-2.5 py-1 shadow-raised">
+            <DealCountdown closesAt={closesAt} />
+          </span>
+        </div>
+      )}
       <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
         <span className="size-2 rounded-pill bg-text-primary" />
         <span className="size-2 rounded-pill bg-bg-strong" />
@@ -128,10 +154,9 @@ function ShareIcon() {
   );
 }
 
-function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, live, onSelect }: Props & { group: PoolGroup; live: GroupProgressJson; onSelect: (id: string) => void }) {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
   const offer = live.offer;
   const [quantity, setQuantity] = useState(1);
   const [error, setError] = useState<string | null>(null);
@@ -173,16 +198,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   return (
     <>
       <header className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          {offer.discountPct > 0 ? (
-            <span className="rounded-md bg-bg-deal px-2 py-1 label-sm text-text-primary">−{offer.discountPct}%</span>
-          ) : (
-            <span />
-          )}
-          <span className="rounded-pill bg-bg-subtle px-2.5 py-1">
-            <DealCountdown closesAt={closesAt.toISOString()} />
-          </span>
-        </div>
         <div className="flex flex-col gap-1">
           <h1 className="title-xl text-text-primary">{product.name}</h1>
           <p className="flex items-center gap-1.5 body-sm text-text-secondary">

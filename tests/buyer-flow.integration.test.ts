@@ -48,7 +48,6 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     const scutece = home.cards.find((c) => c.productId === "seed-scutece");
     expect(scutece).toMatchObject({ groupCount: 3, fromUnitPrice: 9499 });
     expect(home.myGroups.map((g) => g.productId)).toEqual(["seed-ulei"]);
-    expect(home.totalSavings).toBe(1000); // honey: 49,99 committed → 39,99 final, 1 unit
     const honey = await db.commitment.findFirstOrThrow({ where: { buyerId: "demo-buyer", productId: "seed-miere" } });
     expect(honey).toMatchObject({ status: "AWAITING_PICKUP", finalUnitPrice: 3999, amountCharged: 3999 });
   });
@@ -64,6 +63,7 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
   it("profile shows wallet, history and a pickup code for the settled order", async () => {
     const profile = await q.profileData("demo-buyer");
     expect(profile?.wallet.reserved).toBe(2 * 5499);
+    expect(profile?.totalSavings).toBe(1000); // honey: 49,99 committed → 39,99 final, 1 unit
     expect(profile?.history.map((h) => h.type)).toContain("SETTLE");
     expect(profile?.orders[0].status).toBe("AWAITING_PICKUP"); // ready for pickup comes first
     const ready = profile?.orders.find((o) => o.status === "AWAITING_PICKUP");

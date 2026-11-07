@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { HomeDeals } from "@/components/buyer/home-deals";
 import { BuyerScreen, SectionTitle } from "@/components/buyer/buyer-screen";
 import { Icon } from "@/components/ds/icon";
-import { Tag } from "@/components/ds/tag";
 import { formatRon } from "@/domain/money";
 import { CATEGORIES } from "@/lib/onboarding";
 import { dayLabel, units } from "@/lib/format";
@@ -25,7 +24,7 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
   if (profile?.role === "SELLER") redirect("/seller");
   const category = typeof params.categorie === "string" && CATEGORIES.some((c) => c.value === params.categorie) ? params.categorie : null;
   const now = new Date();
-  const { cards, myGroups, totalSavings, stores, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
+  const { cards, myGroups, stores, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
 
   const usedCategories = CATEGORIES.filter((c) => cards.some((card) => card.category === c.value));
 
@@ -55,20 +54,6 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
           <Icon name="user-24" size={24} />
         </Link>
       </header>
-
-      <section className="relative overflow-hidden rounded-lg bg-bg-success p-4 text-text-inverse" aria-label="Economiile tale">
-        <Icon name="promo-shape-back" size={90} className="absolute top-[65px] right-[60px]" />
-        <Icon name="promo-shape" size={150} className="absolute top-[86px] -right-[30px]" />
-        <div className="relative flex max-w-[190px] flex-col items-start gap-2">
-          <Tag tone="deal" className="bg-bg-deal text-text-primary">
-            Economiile tale
-          </Tag>
-          <p className="display-md">{formatRon(totalSavings)} economisiți</p>
-          <p className="body-compact">
-            {totalSavings > 0 ? "Față de prețul întreg, în grupurile încheiate." : "Intră în primul tău grup. La închidere vezi aici cât ai economisit față de prețul întreg."}
-          </p>
-        </div>
-      </section>
 
       {myGroups.length > 0 && (
         <section className="flex flex-col gap-3">

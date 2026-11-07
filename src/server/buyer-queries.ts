@@ -48,7 +48,7 @@ export type DealCard = {
   fromUnitPrice: number;
 };
 
-/** Home (B3.1): one card per active product with an open group, plus the buyer's own groups and savings. 2 queries. */
+/** Home (B3.1): one card per active product with an open group, plus the buyer's own open groups. Savings live on the profile. */
 export async function homeData(buyerId: string | null, now = new Date()) {
   if (buyerId) await settleDueGroups(buyerId, now);
   const [products, buyer, stores] = await Promise.all([
@@ -110,12 +110,19 @@ export async function homeData(buyerId: string | null, now = new Date()) {
   const myGroups = commitments
     .filter((c) => c.status === "ACTIVE")
     .map((c) => ({ productId: c.product.id, name: c.product.name, closesAt: c.group.closesAt, offer: offerFor(c.product.priceTiers, c.group, now) }));
-  // BL §6: savings = quantity × (base price − final unit price), for settled orders only.
-  const totalSavings = commitments
-    .filter((c) => c.status !== "ACTIVE" && c.finalUnitPrice !== null)
-    .reduce((sum, c) => sum + savings(c.product.priceTiers, c.quantity, c.finalUnitPrice!), 0);
 
-  return { cards, myGroups, totalSavings, stores, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+  return { cards, myGroups, stores, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+}
+
+const SETTLED_FOR_SAVINGS = new Set(["AWAITING_PICKUP", "COLLECTED", "EXPIRED_PAID"]);
+
+/** BL §6: savings = quantity × (base price − final unit price), for settled orders only. */
+function settledSavings(
+  commitments: readonly { status: string; quantity: number; finalUnitPrice: number | null; product: { priceTiers: { minQty: number; unitPrice: number }[] } }[],
+) {
+  return commitments
+    .filter((c) => SETTLED_FOR_SAVINGS.has(c.status) && c.finalUnitPrice !== null)
+    .reduce((sum, c) => sum + savings(c.product.priceTiers, c.quantity, c.finalUnitPrice!), 0);
 }
 
 export type StoreCard = {
@@ -355,6 +362,7 @@ export async function profileData(buyerId: string, now = new Date()) {
   return {
     user: { name: user.name, email: user.email, preferences: (user.preferences ?? {}) as { firstName?: string; lastName?: string; phone?: string } },
     wallet: { available: sum("BUYER_AVAILABLE"), reserved: sum("BUYER_RESERVED") },
+    totalSavings: settledSavings(user.commitments),
     history: history.map((e) => ({ id: e.id, amount: e.amount, type: e.transaction.type, createdAt: e.transaction.createdAt, productName: e.transaction.commitment?.product.name ?? null })),
     orders,
   };

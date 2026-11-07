@@ -16,14 +16,17 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { formatRon } from "@/domain/money";
 import { dayLabel, formatToken, initials, orderRef, timeLabel, units } from "@/lib/format";
 import { cancelCommitmentAction } from "@/server/actions/buyer";
+import { closeMyGroupNowAction } from "@/server/actions/demo";
 import { logoutAction } from "@/server/actions/onboarding";
 import type { ProfileOrder } from "@/server/buyer-queries";
 
 type Props = {
-  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string } };
+  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string; phone?: string } };
   wallet: { available: number; reserved: number };
   history: { id: string; amount: number; type: string; createdAt: Date; productName: string | null }[];
   orders: ProfileOrder[];
+  /** Shows the "Demo: închide grupul acum" button (DEMO_MODE only). */
+  demoMode?: boolean;
 };
 
 const CURRENT = new Set(["ACTIVE", "AWAITING_PICKUP"]);
@@ -44,7 +47,7 @@ const HISTORY_LABEL: Record<string, string> = {
 };
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function ProfileView({ user, wallet, history, orders }: Props) {
+export function ProfileView({ user, wallet, history, orders, demoMode = false }: Props) {
   const [tab, setTab] = useState<"active" | "past">("active");
   const [howOpen, setHowOpen] = useState(false);
   const [codeFor, setCodeFor] = useState<ProfileOrder | null>(null);
@@ -69,7 +72,10 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
           </span>
           <div className="flex min-w-0 flex-col">
             <p className="truncate title-lg text-text-primary">{name}</p>
-            <p className="truncate body-sm text-text-secondary">{user.email}</p>
+            <p className="truncate body-sm text-text-secondary">
+              {/* Phone sign-ups have a generated email: show their number instead. */}
+              {user.preferences.phone ? `+40 ${user.preferences.phone.replace(/(\d{3})(\d{3})(\d{3})/, "$1 $2 $3")}` : user.email}
+            </p>
           </div>
         </section>
 
@@ -113,7 +119,7 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
               body={tab === "active" ? "Intră într-un grup de pe Acasă. Comanda apare aici." : "Comenzile ridicate apar aici."}
             />
           ) : (
-            shown.map((o) => <OrderCard key={o.id} order={o} onShowCode={() => setCodeFor(o)} />)
+            shown.map((o) => <OrderCard key={o.id} order={o} demoMode={demoMode} onShowCode={() => setCodeFor(o)} />)
           )}
         </section>
 
@@ -176,15 +182,25 @@ function Detail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function OrderCard({ order, onShowCode }: { order: ProfileOrder; onShowCode: () => void }) {
+function OrderCard({ order, demoMode, onShowCode }: { order: ProfileOrder; demoMode: boolean; onShowCode: () => void }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [closing, startClosing] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const status = STATUS[order.status] ?? { label: order.status, tone: "neutral" as const };
   const inGroup = order.status === "ACTIVE";
   const now = new Date();
   const closesAt = new Date(order.closesAt);
   const deadline = order.pickupDeadline ? new Date(order.pickupDeadline) : null;
+
+  function closeNow() {
+    setError(null);
+    startClosing(async () => {
+      const r = await closeMyGroupNowAction({ commitmentId: order.id });
+      if (r.ok) router.refresh(); // the card comes back as "Gata de ridicare" with the QR button
+      else setError("Nu am putut închide grupul. Încearcă din nou.");
+    });
+  }
 
   function cancel() {
     setError(null);
@@ -245,6 +261,15 @@ function OrderCard({ order, onShowCode }: { order: ProfileOrder; onShowCode: () 
             {order.cancelLockedBy === "TIER_UNLOCKED" ? "Grupul a deblocat o reducere: nu mai poți renunța, iar prețul nu mai poate crește." : "Grupul se închide: nu mai poți renunța."}
           </InlineAlert>
         ))}
+      {inGroup && demoMode && (
+        // Demo only (DEMO_MODE): closes the group now with the real settlement code.
+        <div className="flex flex-col gap-1 border-t border-border-subtle pt-3">
+          <Button variant="tertiary" size="md" className="w-full" disabled={closing} onClick={closeNow}>
+            {closing ? "Se închide grupul…" : "Demo: închide grupul acum"}
+          </Button>
+          <p className="caption text-text-secondary">Grupul se închide pentru toți, plătești prețul final și comanda devine gata de ridicare.</p>
+        </div>
+      )}
       {error && <InlineAlert tone="danger" icon="info-24">{error}</InlineAlert>}
     </article>
   );

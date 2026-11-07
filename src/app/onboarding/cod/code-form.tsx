@@ -29,9 +29,10 @@ export function CodeForm({ searchParams }: { searchParams: Promise<Record<string
   const verify = (value: string) =>
     startTransition(async () => {
       setError(null);
-      const result = await verifyPhoneCodeAction({ code: value });
+      const tel = typeof params.tel === "string" && /^\d{9}$/.test(params.tel) ? params.tel : undefined;
+      const result = await verifyPhoneCodeAction({ code: value, phone: tel });
       if (result.ok) router.push("/onboarding/nume");
-      else setError(result.reason === "DEMO_USERS_MISSING" ? "Contul demo nu există încă în baza de date." : "Codul nu a putut fi verificat. Încearcă din nou.");
+      else setError("Codul nu a putut fi verificat. Încearcă din nou.");
     });
 
   return (

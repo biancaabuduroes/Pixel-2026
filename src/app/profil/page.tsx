@@ -29,5 +29,5 @@ async function Profile() {
       </BuyerScreen>
     );
   }
-  return <ProfileView {...data} />;
+  return <ProfileView {...data} demoMode={process.env.DEMO_MODE === "true"} />;
 }

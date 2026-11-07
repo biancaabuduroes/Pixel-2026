@@ -13,7 +13,8 @@
 | 2026-11-07 | One active commitment per buyer per product |
 | 2026-11-07 | Cancel allowed until the first lower tier unlocks, not after |
 | 2026-11-07 | Money paid to the seller on pickup; no-show → seller paid after the deadline; disputes handled manually by an admin |
-| 2026-11-07 | 6-digit pickup code typed in by the seller (no QR, not a voucher) |
+| 2026-11-07 | 6-digit pickup code typed in by the seller (not a voucher) |
+| 2026-11-07 | Pickup code also shown as a QR: a link to the seller's confirm page with the code filled in, scanned with the phone camera (no in-app scanner); typing stays as the fallback. Adds the `qrcode` library |
 | 2026-11-07 | In-app RON wallet; digital euro kept open (research) |
 | 2026-11-07 | Simulated top-up through a PaymentProvider layer; Stripe test mode as P1 |
 | 2026-11-07 | Demo control panel (demo environment only) + pre-loaded data |

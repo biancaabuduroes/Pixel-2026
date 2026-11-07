@@ -29,7 +29,7 @@
 
 ### F5. My purchases — buyer
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.
-- **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code**. Completed and cancelled history.
+- **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code and its QR**. Completed and cancelled history.
 - **Acceptance:** the cancel button is hidden or disabled with an explanation after a tier unlocks; the shown amounts match the ledger.
 
 ### F6. Wallet — buyer
@@ -49,7 +49,7 @@
 
 ### F9. Orders and pickup confirmation — seller
 - **Story:** As a seller, I want to see orders to prepare and confirm pickups with the buyer's code.
-- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); enter the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8.
+- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8.
 - **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order.
 
 ### F10. Group settlement and renewal — system

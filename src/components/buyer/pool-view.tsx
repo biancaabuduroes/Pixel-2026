@@ -12,15 +12,13 @@ import { InlineAlert } from "@/components/ds/inline-alert";
 import { ListRow } from "@/components/ds/list-row";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
 import { SegmentedControl } from "@/components/ds/segmented-control";
-import { Tag } from "@/components/ds/tag";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { tierLadder, type Segment } from "@/domain/ai";
 import { formatRon, multiplyBani } from "@/domain/money";
-import { dayLabel, formatToken, inDuration, priceNumber, timeLabel } from "@/lib/format";
+import { dayLabel, formatToken, inDuration, priceNumber, timeLabel, units } from "@/lib/format";
 import { joinGroupAction } from "@/server/actions/buyer";
 import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
-import { GroupProgressBar } from "./group-progress-bar";
 import type { CompareRow } from "@/server/buyer-queries";
 import { CompareSellersSheet } from "./compare-sellers-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
@@ -64,18 +62,11 @@ export function PoolView(props: Props) {
   const { product, groups } = props;
   const [groupId, setGroupId] = useState(props.activeCommitment?.groupId ?? props.recommendedGroupId ?? groups[0]?.id ?? null);
   const group = groups.find((g) => g.id === groupId) ?? groups[0] ?? null;
-  const headline = group?.offer ?? null;
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
-      <Hero
-        name={product.name}
-        description={product.description}
-        store={product.pickupLocation.name}
-        discountPct={headline?.discountPct ?? 0}
-        productId={product.id}
-      />
-      <main className="flex flex-col gap-6 px-page pt-4">
+      <Hero name={product.name} productId={product.id} />
+      <main className="flex flex-col gap-6 px-page pt-5">
         {group ? (
           <GroupSection key={group.id} {...props} group={group} onSelect={setGroupId} />
         ) : (
@@ -86,17 +77,14 @@ export function PoolView(props: Props) {
   );
 }
 
-function Hero({ name, description, store, discountPct, productId }: { name: string; description: string; store: string; discountPct: number; productId: string }) {
+function Hero({ name, productId }: { name: string; productId: string }) {
   return (
-    <section className="relative flex h-110 flex-col justify-end overflow-hidden bg-bg-brand-soft px-page pb-6">
-      <Icon name="hero-ellipse-1" size={260} className="absolute top-[170px] -left-[70px] opacity-60" />
-      <Icon name="hero-ellipse-2" size={140} className="absolute top-[68px] -right-[40px]" />
-      <Icon name="bag-150-brand" size={150} className="absolute top-[50px] left-1/2 -translate-x-1/2" />
-      <div className="absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-b from-transparent to-bg-inverse/70" aria-hidden />
+    <section className="relative h-[280px] overflow-hidden bg-bg-brand-soft">
+      <Icon name="bag-150-brand" size={96} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
       <Link
         href="/"
         aria-label="Înapoi"
-        className="absolute top-14 left-page flex size-control-md items-center justify-center rounded-pill bg-bg-surface shadow-raised outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+        className="absolute top-14 left-page flex size-11 items-center justify-center rounded-pill bg-bg-surface shadow-raised outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
       >
         <Icon name="chevron-left-22" size={22} />
       </Link>
@@ -108,20 +96,36 @@ function Hero({ name, description, store, discountPct, productId }: { name: stri
           if (navigator.share) void navigator.share({ title: name, url }).catch(() => undefined);
           else void navigator.clipboard.writeText(url);
         }}
-        className="absolute top-14 right-page flex h-control-md items-center rounded-pill bg-bg-surface px-3 label-sm text-text-primary shadow-raised outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+        className="absolute top-14 right-page flex size-11 items-center justify-center rounded-pill bg-bg-surface shadow-raised outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
       >
-        Distribuie
+        <ShareIcon />
       </button>
-      <div className="relative flex flex-col items-start gap-2 text-text-inverse">
-        {discountPct > 0 && <span className="rounded-pill bg-bg-deal px-2 py-0.5 label-sm text-text-primary">-{discountPct}%</span>}
-        <h1 className="display-lg">{name}</h1>
-        <p className="body-lg">{description}</p>
-        <p className="flex items-center gap-2 body-md">
-          <Icon name="store-16-inverse" size={16} />
-          {store}
-        </p>
+      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
+        <span className="size-2 rounded-pill bg-text-primary" />
+        <span className="size-2 rounded-pill bg-bg-strong" />
+        <span className="size-2 rounded-pill bg-bg-strong" />
       </div>
     </section>
+  );
+}
+
+function Fact({ icon, label }: { icon: "users-20-deal" | "lock-20" | "store-20-success"; label: string }) {
+  return (
+    <li className="flex flex-col items-center gap-2 text-center">
+      <Icon name={icon} size={22} />
+      <span className="body-sm text-text-secondary">{label}</span>
+    </li>
+  );
+}
+
+function ShareIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden>
+      <path d="M7.5 8.5 12.2 6M7.5 11.5l4.7 2.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="5.5" cy="10" r="2.1" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="14.2" cy="5.2" r="2.1" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="14.2" cy="14.8" r="2.1" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
   );
 }
 
@@ -149,6 +153,10 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const short = signedIn && !activeCommitment && availableBalance < lockAmount;
   const segments = groups.filter((g) => g.segment);
   const closesAt = new Date(group.closesAt);
+  const quantities = Array.from({ length: maxQty }, (_, i) => i + 1);
+  const pickupDay = dayLabel(closesAt, new Date(now));
+  const tierTarget = offer.next?.minQty ?? offer.totalQty;
+  const tierPct = tierTarget > 0 ? Math.min(100, Math.round((offer.totalQty * 100) / tierTarget)) : 100;
 
   function join() {
     setError(null);
@@ -165,6 +173,60 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
 
   return (
     <>
+      <header className="flex flex-col gap-3">
+        <div className="flex items-center justify-between gap-3">
+          {offer.discountPct > 0 ? (
+            <span className="rounded-md bg-bg-deal px-2 py-1 label-sm text-text-primary">−{offer.discountPct}%</span>
+          ) : (
+            <span />
+          )}
+          <span className="rounded-pill bg-bg-subtle px-2.5 py-1">
+            <DealCountdown closesAt={closesAt.toISOString()} />
+          </span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <h1 className="title-xl text-text-primary">{product.name}</h1>
+          <p className="flex items-center gap-1.5 body-sm text-text-secondary">
+            <Icon name="store-14" size={14} />
+            {product.pickupLocation.name}
+            {group.id === recommendedGroupId && groups.length > 1 ? " · recomandat" : ""}
+          </p>
+        </div>
+        <p className="flex items-baseline gap-2">
+          <span className="display-lg text-text-primary">{formatRon(offer.currentUnitPrice)}</span>
+          {offer.discountPct > 0 && <s className="body-md text-text-secondary">{formatRon(offer.baseUnitPrice)}</s>}
+        </p>
+        <p className="body-md text-text-secondary">{product.description}</p>
+      </header>
+
+      {quantities.length > 1 && (
+        <div className="flex items-center gap-3">
+          <span className="label-md text-text-primary">Cantitate</span>
+          <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Cantitate">
+            {quantities.map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={quantity === n}
+                onClick={() => setQuantity(n)}
+                className={cn(
+                  "flex h-8 min-w-10 items-center justify-center rounded-pill px-3 label-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
+                  quantity === n ? "bg-bg-action text-text-inverse" : "bg-bg-muted text-text-primary",
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <ul className="grid grid-cols-3 gap-2 py-1">
+        <Fact icon="users-20-deal" label="Preț de grup" />
+        <Fact icon="lock-20" label="Plătești la final" />
+        <Fact icon="store-20-success" label={`Ridici ${pickupDay}`} />
+      </ul>
+
       {segments.length > 1 && (
         <SegmentedControl
           label="Alege grupul"
@@ -174,58 +236,43 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         />
       )}
 
-      <section className="flex flex-col gap-4 rounded-lg border border-border-default bg-bg-surface p-4" aria-label="Prețul grupului">
-        <div className="flex flex-col gap-1">
-          <p className="flex flex-wrap items-baseline gap-x-2">
-            <span className="display-xl text-text-primary">{formatRon(offer.currentUnitPrice)}</span>
-            {offer.discountPct > 0 && <s className="body-sm text-text-secondary">{formatRon(offer.baseUnitPrice)}</s>}
+      <section className="flex flex-col gap-4 rounded-xl border border-border-subtle bg-bg-surface p-4" aria-label="Prețul grupului">
+        <h2 className="title-xl text-text-primary">Prețul grupului</h2>
+        <div className="flex items-start justify-between gap-3">
+          <p className="body-md text-text-primary">
+            {offer.next ? (
+              <>
+                Încă <b>{units(offer.next.unitsMissing)}</b> și scade la <b>{formatRon(offer.next.unitPrice)}</b>
+              </>
+            ) : (
+              "Cel mai bun preț e atins"
+            )}
           </p>
-          <p className="body-md text-text-secondary">
-            Probabil plătești {formatRon(offer.probableUnitPrice)} (estimare). Niciodată peste {formatRon(offer.currentUnitPrice)}.
-          </p>
+          <span className="shrink-0 label-sm text-text-secondary">
+            {offer.totalQty} / {tierTarget}
+          </span>
         </div>
-        <GroupProgressBar offer={offer} />
-        <div className="flex flex-col gap-2 border-t border-border-subtle pt-3">
-          <div className="flex items-center justify-between gap-2 body-sm text-text-secondary">
-            <span className="flex items-center gap-1.5">
-              <Icon name="users-14" size={14} />
-              {live.buyers} {live.buyers === 1 ? "cumpărător" : "cumpărători"} în grup
-            </span>
-            <DealCountdown closesAt={closesAt.toISOString()} />
-          </div>
-          <p className="flex items-center gap-1.5 body-sm text-text-secondary">
-            <Icon name="store-14" size={14} />
-            Se închide {inDuration(closesAt.getTime() - now)}.{group.id === recommendedGroupId && groups.length > 1 ? " Recomandat pentru tine." : ""}
-          </p>
+        <div className="h-1.5 w-full overflow-hidden rounded-pill bg-bg-muted" role="progressbar" aria-label="Progres grup" aria-valuemin={0} aria-valuemax={tierTarget} aria-valuenow={offer.totalQty}>
+          <div className="h-full rounded-pill bg-bg-deal" style={{ width: `${tierPct}%` }} />
         </div>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <h2 className="title-xl text-text-primary">Prețuri pe trepte</h2>
         <ol className="grid grid-cols-3 gap-2">
           {tierLadder(product.priceTiers, offer).map((t) => (
             <li
               key={t.minQty}
               className={cn(
-                "flex flex-col items-center gap-0.5 rounded-md border px-2 py-3 text-center",
-                t.state === "passed" && "border-border-default bg-bg-subtle text-text-secondary",
-                t.state === "current" && "border-bg-deal bg-bg-deal text-text-primary",
-                (t.state === "probable" || t.state === "upcoming") && "border-border-default bg-bg-surface text-text-primary",
+                "flex flex-col items-center gap-0.5 rounded-lg px-2 py-3 text-center",
+                t.state === "current" ? "bg-bg-deal text-text-primary" : "bg-bg-subtle text-text-secondary",
               )}
             >
-              <span className="title-md">{t.maxQty === null ? `${t.minQty}+` : `${t.minQty}–${t.maxQty}`}</span>
-              <span className="body-sm text-text-secondary">unități</span>
-              {t.state === "passed" ? <s className="title-md">{priceNumber(t.unitPrice)}</s> : <span className="title-md">{priceNumber(t.unitPrice)}</span>}
-              {t.state === "current" && <span className="mt-0.5 rounded-pill bg-bg-inverse px-2 label-sm text-text-inverse">Acum</span>}
-              {t.state === "probable" && <Tag tone="deal" className="mt-0.5">Probabil</Tag>}
+              <span className="body-sm">{t.maxQty === null ? `${t.minQty}+` : `${t.minQty}–${t.maxQty}`}</span>
+              <span className="title-md text-text-primary">{priceNumber(t.unitPrice)}</span>
             </li>
           ))}
         </ol>
-        {offer.next && offer.forecast && (
-          <p className="caption text-text-secondary">
-            Estimare AI: șanse {CHANCE[offer.forecast]} ca grupul să ajungă la {formatRon(offer.next.unitPrice)} până la închidere. Nu e o garanție.
-          </p>
-        )}
+        <p className="caption text-text-secondary">
+          Probabil plătești {formatRon(offer.probableUnitPrice)} (estimare). Niciodată peste {formatRon(offer.currentUnitPrice)}.
+          {offer.next && offer.forecast ? ` Șanse ${CHANCE[offer.forecast]} să ajungă la pragul următor.` : ""} Se închide {inDuration(closesAt.getTime() - now)}.
+        </p>
       </section>
 
       {product.kind === "BASKET" && product.basketItems.length > 0 && (
@@ -250,10 +297,10 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         onClick={() => setPickupOpen(true)}
       />
       {alternatives.length > 1 && (
-        <ListRow icon="store-20-success" title="Compară vânzătorii" subtitle="Alte grupuri din aceeași categorie" onClick={() => setCompareOpen(true)} />
+        <ListRow icon="store-20-success" title="Compară vânzătorii" subtitle="Preț curent și când se închide" onClick={() => setCompareOpen(true)} />
       )}
 
-      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[430px] flex-col gap-3 bg-bg-surface px-page pt-3 pb-6 shadow-sheet">
+      <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-border-subtle bg-bg-surface px-page pt-3 pb-6">
         {error && <InlineAlert tone="danger" icon="info-24">{error}</InlineAlert>}
         {activeCommitment ? (
           <>
@@ -286,16 +333,15 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
                 </Link>
               </InlineAlert>
             ) : null}
-            {product.perBuyerCap > 1 && !soldOut && (
-              <div className="flex items-center justify-between">
-                <span className="label-md text-text-primary">Cantitate</span>
-                <QuantityStepper label="Cantitate" value={quantity} max={maxQty} onChange={setQuantity} />
-              </div>
-            )}
-            <Button className="w-full" disabled={pending || soldOut || closed || short} onClick={join}>
-              {pending ? "Se blochează…" : `Intră în grup · max ${formatToken(lockAmount)}`}
-            </Button>
-            <p className="text-center caption text-text-secondary">Toți plătesc prețul final. Diferența îți revine automat.</p>
+            <div className="flex items-center gap-3">
+              <QuantityStepper label="Cantitate" value={quantity} max={maxQty} onChange={setQuantity} />
+              <Button className="min-w-0 flex-1" disabled={pending || soldOut || closed || short} onClick={join}>
+                {pending ? "Se blochează…" : `Intră în grup · ${priceNumber(offer.currentUnitPrice)}`}
+              </Button>
+            </div>
+            <p className="text-center caption text-text-secondary">
+              Blochezi max {formatToken(lockAmount)}. Toți plătesc prețul final; diferența îți revine automat.
+            </p>
           </>
         )}
       </div>

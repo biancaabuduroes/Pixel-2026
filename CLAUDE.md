@@ -5,6 +5,20 @@
 - The developer is learning: explain important technical decisions clearly and briefly.
 - Read `docs/BUSINESS_LOGIC.md` **before** touching pricing, groups, wallet or settlement code. If code and docs disagree, stop and ask.
 
+## Simplicity (applies to every task)
+- Deliver the mandatory requirements and essential user journeys first; polish only what's necessary.
+- If several approaches work, choose the simplest reliable one. No speculative abstractions, no premature optimization.
+- Don't add features or expand scope beyond docs/.
+- Reuse existing code, components, dependencies and integrations. No new dependencies unless genuinely needed and approved.
+- Keep code clean, secure, responsive, reliable and tested. Avoid unnecessary database queries and API calls.
+- Goal: a fully functional, tested, deployable product within the time box.
+
+## Deployment (Vercel)
+- Vercel is connected: every PR gets a preview URL; merging to `main` deploys production.
+- Every PR must pass `npm run build`. List any new environment variables I must add in Vercel (names only).
+- Migrations run automatically on production deploys only (`scripts/migrate-production.mjs`); seeding is never run during the Vercel build.
+- Preview and production share the demo database.
+
 ## Approval rules
 - Never commit, push, deploy, install new dependencies outside the approved stack, or change the database schema without explicit approval.
 - Don't invent business rules. When a rule is missing, ask, then record the answer in `docs/OPEN_QUESTIONS.md`.

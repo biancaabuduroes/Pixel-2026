@@ -1,0 +1,264 @@
+// BunDeals database schema — implements docs/DATA_MODEL.md.
+// Money: every amount/price is an Int number of bani (1 RON = 100 bani). No floats, no Decimal.
+// Balances are never stored: they are SUM(LedgerEntry.amount) per account.
+// Extra integrity rules Prisma can't express (CHECK constraints, append-only and
+// sum-to-zero triggers) live in the migration SQL — see prisma/migrations.
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["partialIndexes"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Users & sellers ─────────────────────────────────────────────
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+
+  sellerProfile   SellerProfile?
+  pickupLocations PickupLocation[]
+  products        Product[]
+  commitments     Commitment[]
+  ledgerAccounts  LedgerAccount[]
+}
+
+model SellerProfile {
+  userId       String @id
+  businessName String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PickupLocation {
+  id           String @id @default(cuid())
+  sellerId     String
+  name         String
+  address      String
+  openingHours String // free text shown to buyers (e.g. "Mon–Fri 9–18")
+
+  seller   User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@index([sellerId])
+}
+
+// ─── Products & pricing ─────────────────────────────────────────
+
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Product {
+  id                 String        @id @default(cuid())
+  sellerId           String
+  pickupLocationId   String
+  name               String
+  description        String
+  imageUrl           String?
+  stockTotal         Int // CHECK >= 0
+  perBuyerCap        Int // CHECK >= 1
+  pickupDeadlineDays Int           @default(7) // CHECK >= 1, calendar days
+  status             ProductStatus @default(ACTIVE)
+  createdAt          DateTime      @default(now())
+
+  seller         User              @relation(fields: [sellerId], references: [id])
+  pickupLocation PickupLocation    @relation(fields: [pickupLocationId], references: [id])
+  priceTiers     PriceTier[]
+  durations      ProductDuration[]
+  groups         Group[]
+  commitments    Commitment[]
+
+  @@index([sellerId])
+}
+
+model PriceTier {
+  id        String @id @default(cuid())
+  productId String
+  minQty    Int // CHECK >= 1
+  unitPrice Int // bani, CHECK > 0
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, minQty])
+}
+
+model ProductDuration {
+  id            String @id @default(cuid())
+  productId     String
+  durationHours Int // CHECK >= 1
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, durationHours])
+}
+
+// ─── Groups & commitments ───────────────────────────────────────
+
+enum GroupStatus {
+  OPEN
+  SETTLING
+  SETTLED
+  CANCELLED
+}
+
+model Group {
+  id             String      @id @default(cuid())
+  productId      String
+  durationHours  Int
+  opensAt        DateTime
+  closesAt       DateTime // CHECK closesAt > opensAt
+  status         GroupStatus @default(OPEN)
+  totalQty       Int         @default(0) // sum of ACTIVE commitment quantities; recalculable
+  finalUnitPrice Int? // bani, set at settlement
+  createdAt      DateTime    @default(now())
+
+  product     Product      @relation(fields: [productId], references: [id])
+  commitments Commitment[]
+  joinEvents  JoinEvent[]
+
+  // Exactly one open group per product and duration.
+  @@unique([productId, durationHours], where: { status: "OPEN" }, map: "Group_one_open_per_duration")
+  // Lets Commitment reference (groupId, productId) so its productId always matches its group.
+  @@unique([id, productId])
+  @@index([status, closesAt])
+}
+
+enum CommitmentStatus {
+  ACTIVE
+  CANCELLED
+  AWAITING_PICKUP
+  COLLECTED
+  EXPIRED_PAID
+  DISPUTED
+  REFUNDED
+}
+
+model Commitment {
+  id                 String           @id @default(cuid())
+  groupId            String
+  productId          String // copied from the group so "one ACTIVE per buyer per product" can be a DB constraint
+  buyerId            String
+  quantity           Int // CHECK >= 1
+  committedUnitPrice Int // bani, price shown before joining
+  reservedAmount     Int // bani, CHECK = quantity × committedUnitPrice
+  finalUnitPrice     Int? // bani, CHECK <= committedUnitPrice
+  amountCharged      Int? // bani, CHECK <= reservedAmount
+  status             CommitmentStatus @default(ACTIVE)
+  pickupCodeHash     String? // only the hash of the 6-digit code is stored
+  pickupDeadline     DateTime?
+  failedCodeAttempts Int              @default(0)
+  codeLockedUntil    DateTime?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  group              Group               @relation(fields: [groupId, productId], references: [id, productId])
+  product            Product             @relation(fields: [productId], references: [id])
+  buyer              User                @relation(fields: [buyerId], references: [id])
+  ledgerTransactions LedgerTransaction[]
+
+  // One active commitment per buyer per product.
+  @@unique([buyerId, productId], where: { status: "ACTIVE" }, map: "Commitment_one_active_per_product")
+  @@index([groupId, status])
+  @@index([productId, status])
+}
+
+/// Join history for the AI forecast (real joins and demo-simulated ones).
+model JoinEvent {
+  id        String   @id @default(cuid())
+  groupId   String
+  quantity  Int // CHECK >= 1
+  simulated Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId, createdAt])
+}
+
+// ─── Wallet: append-only double-entry ledger ────────────────────
+
+enum LedgerAccountType {
+  BUYER_AVAILABLE
+  BUYER_RESERVED
+  PENDING_PICKUP
+  SELLER_EARNINGS
+  PLATFORM_REVENUE
+  EXTERNAL_FUNDING
+}
+
+enum LedgerTransactionType {
+  TOPUP
+  RESERVE
+  RELEASE
+  SETTLE
+  PAYOUT
+  REFUND
+}
+
+/// An account holds no balance column: balance = SUM(entries.amount).
+model LedgerAccount {
+  id          String            @id @default(cuid())
+  ownerUserId String? // null for the system accounts (PLATFORM_REVENUE, EXTERNAL_FUNDING)
+  type        LedgerAccountType
+  currency    String            @default("RON")
+
+  owner   User?         @relation(fields: [ownerUserId], references: [id])
+  entries LedgerEntry[]
+
+  @@unique([ownerUserId, type, currency])
+  // Postgres treats NULLs as distinct, so system accounts need their own unique index.
+  @@unique([type, currency], where: raw("\"ownerUserId\" IS NULL"), map: "LedgerAccount_one_system_account")
+}
+
+/// Append-only (UPDATE/DELETE blocked by trigger). Entries must sum to 0 (checked at commit).
+model LedgerTransaction {
+  id           String                @id @default(cuid())
+  operationId  String                @unique // e.g. "settle:<commitmentId>" — a retry can't post twice
+  type         LedgerTransactionType
+  commitmentId String?
+  groupId      String?
+  topUpId      String? // client idempotency key for simulated top-ups
+  createdAt    DateTime              @default(now())
+
+  commitment Commitment?   @relation(fields: [commitmentId], references: [id])
+  entries    LedgerEntry[]
+
+  @@index([commitmentId])
+}
+
+/// Append-only. amount is signed bani: + credits the account, − debits it. CHECK amount <> 0.
+model LedgerEntry {
+  id            String @id @default(cuid())
+  transactionId String
+  accountId     String
+  amount        Int
+
+  transaction LedgerTransaction @relation(fields: [transactionId], references: [id])
+  account     LedgerAccount     @relation(fields: [accountId], references: [id])
+
+  @@index([accountId])
+  @@index([transactionId])
+}
+
+// ─── Settings ───────────────────────────────────────────────────
+
+/// e.g. key "commissionRate", value "0.05" (parsed to integer basis points in code).
+model PlatformSetting {
+  key   String @id
+  value String
+}

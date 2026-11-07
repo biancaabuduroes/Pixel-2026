@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { BUDGET, CATEGORIES, LOCAL_PREFERENCE, RADIUS_KM } from "@/lib/onboarding";
@@ -32,4 +33,23 @@ export async function savePreferences(userId: string, answers: Preferences): Pro
   await db.$executeRaw`
     UPDATE "User" SET "preferences" = COALESCE("preferences", '{}'::jsonb) || ${JSON.stringify(answers)}::jsonb
     WHERE id = ${userId} AND role = 'BUYER'`;
+}
+
+/**
+ * Phone sign-up (mock, decision 2026-11-07): every completed phone + code step creates a new
+ * buyer with an empty wallet, so the top-up chosen in onboarding is exactly what Profile shows.
+ * The phone number (9 national digits) is kept in preferences for display only.
+ * "Am deja cont" still logs into the shared demo buyer.
+ */
+export async function createSignupBuyer(phone: string | null): Promise<string> {
+  const user = await db.user.create({
+    data: {
+      email: `signup-${randomUUID()}@demo.bundeals.ro`,
+      name: "Cumpărător",
+      role: "BUYER",
+      preferences: phone ? { phone } : {},
+    },
+    select: { id: true },
+  });
+  return user.id;
 }

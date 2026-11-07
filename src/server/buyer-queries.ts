@@ -265,7 +265,7 @@ export async function profileData(buyerId: string, now = new Date()) {
   orders.sort((a, b) => Number(b.status === "AWAITING_PICKUP") - Number(a.status === "AWAITING_PICKUP"));
 
   return {
-    user: { name: user.name, email: user.email, preferences: (user.preferences ?? {}) as { firstName?: string; lastName?: string } },
+    user: { name: user.name, email: user.email, preferences: (user.preferences ?? {}) as { firstName?: string; lastName?: string; phone?: string } },
     wallet: { available: sum("BUYER_AVAILABLE"), reserved: sum("BUYER_RESERVED") },
     history: history.map((e) => ({ id: e.id, amount: e.amount, type: e.transaction.type, createdAt: e.transaction.createdAt, productName: e.transaction.commitment?.product.name ?? null })),
     orders,

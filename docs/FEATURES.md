@@ -40,7 +40,7 @@
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.
 - **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code and its QR**. Completed and cancelled history.
 - **Acceptance:** the cancel button is hidden or disabled with an explanation after a tier unlocks; the shown amounts match the ledger.
-- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare; "Gata de ridicare" first), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
+- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare; "Gata de ridicare" first), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. **Demo button** (DEMO_MODE only) on "În grup" orders: "Demo: închide grupul acum" closes that group now with the real settlement code (BL §7), so the order becomes "Gata de ridicare" and shows "Arată codul de ridicare". It settles the whole group for every buyer in it. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
 
 ### F6. Wallet — buyer
 - **Story:** As a buyer, I want to see my available, reserved and pending money and add funds.

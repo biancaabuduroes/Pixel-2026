@@ -5,6 +5,8 @@
 // Times are relative to when the SQL runs, so groups are open right after seeding.
 // Every amount is integer bani and every ledger transaction sums to 0 (checked by the database).
 
+import { existsSync } from "node:fs";
+
 const NOW = `(now() AT TIME ZONE 'UTC')`;
 const at = (hours) => `${NOW} ${hours < 0 ? "-" : "+"} interval '${Math.abs(hours) * 60} minutes'`;
 const q = (s) => `'${String(s).replaceAll("'", "''")}'`;
@@ -17,7 +19,7 @@ const LOCATIONS = [
 // tiers: [minQty, unitPrice in bani]; perBuyerCap < second tier minQty (pricing rule 4).
 // groups: [durationHours, hoursSinceOpen, simulated units (each simulated buyer joins with up to `cap` units)]
 const PRODUCTS = [
-  { id: "seed-scutece", name: "Scutece Premium Care nr. 4, 104 buc", desc: "104 bucăți · mărimea 4 (9–14 kg) · pachet lunar", cat: "scutece-bebelusi", loc: 0, cap: 3,
+  { id: "seed-scutece", name: "Scutece nr. 4, 104 buc", desc: "104 bucăți · mărimea 4 (9–14 kg) · pachet lunar", cat: "scutece-bebelusi", loc: 0, cap: 3,
     tiers: [[1, 12499], [20, 9499], [50, 8699]], groups: [[24, 20, 17], [72, 10, 26], [168, 30, 12]] },
   { id: "seed-ulei", name: "Ulei de floarea-soarelui 5 L", desc: "Bidon 5 L · presat la rece · producător local", cat: "ulei-camara", loc: 1, cap: 4,
     tiers: [[1, 5499], [15, 4999], [30, 4499], [60, 3999]], groups: [[48, 6, 21], [168, 40, 9]] },
@@ -170,6 +172,10 @@ for (const p of PRODUCTS) {
   sql(
     `INSERT INTO "Product" (id, "sellerId", "pickupLocationId", name, description, category, kind, "stockTotal", "perBuyerCap", "pickupDeadlineDays", status) SELECT ${q(p.id)}, id, ${q(loc)}, ${q(p.name)}, ${q(p.desc)}, ${q(p.cat)}, ${q(p.kind ?? "ITEM")}, 200, ${p.cap}, 3, 'ACTIVE' FROM "User" WHERE email = 'vanzator@bundeals.ro' ON CONFLICT DO NOTHING;`,
   );
+  // Keep re-runs in sync: name (e.g. the 2026-11-07 rename) and the photo, only if its file exists
+  // in public/products (scripts/prepare-product-image.sh). No photo → NULL → the app shows its fallback.
+  const image = existsSync(new URL(`../public/products/${p.id}.webp`, import.meta.url)) ? q(`/products/${p.id}.webp`) : "NULL";
+  sql(`UPDATE "Product" SET name = ${q(p.name)}, "imageUrl" = ${image} WHERE id = ${q(p.id)};`);
   if (p.items) {
     sql(`INSERT INTO "BasketItem" (id, "productId", position, name, quantity) VALUES ${p.items.map(([name, qty], i) => `(${q(`${p.id}-i${i + 1}`)}, ${q(p.id)}, ${i + 1}, ${q(name)}, ${qty})`).join(", ")} ON CONFLICT DO NOTHING;`);
   }

@@ -31,7 +31,7 @@ export function HomeDeals({ cards, categories, initialCategory }: { cards: DealC
   const baskets = visible.filter((c) => c.kind === "BASKET");
   const items = visible.filter((c) => c.kind === "ITEM");
   const card = (c: DealCard, className?: string) => (
-    <GroupDealCard key={c.productId} productId={c.productId} name={c.name} closesAt={c.closesAt} offer={c.offer} basketItems={c.itemCount} className={className} />
+    <GroupDealCard key={c.productId} productId={c.productId} name={c.name} closesAt={c.closesAt} offer={c.offer} basketItems={c.itemCount} imageUrl={c.imageUrl} className={className} />
   );
 
   return (

@@ -24,6 +24,10 @@
 | 2026-11-07 | 5-hour hackathon cut: demo user switcher, demo-panel closing, template AI text, no disputes/notifications/uploads |
 | 2026-11-07 | Build with token-based default styling if Figma access is not available in time |
 | 2026-11-07 | Project setup: Next.js 16, shadcn/ui default `base-nova` style (Base UI), Prisma pinned to 7.10.1, Supabase key named `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
+| 2026-11-07 | AI forecast: pace = units joined per hour since the group opened (at least 1 hour counted); projected = pace × hours left; ratio = projected ÷ units missing to the next tier. **Likely ≥ 1.25, Possible ≥ 0.75, otherwise Unlikely.** No forecast at the top tier |
+| 2026-11-07 | AI recommendation: probability per label (Likely 80%, Possible 50%, Unlikely 20%); expected unit price = p × next-tier price + (1 − p) × current price; lowest expected price first (an already-unlocked discount counts); ties → earlier closing |
+| 2026-11-07 | Pickup deadline counts **calendar days**: `closesAt + pickupDeadlineDays × 24h` (UTC) |
+| 2026-11-07 | Stock used = commitments that are not `CANCELLED` or `REFUNDED` (a refund gives the units back) |
 
 ## Assumptions (not explicitly confirmed)
 
@@ -34,6 +38,7 @@
 - Stock is reserved when a buyer joins; sold out → no new joins; the seller can't lower stock below the committed quantity.
 - If no tier is unlocked, the purchase completes at the base price.
 - Buyers can join until the group's closing time (server clock).
+- Cancelling also ends at the group's closing time: "still open" (BL §5) means status `open` **and** `now < closesAt`, the same window as joining.
 - The highest tier threshold must be ≤ stock.
 - Pickup code: single use; 5 wrong attempts → 15-minute lock.
 - Renewal stops when the product is inactive, the duration is removed, or stock is exhausted; open groups always settle.
@@ -44,7 +49,6 @@
 
 - When will Figma access be available, and which pages are final?
 - Should a group show a minimum "closing soon" join cutoff (e.g. no joins in the last 5 minutes)?
-- Pickup opening hours: does the deadline count calendar days or opening days?
 - Target market and launch city for after the hackathon; seller acquisition strategy.
 - Does the hackathon jury expect a specific digital currency integration (digital euro, stablecoin)?
 

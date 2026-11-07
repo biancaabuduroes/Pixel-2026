@@ -33,6 +33,7 @@
 | 2026-11-07 | Claude sessions reach the Supabase database through the Management API (HTTPS) with a personal access token stored as an environment network secret. Verified: migration `20261107150000_init` applied by Vercel (checksum matches), 13 tables, 20 checks, 3 partial indexes, 4 ledger triggers active |
 | 2026-11-07 | Onboarding (Figma "onboarding-flow"): whole app in **Romanian**; phone/SMS code **mocked**; "Continuă cu email" and "Am deja cont" go to a demo login (email + password for the 2 predefined users, `User.passwordHash`); answers saved in `User.preferences` (JSON); map/location **mocked**; **bunToken** = display name of the RON wallet (money stays integer bani, not decimal); top-up **minimum 10 RON**; home is a placeholder; **no dark mode**; Figma variables are the token source (no "Phase 2d") |
 | 2026-11-07 | Login screen not in Figma: built from B1.2a's layout and components (approved). Budget slider steps: 50 RON weekly, 200 RON monthly. All demo visitors share the demo buyer account |
+| 2026-11-07 | Onboarding UI adjustments: budget notify toggle removed; code-screen safety note removed; top-up replaced by Figma 64:1385 (typed amount, one row of presets, Brand "Cumpără bunToken", ⓘ opens the explainer sheet); **real map** (OpenStreetMap embed + Nominatim geocoder, no package, no API key; browser geolocation with demo-address fallback; fake store pins removed) |
 | 2026-11-07 | Database schema approved. Pickup code derived from a server secret + commitment ID; only its hash is stored. P1 tables (Dispute, Notification, AiInsight) added when those features are built |
 
 ## Assumptions (not explicitly confirmed)
@@ -58,6 +59,8 @@
 
 - Top-up screen: Figma has no demo-money label, but BL §9 requires one. A one-line caption was added under the buttons ("Mod demo: banii sunt simulați…"). Keep it, or should the designer add it?
 - Should the onboarding answers (local producers, categories, budget, radius) filter groups later? Today they are stored but unused.
+- Top-up 64:1385 has no design for an amount under 10 RON: the caption turns into the red TextField error ("Suma minimă este 10 RON") and the button uses the Disabled style.
+- Map: the "Rază X km" tag sits top-left (Figma: bottom-left) so OpenStreetMap's required attribution stays readable.
 
 - When will Figma access be available, and which pages are final?
 - Should a group show a minimum "closing soon" join cutoff (e.g. no joins in the last 5 minutes)?

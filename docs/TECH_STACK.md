@@ -17,6 +17,7 @@ Browser (React UI) ──> Next.js server actions / API routes ──> domain lo
 |---|---|---|---|---|
 | Framework | Next.js (App Router) + TypeScript | One codebase for one developer; server-side business logic | Separate NestJS backend (≈2× setup) | Free |
 | Styling | Tailwind CSS + shadcn/ui | Maps to Figma variables and Auto Layout; accessible components | CSS Modules | Free |
+| Onboarding map | OpenStreetMap embed + Nominatim geocoder (approved 2026-11-07) | Real map, no package, no API key | Leaflet/Mapbox (extra package or key) | Free (usage policy: low volume, no autocomplete) |
 | Pickup QR | `qrcode` (renders the pickup link as a QR; approved 2026-11-07) | Small, no scanner needed: the phone camera opens the link | In-app scanner (heavier) | Free |
 | Forms | React Hook Form + Zod | Same validation schema on client and server | Manual validation | Free |
 | Data fetching | TanStack Query, refreshing every few seconds for group progress | Simple, reliable live updates | Supabase Realtime (P1) | Free |

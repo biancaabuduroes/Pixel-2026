@@ -5,13 +5,9 @@ import { AmountTiles } from "@/components/ds/amount-tile";
 import { BottomSheet } from "@/components/ds/bottom-sheet";
 import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
-import { ListRow } from "@/components/ds/list-row";
-import { Tag } from "@/components/ds/tag";
-import { TextField } from "@/components/ds/text-field";
 import { Timeline } from "@/components/ds/timeline";
 import { OnboardingScreen, ScreenTitle } from "@/components/onboarding/onboarding-screen";
 import { Button } from "@/components/ui/button";
-import { formatRon } from "@/domain/money";
 import { stepNumber, TOP_UP_MIN_RON, TOP_UP_PRESETS, TOTAL_STEPS } from "@/lib/onboarding";
 import { topUpAction } from "@/server/actions/buyer";
 import { completeOnboardingAction } from "@/server/actions/onboarding";
@@ -22,40 +18,55 @@ const HOW_IT_WORKS = [
   { label: "Ai reușit să cumperi la preț de grup!", caption: "Plătești prețul final. Diferența revine automat în portofel.", state: "upcoming" },
 ] as const;
 
-export function TopUpForm({ balanceBani, signedIn }: { balanceBani: number; signedIn: boolean }) {
-  const [preset, setPreset] = useState<number | null>(100);
-  const [custom, setCustom] = useState("");
+// Figma 64:1385: big typed amount + one row of presets + Brand CTA. The keyboard in the frame
+// is the phone's own number pad (inputMode="numeric").
+export function TopUpForm() {
+  const [value, setValue] = useState("100");
   const [sheetOpen, setSheetOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
-  const customRon = custom.trim() === "" ? null : Number(custom);
-  const customTooLow = customRon !== null && (!Number.isInteger(customRon) || customRon < TOP_UP_MIN_RON);
-  const amount = customRon !== null ? (customTooLow ? null : customRon) : preset;
-  const tokens = formatRon(balanceBani).replace(" RON", "");
+  const amount = value === "" ? null : Number(value);
+  const tooLow = amount !== null && amount < TOP_UP_MIN_RON;
+  const valid = amount !== null && !tooLow;
 
   const topUp = () =>
     startTransition(async () => {
-      if (amount === null) return;
+      if (!valid) return;
       setError(null);
       const result = await topUpAction({ topUpId: crypto.randomUUID(), amount: amount * 100 });
       if (result.ok) await completeOnboardingAction();
-      else setError("Încărcarea nu a reușit. Încearcă din nou.");
+      else setError(result.reason === "UNAUTHORIZED" ? "Intră din nou în cont ca să încarci." : "Încărcarea nu a reușit. Încearcă din nou.");
     });
 
   return (
     <OnboardingScreen
-      nav={{ backHref: "/onboarding/locatie", step: stepNumber("incarca"), totalSteps: TOTAL_STEPS }}
+      gap="gap-4"
+      className="pb-6"
+      nav={{
+        backHref: "/onboarding/locatie",
+        step: stepNumber("incarca"),
+        totalSteps: TOTAL_STEPS,
+        trailing: (
+          <button
+            type="button"
+            aria-label="Cum funcționează bunToken?"
+            onClick={() => setSheetOpen(true)}
+            className="flex size-control-md items-center justify-center rounded-pill outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+          >
+            <Icon name="info-24-primary" size={24} />
+          </button>
+        ),
+      }}
       footer={
-        <>
+        <div className="flex flex-col gap-2 pt-4">
           {error && (
             <p role="alert" className="text-center title-sm text-text-danger">
               {error}
             </p>
           )}
-          <Button className="w-full" disabled={amount === null || !signedIn || pending} onClick={topUp}>
-            <Icon name={amount === null ? "wallet-20-secondary" : "wallet-20-inverse"} size={20} />
-            {amount === null ? "Alege o sumă" : `Încarcă ${amount} bunToken · ${amount} RON`}
+          <Button variant="brand" className="w-full text-text-inverse" disabled={!valid || pending} onClick={topUp}>
+            Cumpără bunToken
           </Button>
           <div className="flex h-control-lg items-center justify-center">
             <Button variant="link" size="lg" onClick={() => startTransition(() => completeOnboardingAction())}>
@@ -64,39 +75,28 @@ export function TopUpForm({ balanceBani, signedIn }: { balanceBani: number; sign
           </div>
           {/* Not in Figma: BUSINESS_LOGIC.md §9 requires top-ups to be labelled as demo money. */}
           <p className="text-center caption text-text-secondary">Mod demo: banii sunt simulați, nu se încarcă bani reali.</p>
-        </>
+        </div>
       }
     >
       <ScreenTitle>Încarcă bunToken</ScreenTitle>
-      <div className="flex w-full items-center justify-between gap-3 rounded-lg bg-bg-subtle px-4 py-3">
-        <div className="flex flex-col">
-          <span className="label-sm text-text-secondary">Sold actual</span>
-          <span className="title-lg text-text-primary">{tokens} bunToken</span>
-        </div>
-        <Tag tone="deal" icon="wallet-16-deal">
-          1 bunToken = 1 RON
-        </Tag>
-      </div>
-      <AmountTiles
-        label="Sume rapide"
-        amounts={TOP_UP_PRESETS}
-        value={customRon === null ? preset : null}
-        onValueChange={(value) => {
-          setPreset(value);
-          setCustom("");
-        }}
-      />
-      <TextField
-        label="Altă sumă"
-        placeholder="Introdu suma"
-        suffix="RON"
-        inputMode="numeric"
-        value={custom}
-        onChange={(e) => setCustom(e.target.value.replace(/\D/g, ""))}
-        helper={`Minimum ${TOP_UP_MIN_RON} RON`}
-        error={customTooLow ? `Suma minimă este ${TOP_UP_MIN_RON} RON` : undefined}
-      />
-      <ListRow icon="info-24" title="Cum funcționează bunToken?" subtitle="Blocare, preț final, diferența înapoi" onClick={() => setSheetOpen(true)} />
+      <label className="flex flex-1 cursor-text flex-col items-center justify-center gap-1.5">
+        <span className="sr-only">Suma în RON</span>
+        <input
+          inputMode="numeric"
+          autoComplete="off"
+          aria-invalid={tooLow || undefined}
+          aria-describedby="top-up-note"
+          value={value}
+          placeholder="0"
+          size={Math.max(value.length, 1)}
+          onChange={(e) => setValue(e.target.value.replace(/\D/g, "").replace(/^0+/, "").slice(0, 5))}
+          className="bg-transparent text-center display-xl text-text-primary caret-text-primary outline-none placeholder:text-text-secondary"
+        />
+        <span id="top-up-note" className={tooLow ? "title-sm text-text-danger" : "body-sm text-text-secondary"} role={tooLow ? "alert" : undefined}>
+          {tooLow ? `Suma minimă este ${TOP_UP_MIN_RON} RON` : `Minimum ${TOP_UP_MIN_RON} RON`}
+        </span>
+      </label>
+      <AmountTiles size="sm" label="Sume rapide" amounts={TOP_UP_PRESETS} value={amount} onValueChange={(v) => setValue(String(v))} />
 
       <BottomSheet open={sheetOpen} onOpenChange={setSheetOpen} title="Cum funcționează bunToken?">
         <p className="body-md text-text-secondary">bunToken e moneda din portofel cu care intri în grupuri. 1 bunToken valorează 1 RON.</p>

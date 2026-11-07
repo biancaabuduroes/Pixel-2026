@@ -45,14 +45,14 @@
 | SegmentedControl (11:43) | `ds/segmented-control.tsx` (Base UI ToggleGroup) |
 | ChipGroup · Wrap (36:323) + Chip (11:127) | `ds/chip-group.tsx` |
 | Tag (11:198) — soft tones | `ds/tag.tsx` |
-| AmountTile (36:332) | `ds/amount-tile.tsx` |
+| AmountTile (36:332) — lg (2×2, 88px) and sm (one row, 64px, top-up 64:1385) | `ds/amount-tile.tsx` (`size`) |
 | ListRow · Chevron (15:145) | `ds/list-row.tsx` |
 | SearchBar (13:94) | `ds/search-bar.tsx` |
 | EmptyState (36:341) | `ds/empty-state.tsx` |
 | BottomSheet (37:305) | `ds/bottom-sheet.tsx` (Base UI Drawer) |
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
 | Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
-| Onboarding frames B1.1–B1.5 | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, map `components/onboarding/map-mock.tsx` |
+| Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
 
 Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond back/close, Avatar, ProductCard, TierProgress, GroupDealCard, Toast, Skeleton, Accordion, QuantityStepper, PriceDisplay, PromoBanner, and the other cards. They are built when their screens are.
 
@@ -61,6 +61,8 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - iOS status bar and home indicator are not drawn (they belong to the phone).
 - **Login screen** (`/autentificare`) is not in Figma; it reuses B1.2a's layout and components (approved).
 - **Top-up demo-money caption** under the buttons (BUSINESS_LOGIC §9). *To confirm with the designer.*
+- **Map:** a real OpenStreetMap embed replaces the drawn map (requested); store pins removed (no real store data yet); the radius tag sits top-left so the map attribution stays readable.
+- **Top-up under 10 RON:** not designed in 64:1385; uses the TextField error style and the Disabled button.
 - The NavBar progress follows the step (1/7 … 7/7); Figma shows a fixed 40% placeholder, as its description says to resize it per step.
 - On screens wider than a phone, the column stays 430px wide and centred.
 

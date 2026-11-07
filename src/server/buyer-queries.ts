@@ -210,51 +210,6 @@ export async function storePageData(locationId: string, now = new Date()) {
   };
 }
 
-export type CompareRow = {
-  productId: string;
-  name: string;
-  storeName: string;
-  closesAt: Date;
-  currentUnitPrice: number;
-  recommended: boolean;
-};
-
-/**
- * Compare drawer (B3.4): other active products in the same category that still have an open group.
- * Demo data has one seller and several pickup locations — not the same SKU across sellers.
- * "Recomandat" = lowest current unit price (display only; never a price input).
- */
-export async function compareCategoryOffers(productId: string, now = new Date()): Promise<CompareRow[]> {
-  const current = await db.product.findUnique({ where: { id: productId }, select: { category: true, status: true } });
-  if (!current || current.status !== "ACTIVE" || !current.category) return [];
-  const products = await db.product.findMany({
-    where: { status: "ACTIVE", category: current.category },
-    select: {
-      id: true,
-      name: true,
-      priceTiers: tiersAsc,
-      pickupLocation: { select: { name: true } },
-      groups: openGroups(now),
-    },
-  });
-  const rows: CompareRow[] = [];
-  for (const p of products) {
-    const g = recommendedGroup(p.priceTiers, p.groups, now);
-    if (!g) continue;
-    rows.push({
-      productId: p.id,
-      name: p.name,
-      storeName: p.pickupLocation.name,
-      closesAt: g.closesAt,
-      currentUnitPrice: offerFor(p.priceTiers, g, now).currentUnitPrice,
-      recommended: false,
-    });
-  }
-  rows.sort((a, b) => a.currentUnitPrice - b.currentUnitPrice || a.closesAt.getTime() - b.closesAt.getTime());
-  if (rows[0]) rows[0].recommended = true;
-  return rows;
-}
-
 export type PoolGroup = { id: string; segment: Segment | null; closesAt: Date; buyers: number; offer: GroupOffer };
 
 /** Pool page (B3.3): product, its open groups, and what this buyer can do. 4 queries in parallel. */

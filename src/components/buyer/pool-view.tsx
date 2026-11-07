@@ -21,8 +21,6 @@ import { dayLabel, formatToken, inDuration, priceNumber, timeLabel, units } from
 import { joinGroupAction } from "@/server/actions/buyer";
 import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
-import type { CompareRow } from "@/server/buyer-queries";
-import { CompareSellersSheet } from "./compare-sellers-sheet";
 import { ConfirmJoinSheet } from "./confirm-join-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
 import { useGroupProgress } from "./use-group-progress";
@@ -59,7 +57,6 @@ type Props = {
   activeCommitment: { id: string; groupId: string; quantity: number; reservedAmount: number } | null;
   stockRemaining: number;
   signedIn: boolean;
-  alternatives: CompareRow[];
 };
 
 export function PoolView(props: Props) {
@@ -138,7 +135,7 @@ function ShareIcon() {
   );
 }
 
-function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, alternatives, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
@@ -148,7 +145,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const [joined, setJoined] = useState<Joined | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [pickupOpen, setPickupOpen] = useState(false);
-  const [compareOpen, setCompareOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -163,7 +159,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const short = signedIn && !activeCommitment && availableBalance < lockAmount;
   const segments = groups.filter((g) => g.segment);
   const closesAt = new Date(group.closesAt);
-  const quantities = Array.from({ length: maxQty }, (_, i) => i + 1);
   const pickupDay = dayLabel(closesAt, new Date(now));
   const tierTarget = offer.next?.minQty ?? offer.totalQty;
   const tierPct = tierTarget > 0 ? Math.min(100, Math.round((offer.totalQty * 100) / tierTarget)) : 100;
@@ -209,28 +204,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         </p>
         <p className="body-md text-text-secondary">{product.description}</p>
       </header>
-
-      {quantities.length > 1 && (
-        <div className="flex items-center gap-3">
-          <span className="label-md text-text-primary">Cantitate</span>
-          <div className="flex gap-2 overflow-x-auto [scrollbar-width:none]" role="group" aria-label="Cantitate">
-            {quantities.map((n) => (
-              <button
-                key={n}
-                type="button"
-                aria-pressed={quantity === n}
-                onClick={() => setQuantity(n)}
-                className={cn(
-                  "flex h-8 min-w-10 items-center justify-center rounded-pill px-3 label-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
-                  quantity === n ? "bg-bg-action text-text-inverse" : "bg-bg-muted text-text-primary",
-                )}
-              >
-                {n}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       <ul className="grid grid-cols-3 gap-2 py-1">
         <Fact icon="users-20-deal" label="Preț de grup" />
@@ -307,9 +280,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         subtitle={`${product.pickupLocation.name}, ${product.pickupLocation.address}`}
         onClick={() => setPickupOpen(true)}
       />
-      {alternatives.length > 1 && (
-        <ListRow icon="store-20-success" title="Compară vânzătorii" subtitle="Preț curent și când se închide" onClick={() => setCompareOpen(true)} />
-      )}
 
       <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[430px] flex-col gap-2 border-t border-border-subtle bg-bg-surface px-page pt-3 pb-6">
         {error && <InlineAlert tone="danger" icon="info-24">{error}</InlineAlert>}
@@ -363,8 +333,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         <p className="body-md text-text-primary">Program: {product.pickupLocation.openingHours}</p>
         <p className="body-sm text-text-secondary">Comanda e gata de ridicare după închiderea grupului. Primești codul de ridicare în Profil.</p>
       </BottomSheet>
-
-      <CompareSellersSheet open={compareOpen} onOpenChange={setCompareOpen} rows={alternatives} currentProductId={product.id} />
 
       <ConfirmJoinSheet
         open={confirmOpen}

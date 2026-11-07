@@ -49,6 +49,7 @@
 - **Acceptance:** overlapping or non-decreasing tiers and a cap ≥ the first discount threshold are rejected, both in the form and on the server.
 
 ### F8. Groups and demand overview — seller
+- **Demo (branch `feat/seller-dashboard`, not merged):** read-only desktop dashboard at `/seller/dashboard` covering F7–F9 with fixed demo data (numbers derived with `src/domain`); no login, no editing or pickup flow.
 - **Story:** As a seller, I want to see each open group's progress and simple demand statistics.
 - **Behaviour:** table of groups: quantity, buyers, current tier, time left. Statistics card: total committed, tiers unlocked, most popular duration.
 - **Acceptance:** numbers match the commitments in the database.

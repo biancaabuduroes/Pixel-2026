@@ -27,7 +27,7 @@
 | `opacity/disabled` (45%) | `--opacity-disabled` | `opacity-(--opacity-disabled)` |
 | `Shadow/shadow-card, raised, sheet` | — | `shadow-card`, `shadow-raised`, `shadow-sheet` |
 | `Display/display-xl, lg, md` (Barlow Condensed 800: 56/64, 36/40, 28/32) | `--display-*-font-size/line-height` | `display-xl`, `display-lg`, `display-md` |
-| `Text/title-lg, md, sm` (700), `label-lg, md, sm` (600), `body-lg, md, sm, body-compact`, `caption` (400) | `--text-lg/md/sm-font-size/line-height` | same names: `title-md`, `label-lg`, `body-md`, `caption` … |
+| `Text/title-xl` (700, 20/26), `title-lg, md, sm` (700), `label-lg, md, sm` (600), `body-lg, md, sm, body-compact`, `caption` (400) | `--text-lg/md/sm-font-size/line-height` | same names: `title-md`, `label-lg`, `body-md`, `caption` … |
 
 ## 3. Component map
 
@@ -51,8 +51,14 @@
 | EmptyState (36:341) | `ds/empty-state.tsx` |
 | BottomSheet (37:305) | `ds/bottom-sheet.tsx` (Base UI Drawer) |
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
+| ProgressBar (34:248) — xs/sm/md × Brand/Success/Deal | `ds/progress-bar.tsx` |
+| SectionHeader (35:347) — Text/title-xl 20/26 | `ds/section-header.tsx` |
+| SummaryRow (35:360) — default / Emphasis | `ds/summary-row.tsx` |
+| PriceTierList (38:374) + Tier row (38:373) — Reached/Current/Next/Locked | `ds/price-tier-list.tsx` |
 | Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
 | Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
+
+Seller dashboard (`/seller/dashboard`, branch `feat/seller-dashboard`): not in Figma; a desktop layout composed only from the tokens and the components above (stat cards are surface cards with `label-sm` + `display-md`).
 
 Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond back/close, Avatar, ProductCard, TierProgress, GroupDealCard, Toast, Skeleton, Accordion, QuantityStepper, PriceDisplay, PromoBanner, and the other cards. They are built when their screens are.
 

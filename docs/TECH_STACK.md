@@ -33,7 +33,7 @@ Browser (React UI) ──> Next.js server actions / API routes ──> domain lo
 ## 3. Project structure
 
 ```
-pixel-app/
+Pixel-2026/
 ├── docs/                    # Product and technical documentation (this folder)
 ├── prisma/
 │   ├── schema.prisma        # Database schema (see DATA_MODEL.md)
@@ -66,6 +66,10 @@ pixel-app/
 
 **Rule:** `src/domain` never imports from `src/server`, `src/app` or Prisma. That keeps the financial rules testable on their own.
 
+**Installed versions (project setup, 2026-11-07):** Next.js 16.4 (App Router, Turbopack), React 19.3, TypeScript 5, Tailwind CSS 4, shadcn/ui (`base-nova` style on Base UI, with `lucide-react` icons and the `cn` class helper), Zod 4, React Hook Form 7, TanStack Query 5, Prisma 7.10.1 (pinned: npm's `latest` tag for the `prisma` CLI points to an 8.0 release candidate), Vitest 5.
+
+Next.js 16 differs from older versions: its own docs ship in `node_modules/next/dist/docs/`, and `AGENTS.md` (rewritten by `next dev`) points coding agents to them.
+
 ## 4. Security & integrity
 
 - Prices, totals, balances and eligibility are **always calculated on the server**. Client input is limited to IDs and quantities, validated with Zod.
@@ -87,4 +91,14 @@ pixel-app/
 
 ## 6. Environment variables (names only)
 
-`DATABASE_URL`, `DIRECT_URL`, `DEMO_MODE`, `ANTHROPIC_API_KEY` (optional, for the LLM insight text), later `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `CRON_SECRET`.
+| Name | Purpose |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key (Supabase's new name for the old "anon" key) |
+| `DATABASE_URL` | PostgreSQL connection used by the app (pooled) |
+| `DIRECT_URL` | Direct PostgreSQL connection used by Prisma migrations |
+| `DEMO_MODE` | `true` enables the demo panel and user switcher |
+| `ANTHROPIC_API_KEY` | Optional, for the LLM insight text |
+| `CRON_SECRET` | Later: secures the scheduled-job endpoint |
+
+All names are listed in `.env.example`.

@@ -33,6 +33,11 @@ Shared prompt suffix: *"professional e-commerce studio photograph, centered, squ
 | seed-cos-baza | a natural wicker basket containing 2 bottles of sunflower oil 1 L, 2 paper bags of white flour 1 kg, a bag of sugar 1 kg, a bag of rice 1 kg, 3 packs of dry pasta 500 g and 2 cans of tomato passata | ✅ supplied photo (confirmed 2026-11-07), background removed — contents (vegetables, eggs, bread, salmon) differ from the listed items |
 | seed-cos-ingrijire | a natural wicker basket containing a shampoo bottle, 2 shower gel bottles, 2 toothpaste tubes, a liquid soap pump bottle and a deodorant spray | ✅ supplied photo, background and props removed — ⚠️ spa gift set, not the exact listed items |
 | seed-cos-premium | a natural wicker basket containing a bottle of extra virgin olive oil 750 ml, a wedge of Parmigiano Reggiano, 2 packs of artisan pasta, a bag of coffee beans 1 kg and 2 bars of dark chocolate | missing |
+| seed-pix-albastru | a box of 50 blue ballpoint pens, a few pens fanned out in front | missing |
+| seed-pix-negru | a pack of 12 black gel pens, a few pens fanned out in front | missing |
+| seed-pix-rosu | a pack of 10 red ballpoint pens | missing |
+| seed-agenda | a closed undated A5 notebook planner with a plain hard cover and an elastic band | missing |
+| seed-capse | a small box of 1000 metal staples 24/6 with a strip of staples beside it | missing |
 | paine (seller demo) | a round rustic sourdough bread loaf | missing |
 | ulei (seller demo) | a 1 liter glass bottle of extra virgin olive oil | missing |
 | cafea (seller demo) | a 1 kg plain kraft bag of roasted coffee beans with a few beans in front | missing |

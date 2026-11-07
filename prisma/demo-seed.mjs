@@ -5,7 +5,7 @@
 // Times are relative to when the SQL runs, so groups are open right after seeding.
 // Every amount is integer bani and every ledger transaction sums to 0 (checked by the database).
 
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 const NOW = `(now() AT TIME ZONE 'UTC')`;
 const at = (hours) => `${NOW} ${hours < 0 ? "-" : "+"} interval '${Math.abs(hours) * 60} minutes'`;
@@ -292,4 +292,7 @@ for (let hi = 0; hi < HISTORY.length; hi++) {
 }
 
 sql("COMMIT;");
+// Approved 2026-11-08: Birotică keeps only pens, the agenda and staples. The other 15 stay in the
+// generator (so seed ids don't shift) and are retired right after, exactly as on the live database.
+sql(readFileSync(new URL("./retire-birotica-2026-11-08.sql", import.meta.url), "utf8"));
 console.log(out.join("\n"));

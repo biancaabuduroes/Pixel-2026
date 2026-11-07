@@ -35,6 +35,7 @@
 | 2026-11-07 | Login screen not in Figma: built from B1.2a's layout and components (approved). Budget slider steps: 50 RON weekly, 200 RON monthly. All demo visitors share the demo buyer account |
 | 2026-11-07 | Onboarding UI adjustments: budget notify toggle removed; code-screen safety note removed; top-up replaced by Figma 64:1385 (typed amount, one row of presets, Brand "Cumpără bunToken", ⓘ opens the explainer sheet); **real map** (OpenStreetMap embed + Nominatim geocoder, no package, no API key; fake store pins removed) |
 | 2026-11-07 | "Folosește locația mea" is hardcoded to Bulevardul Lascăr Catargiu 47, București (no browser location, no permission prompt) |
+| 2026-11-07 | Seller dashboard for the demo: one read-only desktop page (`/seller/dashboard`) on `feat/seller-dashboard`, **not merged to main**; no login, no other flows; fixed demo data; Figma has no dashboard, so it uses the existing Figma tokens and components |
 | 2026-11-07 | Database schema approved. Pickup code derived from a server secret + commitment ID; only its hash is stored. P1 tables (Dispute, Notification, AiInsight) added when those features are built |
 
 ## Assumptions (not explicitly confirmed)

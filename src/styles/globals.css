@@ -242,6 +242,12 @@
   font-size: var(--display-md-font-size);
   line-height: var(--display-md-line-height);
 }
+@utility title-xl {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 20px;
+  line-height: 26px;
+}
 @utility title-lg {
   font-family: var(--font-sans);
   font-weight: 700;

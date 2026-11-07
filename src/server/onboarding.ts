@@ -19,6 +19,8 @@ export const PreferencesSchema = z
     budgetBani: z.number().int().min(BUDGET.week.min * 100).max(BUDGET.month.max * 100),
     notifyNearBudget: z.boolean(),
     address: z.string().trim().min(1).max(120),
+    lat: z.number().min(-90).max(90),
+    lng: z.number().min(-180).max(180),
     radiusKm: z.union(RADIUS_KM.map((r) => z.literal(r)) as [z.ZodLiteral<1>, z.ZodLiteral<3>, z.ZodLiteral<5>, z.ZodLiteral<10>]),
   })
   .partial();

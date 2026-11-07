@@ -13,7 +13,7 @@ export function OnboardingScreen({
   gap = "gap-4",
   className,
 }: {
-  nav?: { backHref: string; step: number; totalSteps: number };
+  nav?: { backHref: string; step: number; totalSteps: number; trailing?: React.ReactNode };
   children: React.ReactNode;
   footer?: React.ReactNode;
   gap?: "gap-4" | "gap-3";

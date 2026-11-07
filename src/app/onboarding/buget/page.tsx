@@ -5,7 +5,6 @@ import { useState, useTransition } from "react";
 import { InlineAlert } from "@/components/ds/inline-alert";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Slider } from "@/components/ds/slider";
-import { Toggle } from "@/components/ds/toggle";
 import { OnboardingScreen, ScreenLead, ScreenTitle } from "@/components/onboarding/onboarding-screen";
 import { Button } from "@/components/ui/button";
 import { formatRon } from "@/domain/money";
@@ -24,14 +23,13 @@ export default function BudgetPage() {
   const router = useRouter();
   const [period, setPeriod] = useState<Period>("week");
   const [amounts, setAmounts] = useState({ week: BUDGET.week.initial, month: BUDGET.month.initial });
-  const [notify, setNotify] = useState(true);
   const [pending, startTransition] = useTransition();
   const config = BUDGET[period];
   const amount = amounts[period];
 
   const next = () =>
     startTransition(async () => {
-      await savePreferencesAction({ budgetPeriod: period, budgetBani: amount * 100, notifyNearBudget: notify });
+      await savePreferencesAction({ budgetPeriod: period, budgetBani: amount * 100 });
       router.push("/onboarding/locatie");
     });
 
@@ -69,7 +67,6 @@ export default function BudgetPage() {
       <InlineAlert tone="deal" icon="wallet-20-deal">
         Îți arătăm întâi grupurile care încap în {ron(amount)} {config.caption}.
       </InlineAlert>
-      <Toggle label="Anunță-mă când mă apropii de buget" checked={notify} onCheckedChange={setNotify} />
     </OnboardingScreen>
   );
 }

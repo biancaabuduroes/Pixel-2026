@@ -48,6 +48,8 @@ export const NEARBY_MOCK: Record<(typeof RADIUS_KM)[number], { groups: number; s
   10: { groups: 37, stores: 7 },
 };
 export const DEMO_ADDRESS = "Bd. Independenței 5, Iași";
+/** Used when the browser can't or may not share its location. */
+export const DEMO_POSITION = { lat: 47.16778, lng: 27.58306 };
 
 export const TOP_UP_PRESETS = [50, 100, 200, 500] as const;
 export const TOP_UP_MIN_RON = 10;

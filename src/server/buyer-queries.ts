@@ -37,6 +37,7 @@ export type DealCard = {
   name: string;
   category: string | null;
   kind: "ITEM" | "BASKET";
+  imageUrl: string | null;
   /** Number of lines in a basket (0 for single products). */
   itemCount: number;
   closesAt: Date;
@@ -60,6 +61,7 @@ export async function homeData(buyerId: string | null, now = new Date()) {
         name: true,
         category: true,
         kind: true,
+        imageUrl: true,
         _count: { select: { basketItems: true } },
         priceTiers: tiersAsc,
         groups: { ...openGroups(now), select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } } },
@@ -96,6 +98,7 @@ export async function homeData(buyerId: string | null, now = new Date()) {
       name: p.name,
       category: p.category,
       kind: p.kind,
+      imageUrl: p.imageUrl,
       itemCount: p._count.basketItems,
       closesAt: g.closesAt,
       offer: offerFor(p.priceTiers, g, now),
@@ -132,6 +135,7 @@ export async function productData(productId: string, buyerId: string | null, now
         stockTotal: true,
         perBuyerCap: true,
         kind: true,
+        imageUrl: true,
         basketItems: { orderBy: { position: "asc" }, select: { name: true, quantity: true } },
         priceTiers: tiersAsc,
         pickupLocation: { select: { name: true, address: true, openingHours: true } },
@@ -223,7 +227,7 @@ export async function profileData(buyerId: string, now = new Date()) {
             amountCharged: true,
             pickupDeadline: true,
             group: { select: { id: true, status: true, durationHours: true, opensAt: true, closesAt: true, totalQty: true, joinEvents: { select: { quantity: true, createdAt: true } } } },
-            product: { select: { id: true, name: true, priceTiers: tiersAsc, pickupLocation: { select: { name: true, address: true, openingHours: true } } } },
+            product: { select: { id: true, name: true, imageUrl: true, priceTiers: tiersAsc, pickupLocation: { select: { name: true, address: true, openingHours: true } } } },
           },
         },
       },

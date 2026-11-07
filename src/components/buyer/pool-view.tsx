@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
 import { ListRow } from "@/components/ds/list-row";
+import { ProductImage } from "@/components/ds/product-image";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Tag } from "@/components/ds/tag";
@@ -45,6 +46,7 @@ type Props = {
     description: string;
     perBuyerCap: number;
     kind: "ITEM" | "BASKET";
+    imageUrl: string | null;
     basketItems: { name: string; quantity: number }[];
     priceTiers: { minQty: number; unitPrice: number }[];
     pickupLocation: { name: string; address: string; openingHours: string };
@@ -65,7 +67,7 @@ export function PoolView(props: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
-      <Hero name={product.name} description={product.description} store={product.pickupLocation.name} discountPct={headline?.discountPct ?? 0} />
+      <Hero name={product.name} imageUrl={product.imageUrl} description={product.description} store={product.pickupLocation.name} discountPct={headline?.discountPct ?? 0} />
       <main className="flex flex-col gap-6 px-page pt-4">
         {group ? (
           <GroupSection key={group.id} {...props} group={group} onSelect={setGroupId} />
@@ -77,12 +79,19 @@ export function PoolView(props: Props) {
   );
 }
 
-function Hero({ name, description, store, discountPct }: { name: string; description: string; store: string; discountPct: number }) {
+function Hero({ name, imageUrl, description, store, discountPct }: { name: string; imageUrl: string | null; description: string; store: string; discountPct: number }) {
   return (
     <section className="relative flex h-110 flex-col justify-end overflow-hidden bg-bg-brand-soft px-page pb-6">
-      <Icon name="hero-ellipse-1" size={260} className="absolute top-[170px] -left-[70px] opacity-60" />
-      <Icon name="hero-ellipse-2" size={140} className="absolute top-[68px] -right-[40px]" />
-      <Icon name="bag-150-brand" size={150} className="absolute top-[50px] left-1/2 -translate-x-1/2" />
+      {imageUrl ? (
+        // Product photo above the title; the gradient below keeps the white title readable.
+        <ProductImage src={imageUrl} alt={name} priority className="absolute inset-x-0 top-0 h-[300px]" />
+      ) : (
+        <>
+          <Icon name="hero-ellipse-1" size={260} className="absolute top-[170px] -left-[70px] opacity-60" />
+          <Icon name="hero-ellipse-2" size={140} className="absolute top-[68px] -right-[40px]" />
+          <Icon name="bag-150-brand" size={150} className="absolute top-[50px] left-1/2 -translate-x-1/2" />
+        </>
+      )}
       <div className="absolute inset-x-0 bottom-0 h-3/5 bg-linear-to-b from-transparent to-bg-inverse/70" aria-hidden />
       <Link
         href="/"

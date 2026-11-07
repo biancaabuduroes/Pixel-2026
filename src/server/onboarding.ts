@@ -18,6 +18,7 @@ export const PreferencesSchema = z
     budgetPeriod: z.enum(["week", "month"]),
     budgetBani: z.number().int().min(BUDGET.week.min * 100).max(BUDGET.month.max * 100),
     notifyNearBudget: z.boolean(),
+    phone: z.string().trim().max(20),
     address: z.string().trim().min(1).max(120),
     lat: z.number().min(-90).max(90),
     lng: z.number().min(-180).max(180),

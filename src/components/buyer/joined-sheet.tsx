@@ -18,6 +18,7 @@ export type Joined = { quantity: number; committedUnitPrice: number; reservedAmo
 /** Figma B4.1 "Joined" sheet: confirmation, funds lock card, live progress, what happens next. */
 export function JoinedSheet({
   joined,
+  productId,
   productName,
   storeName,
   closesAt,
@@ -25,6 +26,7 @@ export function JoinedSheet({
   onDone,
 }: {
   joined: Joined;
+  productId: string;
   productName: string;
   storeName: string;
   closesAt: Date;
@@ -35,10 +37,12 @@ export function JoinedSheet({
   // Estimate only (BL §11): never above the locked price.
   const estimatedUnit = Math.min(offer.probableUnitPrice, joined.committedUnitPrice);
   const estimatedBack = joined.reservedAmount - multiplyBani(joined.quantity, estimatedUnit);
+  const [copied, setCopied] = useState(false);
   const close = () => {
     setOpen(false);
     onDone();
   };
+  const invitePath = `/produs/${productId}`;
 
   return (
     <BottomSheet open={open} onOpenChange={(o) => !o && close()} title="Ești în grup!" header="left">
@@ -66,6 +70,28 @@ export function JoinedSheet({
       <section className="flex flex-col gap-2 rounded-lg border border-border-default p-4">
         <p className="title-md text-text-primary">Ai adus grupul mai aproape</p>
         <GroupProgressBar offer={offer} />
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-xl bg-bg-brand-soft p-4">
+        <h3 className="title-lg text-text-primary">Invită vecinii</h3>
+        <p className="body-sm text-text-secondary">Fiecare persoană nouă poate apropia grupul de pragul următor, pentru toți.</p>
+        <div className="flex items-center gap-2 rounded-pill bg-bg-surface py-1 pr-1 pl-4">
+          <p className="min-w-0 flex-1 truncate body-sm text-text-secondary">{invitePath}</p>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              const url = `${window.location.origin}${invitePath}`;
+              void navigator.clipboard.writeText(url).then(() => {
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 1500);
+              });
+            }}
+          >
+            {copied ? "Copiat" : "Copiază"}
+          </Button>
+        </div>
       </section>
 
       <section className="flex flex-col gap-3">

@@ -39,6 +39,7 @@
 | 2026-11-07 | **Baskets** ("Coșuri de cumpărături"): a seller-defined basket is a Product of kind `BASKET` with its contents listed (`BasketItem`: name, quantity — display only). It has its own tiers, stock, groups, join, settlement and pickup like any product, so no money rule changes. Each Home category shows "Coșuri de cumpărături" then "Produse individuale". Baskets come from the demo seed for now; seller UI later. Search "Căutate recent" = last 3 products opened from search, stored in the browser only. In "Comenzile mele", orders "Gata de ridicare" come first |
 | 2026-11-07 | Database schema approved. Pickup code derived from a server secret + commitment ID; only its hash is stored. P1 tables (Dispute, Notification, AiInsight) added when those features are built |
 | 2026-11-07 | Seller intelligence dashboard (F8): three read-only screens on real data (`/seller`, `/seller/grupuri`, `/seller/grupuri/[id]`), BunDeals tokens/components, Romanian copy ("grup" not "pool"). No group-level QR; no delivery; product pickup edit deferred. Margin calculator is client-only and not saved. Replaces the hard-coded `feat/seller-dashboard` prototype (not kept). |
+| 2026-11-08 | discover-flow v2: Compare sellers lists other active products in the same category (demo has one seller and several pickup locations), not the same SKU across sellers. "Recomandat de AI" = lowest current unit price. Store distance in km is not shown. Profile phone is stored in `User.preferences` and is display-only. |
 
 ## Assumptions (not explicitly confirmed)
 

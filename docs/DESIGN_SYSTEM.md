@@ -62,7 +62,7 @@
 | ProgressBar (34:248) — xs/sm/md × Brand/Success/Deal | `ds/progress-bar.tsx` |
 | SectionHeader (35:347) — Text/title-xl | `ds/section-header.tsx` |
 | PriceTierList (38:374) + Tier row (38:373) | `ds/price-tier-list.tsx` |
-| Buyer frames B3.1 Home, B3.3 Pool, B4.1 Joined, B5.1 Profile, B5.1b Pickup code | `src/app/page.tsx`, `src/app/produs/[id]`, `src/app/profil`, `components/buyer/**` |
+| Buyer frames discover-flow v2: B3.1 Home, B3.2 Search, B3.3 Pool, B3.4 Compare, B3.6 Magazin, B4.1 Joined, B5.1 Profile, B5.1a Edit, B5.1b Pickup | `src/app/page.tsx`, `src/app/produs/[id]`, `src/app/magazin/[id]`, `src/app/profil`, `components/buyer/**` |
 | Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
 | Seller dashboard (not in Figma; desktop analytics shell from tokens) | `src/app/seller/**`, `components/seller/**` (SellerPanel, MetricPills, KPI accent cards, catalog/orders tables, SVG area chart, insight cards, groups filter, margin calculator) |
 
@@ -82,7 +82,7 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - **Buyer flow copy:** "persoane" → "unități" (thresholds are units); "Probabil plătești" carries "(estimare)"; no store distance (no store coordinates yet).
 - **Buyer flow states not in Figma** (built from existing components): insufficient balance, already in the group, group closed, sold out, not signed in (InlineAlert / EmptyState); cancel button and cancel-locked note on order cards; wallet history list; quantity row in the bottom bar; pickup details sheet; 6-digit manual code row in the pickup sheet.
 - **Baskets (not in Figma):** "Coșuri de cumpărături" / "Produse individuale" section titles, "Coș · N produse" line on deal cards, "Ce conține coșul" list on the Pool page. The search field has no clear (×) button yet (Filled state).
-- **Skipped (out of scope):** share button, carousel dots, "Compară vânzătorii", invite card in the Joined sheet, edit profile (B5.1a), notifications bell, account/notification rows.
+- **discover-flow v2 (2026-11-08):** Home supermarket rail, store page `/magazin/[id]`, compare-sellers sheet (same category, not the same SKU), Joined invite link, profile edit sheet, share copies the product URL. Still skipped: carousel dots, notifications bell, account/notification rows, store distance in km.
 - **Seller dashboard:** no Figma frames; desktop analytics layout from existing light-mode tokens (not a dark theme). Shared `SellerPanel` / `MetricPills` chrome, denser tables, sticky nav with active state, SVG area chart (no chart library). No group-level pickup QR (only the buyer's order QR, BL §8). Margin calculator is local/unsaved. Product pickup editing deferred.
 
 ## 5. BunDeals screens still to build (map to the Figma components above)

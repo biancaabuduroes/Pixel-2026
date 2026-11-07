@@ -17,9 +17,10 @@ import { dayLabel, formatToken, initials, orderRef, timeLabel, units } from "@/l
 import { cancelCommitmentAction } from "@/server/actions/buyer";
 import { logoutAction } from "@/server/actions/onboarding";
 import type { ProfileOrder } from "@/server/buyer-queries";
+import { EditProfileSheet } from "./edit-profile-sheet";
 
 type Props = {
-  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string } };
+  user: { name: string; email: string; preferences: { firstName?: string; lastName?: string; phone?: string } };
   wallet: { available: number; reserved: number };
   history: { id: string; amount: number; type: string; createdAt: Date; productName: string | null }[];
   orders: ProfileOrder[];
@@ -47,6 +48,7 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
   const [tab, setTab] = useState<"active" | "past">("active");
   const [howOpen, setHowOpen] = useState(false);
   const [codeFor, setCodeFor] = useState<ProfileOrder | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const name = [user.preferences.firstName, user.preferences.lastName].filter(Boolean).join(" ") || user.name;
   const active = orders.filter((o) => CURRENT.has(o.status));
   const past = orders.filter((o) => !CURRENT.has(o.status));
@@ -69,6 +71,9 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
           <div className="flex min-w-0 flex-col">
             <p className="truncate title-lg text-text-primary">{name}</p>
             <p className="truncate body-sm text-text-secondary">{user.email}</p>
+            <button type="button" onClick={() => setEditOpen(true)} className="mt-1 self-start label-sm text-text-brand underline-offset-4 hover:underline">
+              Editează profilul
+            </button>
           </div>
         </section>
 
@@ -162,6 +167,14 @@ export function ProfileView({ user, wallet, history, orders }: Props) {
       </BottomSheet>
 
       {codeFor?.pickup && <PickupSheet order={codeFor} onClose={() => setCodeFor(null)} />}
+      <EditProfileSheet
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        email={user.email}
+        firstName={user.preferences.firstName ?? name.split(" ")[0] ?? ""}
+        lastName={user.preferences.lastName ?? ""}
+        phone={user.preferences.phone ?? ""}
+      />
     </div>
   );
 }
@@ -255,10 +268,11 @@ function PickupSheet({ order, onClose }: { order: ProfileOrder; onClose: () => v
   };
   return (
     <BottomSheet open={open} onOpenChange={(o) => !o && close()} title="Codul de ridicare" header="left">
-      <p className="body-md text-text-secondary">Arată codul la casă. Angajatul îl scanează și primești comanda.</p>
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-60 rounded-lg bg-bg-surface p-3 shadow-card" role="img" aria-label="Cod QR de ridicare" dangerouslySetInnerHTML={{ __html: pickup.qrSvg }} />
-        <p className="title-lg text-text-primary">{orderRef(order.id)}</p>
+      <p className="body-md text-text-secondary">Arată codul partenerului de magazin. Îl scanează și îți predă comanda.</p>
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-border-subtle bg-bg-subtle p-5">
+        <div className="w-56 rounded-xl bg-bg-surface p-3" role="img" aria-label="Cod QR de ridicare" dangerouslySetInnerHTML={{ __html: pickup.qrSvg }} />
+        <p className="display-sm tracking-[0.18em] text-text-primary">{pickup.code}</p>
+        <p className="caption text-text-secondary">{orderRef(order.id)}</p>
       </div>
       <div className="flex flex-col">
         <SummaryRow label="Cod manual" value={<span className="title-md tracking-[0.2em]">{pickup.code}</span>} />

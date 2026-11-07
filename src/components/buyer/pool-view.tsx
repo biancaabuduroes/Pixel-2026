@@ -21,6 +21,8 @@ import { joinGroupAction } from "@/server/actions/buyer";
 import type { PoolGroup } from "@/server/buyer-queries";
 import { DealCountdown } from "./deal-countdown";
 import { GroupProgressBar } from "./group-progress-bar";
+import type { CompareRow } from "@/server/buyer-queries";
+import { CompareSellersSheet } from "./compare-sellers-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
 import { useGroupProgress } from "./use-group-progress";
 
@@ -55,6 +57,7 @@ type Props = {
   activeCommitment: { id: string; groupId: string; quantity: number; reservedAmount: number } | null;
   stockRemaining: number;
   signedIn: boolean;
+  alternatives: CompareRow[];
 };
 
 export function PoolView(props: Props) {
@@ -65,7 +68,13 @@ export function PoolView(props: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
-      <Hero name={product.name} description={product.description} store={product.pickupLocation.name} discountPct={headline?.discountPct ?? 0} />
+      <Hero
+        name={product.name}
+        description={product.description}
+        store={product.pickupLocation.name}
+        discountPct={headline?.discountPct ?? 0}
+        productId={product.id}
+      />
       <main className="flex flex-col gap-6 px-page pt-4">
         {group ? (
           <GroupSection key={group.id} {...props} group={group} onSelect={setGroupId} />
@@ -77,7 +86,7 @@ export function PoolView(props: Props) {
   );
 }
 
-function Hero({ name, description, store, discountPct }: { name: string; description: string; store: string; discountPct: number }) {
+function Hero({ name, description, store, discountPct, productId }: { name: string; description: string; store: string; discountPct: number; productId: string }) {
   return (
     <section className="relative flex h-110 flex-col justify-end overflow-hidden bg-bg-brand-soft px-page pb-6">
       <Icon name="hero-ellipse-1" size={260} className="absolute top-[170px] -left-[70px] opacity-60" />
@@ -91,6 +100,18 @@ function Hero({ name, description, store, discountPct }: { name: string; descrip
       >
         <Icon name="chevron-left-22" size={22} />
       </Link>
+      <button
+        type="button"
+        aria-label="Distribuie"
+        onClick={() => {
+          const url = `${window.location.origin}/produs/${productId}`;
+          if (navigator.share) void navigator.share({ title: name, url }).catch(() => undefined);
+          else void navigator.clipboard.writeText(url);
+        }}
+        className="absolute top-14 right-page flex h-control-md items-center rounded-pill bg-bg-surface px-3 label-sm text-text-primary shadow-raised outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
+      >
+        Distribuie
+      </button>
       <div className="relative flex flex-col items-start gap-2 text-text-inverse">
         {discountPct > 0 && <span className="rounded-pill bg-bg-deal px-2 py-0.5 label-sm text-text-primary">-{discountPct}%</span>}
         <h1 className="display-lg">{name}</h1>
@@ -104,7 +125,7 @@ function Hero({ name, description, store, discountPct }: { name: string; descrip
   );
 }
 
-function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, alternatives, group, onSelect }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
@@ -113,6 +134,7 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const [error, setError] = useState<string | null>(null);
   const [joined, setJoined] = useState<Joined | null>(null);
   const [pickupOpen, setPickupOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
@@ -227,6 +249,9 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         subtitle={`${product.pickupLocation.name}, ${product.pickupLocation.address}`}
         onClick={() => setPickupOpen(true)}
       />
+      {alternatives.length > 1 && (
+        <ListRow icon="store-20-success" title="Compară vânzătorii" subtitle="Alte grupuri din aceeași categorie" onClick={() => setCompareOpen(true)} />
+      )}
 
       <div className="fixed inset-x-0 bottom-0 z-10 mx-auto flex w-full max-w-[430px] flex-col gap-3 bg-bg-surface px-page pt-3 pb-6 shadow-sheet">
         {error && <InlineAlert tone="danger" icon="info-24">{error}</InlineAlert>}
@@ -282,9 +307,12 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         <p className="body-sm text-text-secondary">Comanda e gata de ridicare după închiderea grupului. Primești codul de ridicare în Profil.</p>
       </BottomSheet>
 
+      <CompareSellersSheet open={compareOpen} onOpenChange={setCompareOpen} rows={alternatives} currentProductId={product.id} />
+
       {joined && (
         <JoinedSheet
           joined={joined}
+          productId={product.id}
           productName={product.name}
           storeName={product.pickupLocation.name}
           closesAt={closesAt}

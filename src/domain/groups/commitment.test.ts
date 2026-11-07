@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { assertTransition, canTransition, isPickupExpired, pickupDeadline } from "./commitment";
+import { afterWrongPickupCode, assertTransition, canTransition, isPickupExpired, isPickupLocked, pickupDeadline } from "./commitment";
 import { at } from "./fixtures";
 
 describe("commitment lifecycle", () => {
@@ -31,5 +31,17 @@ describe("pickup deadline", () => {
     expect(isPickupExpired("AWAITING_PICKUP", deadline, at(100))).toBe(false);
     expect(isPickupExpired("AWAITING_PICKUP", deadline, at(100.01))).toBe(true);
     expect(isPickupExpired("COLLECTED", deadline, at(200))).toBe(false);
+  });
+});
+
+describe("pickup code lockout", () => {
+  it("locks for 15 minutes on the 5th wrong code", () => {
+    expect(afterWrongPickupCode(0, at(0))).toEqual({ failedCodeAttempts: 1, codeLockedUntil: null });
+    expect(afterWrongPickupCode(3, at(0))).toEqual({ failedCodeAttempts: 4, codeLockedUntil: null });
+    const locked = afterWrongPickupCode(4, at(0));
+    expect(locked).toEqual({ failedCodeAttempts: 0, codeLockedUntil: at(0.25) });
+    expect(isPickupLocked(locked.codeLockedUntil, at(0.24))).toBe(true);
+    expect(isPickupLocked(locked.codeLockedUntil, at(0.25))).toBe(false);
+    expect(isPickupLocked(null, at(0))).toBe(false);
   });
 });

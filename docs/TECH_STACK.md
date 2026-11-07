@@ -51,7 +51,7 @@ Pixel-2026/
 │   │   ├── groups/          # Lifecycle rules, renewal, cancellation eligibility
 │   │   ├── wallet/          # Ledger posting rules, balance calculation, commission
 │   │   └── ai/              # Forecast, recommendation ranking, insight templates
-│   ├── server/              # Database-backed services (transactions, locking) used by actions
+│   ├── server/              # Database-backed services: commitments (join/cancel), settlement, pickup, top-up, ledger posting
 │   │   ├── actions/         # Next.js server actions (join, cancel, top-up, confirm pickup…)
 │   │   └── payments/        # PaymentProvider interface + SimulatedProvider
 │   ├── components/
@@ -99,6 +99,7 @@ Next.js 16 differs from older versions: its own docs ship in `node_modules/next/
 | `DATABASE_URL` | PostgreSQL connection used by the app (pooled) |
 | `DIRECT_URL` | Direct PostgreSQL connection used by Prisma migrations |
 | `DEMO_MODE` | `true` enables the demo panel and user switcher |
+| `PICKUP_CODE_SECRET` | Derives and verifies the 6-digit pickup codes (server only) |
 | `ANTHROPIC_API_KEY` | Optional, for the LLM insight text |
 | `CRON_SECRET` | Later: secures the scheduled-job endpoint |
 

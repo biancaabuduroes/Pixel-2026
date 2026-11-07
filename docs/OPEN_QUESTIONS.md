@@ -43,7 +43,8 @@
 - Buyers can join until the group's closing time (server clock).
 - Cancelling also ends at the group's closing time: "still open" (BL §5) means status `open` **and** `now < closesAt`, the same window as joining.
 - The highest tier threshold must be ≤ stock.
-- Pickup code: single use; 5 wrong attempts → 15-minute lock.
+- Pickup code: single use; 5 wrong attempts → 15-minute lock; after the lock the count starts again from 0.
+- A top-up is limited to 100,000 RON per request. This only protects the integer database column; it is not a business rule.
 - Renewal stops when the product is inactive, the duration is removed, or stock is exhausted; open groups always settle.
 - One pickup location per seller in the MVP.
 - Seller payouts to a bank account are out of MVP scope.

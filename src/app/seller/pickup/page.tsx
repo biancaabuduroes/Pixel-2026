@@ -8,8 +8,8 @@ import { currentUser } from "@/server/session";
 export default function SellerPickupPage({ searchParams }: PageProps<"/seller/pickup">) {
   return (
     <main className="mx-auto flex w-full max-w-2xl flex-col gap-4 p-4">
-      <h1 className="text-2xl font-semibold">Confirm pickup</h1>
-      <Suspense fallback={<p className="text-muted-foreground">Loading…</p>}>
+      <h1 className="display-lg">Confirmă ridicarea</h1>
+      <Suspense fallback={<p className="text-muted-foreground">Se încarcă…</p>}>
         <Orders searchParams={searchParams} />
       </Suspense>
     </main>
@@ -22,23 +22,23 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/seller/picku
   const code = typeof params.code === "string" && /^\d{6}$/.test(params.code) ? params.code : undefined;
 
   const seller = await currentUser("SELLER");
-  if (!seller) return <p className="text-muted-foreground">Switch to the seller account to confirm pickups.</p>;
+  if (!seller) return <p className="text-muted-foreground">Intră în contul de vânzător ca să confirmi ridicări.</p>;
   const orders = await sellerOrdersAwaitingPickup(seller.id);
-  if (orders.length === 0) return <p className="text-muted-foreground">No orders are waiting for pickup.</p>;
+  if (orders.length === 0) return <p className="text-muted-foreground">Nicio comandă nu așteaptă ridicarea.</p>;
 
   // The scanned order first.
   const sorted = [...orders].sort((a, b) => Number(b.id === scanned) - Number(a.id === scanned));
   return (
     <ul className="flex flex-col gap-3">
       {sorted.map((o) => (
-        <li key={o.id} className={`flex flex-col gap-3 rounded-2xl border p-4 ${o.id === scanned ? "border-primary" : ""}`}>
+        <li key={o.id} className={`flex flex-col gap-3 rounded-lg border p-4 ${o.id === scanned ? "border-primary" : ""}`}>
           <div>
-            <p className="font-medium">
+            <p className="title-md">
               {o.buyer.name} · {o.quantity} × {o.product.name}
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="body-sm text-muted-foreground">
               {o.amountCharged === null ? "–" : formatRon(o.amountCharged)}
-              {o.pickupDeadline && ` · collect by ${o.pickupDeadline.toLocaleDateString("ro-RO")}`}
+              {o.pickupDeadline && ` · de ridicat până pe ${o.pickupDeadline.toLocaleDateString("ro-RO")}`}
             </p>
           </div>
           <PickupCodeForm commitmentId={o.id} defaultCode={o.id === scanned ? code : undefined} />

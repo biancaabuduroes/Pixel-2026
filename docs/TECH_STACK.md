@@ -101,7 +101,7 @@ Next.js 16 differs from older versions: its own docs ship in `node_modules/next/
 | `DATABASE_URL` | PostgreSQL connection used by the app (pooled) |
 | `DIRECT_URL` | Direct PostgreSQL connection used by Prisma migrations |
 | `DEMO_MODE` | `true` enables the demo panel and user switcher |
-| `PICKUP_CODE_SECRET` | Derives and verifies the 6-digit pickup codes (server only) |
+| `PICKUP_CODE_SECRET` | Server secret: derives/verifies pickup codes and signs the session cookie (separate labels). Required for login |
 | `ANTHROPIC_API_KEY` | Optional, for the LLM insight text |
 | `CRON_SECRET` | Later: secures the scheduled-job endpoint |
 

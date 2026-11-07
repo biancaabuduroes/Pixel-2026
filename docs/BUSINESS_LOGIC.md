@@ -143,7 +143,7 @@ The wallet is a **double-entry ledger**. Balances are never stored; they're calc
 - Transaction history
 - Total savings
 
-**Top-up (MVP):** simulated, through a `PaymentProvider` interface (`SimulatedProvider`). Stripe test mode is planned as P1. The UI clearly labels this as demo money.
+**Top-up (MVP):** simulated, through a `PaymentProvider` interface (`SimulatedProvider`). **Minimum 10 RON per top-up** (decision 2026-11-07). Stripe test mode is planned as P1. The UI clearly labels this as demo money. In the UI the wallet unit is called **bunToken** (1 bunToken = 1 RON); amounts are still integer bani.
 
 ## 10. Commitment lifecycle
 

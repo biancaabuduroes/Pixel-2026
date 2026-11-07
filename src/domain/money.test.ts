@@ -15,11 +15,13 @@ describe("money", () => {
     expect(() => multiplyBani(Number.MAX_SAFE_INTEGER, 2)).toThrow(MoneyError);
   });
 
-  it("formats bani as RON", () => {
+  it("formats bani as RON, Romanian style", () => {
     expect(formatRon(28500)).toBe("285 RON");
-    expect(formatRon(27075)).toBe("270.75 RON");
-    expect(formatRon(1425)).toBe("14.25 RON");
-    expect(formatRon(5)).toBe("0.05 RON");
+    expect(formatRon(27075)).toBe("270,75 RON");
+    expect(formatRon(1425)).toBe("14,25 RON");
+    expect(formatRon(5)).toBe("0,05 RON");
     expect(formatRon(-1500)).toBe("-15 RON");
+    expect(formatRon(160000)).toBe("1.600 RON");
+    expect(formatRon(123456789)).toBe("1.234.567,89 RON");
   });
 });

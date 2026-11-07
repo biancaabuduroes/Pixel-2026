@@ -5,10 +5,16 @@
 
 ## P0 – Hackathon MVP
 
-### F1. Demo user switcher — all roles
-- **Story:** As a presenter, I want to switch between demo buyer, seller and admin accounts so I can show every journey.
-- **Behaviour:** pick from pre-loaded users; the session is stored in a cookie. Only available with `DEMO_MODE`.
-- **Acceptance:** switching the role changes the navigation and the data shown; disabled when `DEMO_MODE` is off.
+### F0. Buyer onboarding — buyer (Figma "onboarding-flow", B1.1–B1.5)
+- **Story:** As a new buyer, I want a short introduction and setup so I understand group buying, bunToken and can top up before my first group.
+- **Screens (Romanian):** splash (logo) → 3 welcome slides → phone → code → name → shopping preferences → budget → location → top up bunToken (optional), with the "Cum funcționează bunToken?" sheet. Then a home placeholder.
+- **Behaviour:** phone and SMS code are **mocks** (any number, any 6 digits; nothing is sent) that sign in as the predefined demo buyer. Answers are saved to `User.preferences` (display only; no effect on prices or money). Address and map are mocked. Top-up uses the simulated top-up (minimum 10 RON) and is labelled as demo money. Completion (or "Mai târziu") sets the `bd_onboarding_done` cookie; `/` sends visitors without it to `/onboarding`.
+- **Acceptance:** "Continuă" is disabled until each step is valid (a 9-digit number typed as `712…`, `0712…` or `+40 712…`, first name, ≥ 1 category, an address, top-up ≥ 10 RON); the progress bar follows the step; reloading `/` after completion stays on home.
+
+### F1. Demo login — all roles
+- **Story:** As a presenter, I want to sign in as the demo buyer or seller so I can show every journey.
+- **Behaviour:** `/autentificare` (from "Am deja cont" or "Continuă cu email"): email + password for the 2 predefined users (`prisma/seed.sql`). The session is a signed cookie. Only available with `DEMO_MODE`. Replaces the earlier user-switcher idea (decision 2026-11-07).
+- **Acceptance:** a wrong password is rejected; an edited session cookie is rejected; sign-out returns to the login.
 
 ### F2. Product discovery and details — buyer
 - **Story:** As a buyer, I want to browse products and see the price tiers so I understand how the price can drop.

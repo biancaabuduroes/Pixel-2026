@@ -15,6 +15,7 @@ export type FigmaIconName =
   | "location-20-brand" | "chevron-down-16" | "user-24" | "chevron-right-20-secondary" | "bag-40-secondary" | "clock-16"
   | "bag-150-brand" | "store-16-inverse" | "users-14" | "store-14" | "calendar-24" | "chevron-left-22" | "lock-20-inverse"
   | "promo-shape" | "promo-shape-back" | "hero-ellipse-1" | "hero-ellipse-2"
+  | "search-20-inverse" | "search-24" | "bag-56-brand" | "card-ellipse-brand"
   | "wallet-14" | "bag-24-brand" | "bag-24-deal" | "scan-20-inverse" | "minus-18" | "plus-18";
 
 export function Icon({ name, size, className, label }: { name: FigmaIconName; size: number; className?: string; label?: string }) {

@@ -63,6 +63,12 @@ model PickupLocation {
 
 // ─── Products & pricing ─────────────────────────────────────────
 
+/// ITEM = one product; BASKET = a seller-defined basket sold as one unit (decision 2026-11-07).
+enum ProductKind {
+  ITEM
+  BASKET
+}
+
 enum ProductStatus {
   ACTIVE
   INACTIVE
@@ -77,6 +83,7 @@ model Product {
   imageUrl           String?
   /// One of the onboarding categories (src/lib/onboarding.ts CATEGORIES); filters the buyer home list.
   category           String?
+  kind               ProductKind   @default(ITEM)
   stockTotal         Int // CHECK >= 0
   perBuyerCap        Int // CHECK >= 1
   pickupDeadlineDays Int           @default(7) // CHECK >= 1, calendar days
@@ -86,11 +93,25 @@ model Product {
   seller         User              @relation(fields: [sellerId], references: [id])
   pickupLocation PickupLocation    @relation(fields: [pickupLocationId], references: [id])
   priceTiers     PriceTier[]
+  basketItems    BasketItem[]
   durations      ProductDuration[]
   groups         Group[]
   commitments    Commitment[]
 
   @@index([sellerId])
+}
+
+/// What a BASKET contains (display only: the basket has its own tiers, stock and groups).
+model BasketItem {
+  id        String @id @default(cuid())
+  productId String
+  position  Int // display order
+  name      String
+  quantity  Int // CHECK >= 1
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, position])
 }
 
 model PriceTier {

@@ -21,7 +21,7 @@
 - **Screens:** home/product list, product detail.
 - **Behaviour:** each product shows image, seller, pickup location, base price, the tier ladder with the current tier highlighted, and the best active group's progress.
 - **Acceptance:** tiers are shown in ascending order of quantity; sold-out products show "Sold out" and can't be joined.
-- **Built (Figma B3.1 / B3.3):** Home `/` (location header, savings banner, "Grupurile mele", category chips from `Product.category`, "Se închid curând" rail, "Grupuri lângă tine" list — one GroupDealCard per product, showing its recommended group); Pool page `/produs/[id]` (hero, price card, "Prețuri pe trepte" ladder in units, pickup row).
+- **Built (Figma B3.1 / B3.2 / B3.3):** category chips filter in the browser (no reload); every category splits into "Coșuri de cumpărături" (seller-defined baskets, kind `BASKET`, contents listed on the Pool page) and "Produse individuale"; the floating "Caută" button opens the Search drawer (recent products opened from search, "Propuse pentru tine" = biggest discounts, diacritic-insensitive name search). Home `/` (location header, savings banner, "Grupurile mele", category chips from `Product.category`, "Se închid curând" rail, "Grupuri lângă tine" list — one GroupDealCard per product, showing its recommended group); Pool page `/produs/[id]` (hero, price card, "Prețuri pe trepte" ladder in units, pickup row).
 
 ### F3. Group selection with recommendations — buyer (AI)
 - **Story:** As a buyer, I want to compare the open groups and see which one is most likely to get me a lower price.
@@ -40,7 +40,7 @@
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.
 - **Behaviour:** list grouped by status. Active: current estimated price, progress, cancel button (only when allowed, BL §5). Awaiting pickup: final price, savings, released amount, pickup location, deadline, **6-digit code and its QR**. Completed and cancelled history.
 - **Acceptance:** the cancel button is hidden or disabled with an explanation after a tier unlocks; the shown amounts match the ledger.
-- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
+- **Built (Figma B5.1 / B5.1b):** "Comenzile mele" on `/profil` (Active · N / Anterioare; "Gata de ridicare" first), order cards, "Arată codul de ridicare" sheet with QR + 6-digit code; "Renunță la grup" when allowed, locked note otherwise. `/purchases` redirects to `/profil`. Groups past closing that the buyer is in are settled when Home or Profile loads (demo assumption: no scheduler yet).
 
 ### F6. Wallet — buyer
 - **Story:** As a buyer, I want to see my available, reserved and pending money and add funds.

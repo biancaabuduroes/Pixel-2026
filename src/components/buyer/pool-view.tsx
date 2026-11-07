@@ -44,6 +44,8 @@ type Props = {
     name: string;
     description: string;
     perBuyerCap: number;
+    kind: "ITEM" | "BASKET";
+    basketItems: { name: string; quantity: number }[];
     priceTiers: { minQty: number; unitPrice: number }[];
     pickupLocation: { name: string; address: string; openingHours: string };
   };
@@ -203,6 +205,21 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
           </p>
         )}
       </section>
+
+      {product.kind === "BASKET" && product.basketItems.length > 0 && (
+        <section className="flex flex-col gap-3">
+          <h2 className="title-xl text-text-primary">Ce conține coșul</h2>
+          <ul className="flex flex-col">
+            {product.basketItems.map((item) => (
+              <li key={item.name} className="flex items-center justify-between gap-3 border-b border-border-subtle py-3 body-md">
+                <span className="text-text-primary">{item.name}</span>
+                <span className="shrink-0 text-text-secondary">× {item.quantity}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="caption text-text-secondary">Coșul e definit de vânzător și se cumpără ca o singură unitate; pragurile de preț sunt în coșuri.</p>
+        </section>
+      )}
 
       <ListRow
         icon="calendar-24"

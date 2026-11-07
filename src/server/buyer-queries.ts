@@ -32,7 +32,21 @@ function recommendedGroup(tiers: Tier[], groups: GroupRow[], now: Date): GroupRo
   return groups.find((g) => g.id === recommendedGroupId) ?? null;
 }
 
-export type DealCard = { productId: string; name: string; category: string | null; closesAt: Date; offer: GroupOffer };
+export type DealCard = {
+  productId: string;
+  name: string;
+  category: string | null;
+  kind: "ITEM" | "BASKET";
+  /** Number of lines in a basket (0 for single products). */
+  itemCount: number;
+  closesAt: Date;
+  /** The recommended open group's offer. */
+  offer: GroupOffer;
+  /** Search rows: open groups, buyers across them, lowest current price. */
+  groupCount: number;
+  buyers: number;
+  fromUnitPrice: number;
+};
 
 /** Home (B3.1): one card per active product with an open group, plus the buyer's own groups and savings. 2 queries. */
 export async function homeData(buyerId: string | null, now = new Date()) {
@@ -40,8 +54,16 @@ export async function homeData(buyerId: string | null, now = new Date()) {
   const [products, buyer] = await Promise.all([
     db.product.findMany({
       where: { status: "ACTIVE" },
-      orderBy: { createdAt: "asc" },
-      select: { id: true, name: true, category: true, priceTiers: tiersAsc, groups: openGroups(now) },
+      orderBy: [{ createdAt: "asc" }, { id: "asc" }], // stable order for products created together
+      select: {
+        id: true,
+        name: true,
+        category: true,
+        kind: true,
+        _count: { select: { basketItems: true } },
+        priceTiers: tiersAsc,
+        groups: { ...openGroups(now), select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } } },
+      },
     }),
     buyerId
       ? db.user.findUnique({
@@ -67,7 +89,20 @@ export async function homeData(buyerId: string | null, now = new Date()) {
   const cards: DealCard[] = [];
   for (const p of products) {
     const g = recommendedGroup(p.priceTiers, p.groups, now);
-    if (g) cards.push({ productId: p.id, name: p.name, category: p.category, closesAt: g.closesAt, offer: offerFor(p.priceTiers, g, now) });
+    if (!g) continue;
+    const offers = p.groups.map((x) => offerFor(p.priceTiers, x, now));
+    cards.push({
+      productId: p.id,
+      name: p.name,
+      category: p.category,
+      kind: p.kind,
+      itemCount: p._count.basketItems,
+      closesAt: g.closesAt,
+      offer: offerFor(p.priceTiers, g, now),
+      groupCount: p.groups.length,
+      buyers: p.groups.reduce((sum, x) => sum + x._count.commitments, 0),
+      fromUnitPrice: Math.min(...offers.map((o) => o.currentUnitPrice)),
+    });
   }
 
   const commitments = buyer?.commitments ?? [];
@@ -96,6 +131,8 @@ export async function productData(productId: string, buyerId: string | null, now
         status: true,
         stockTotal: true,
         perBuyerCap: true,
+        kind: true,
+        basketItems: { orderBy: { position: "asc" }, select: { name: true, quantity: true } },
         priceTiers: tiersAsc,
         pickupLocation: { select: { name: true, address: true, openingHours: true } },
         groups: {
@@ -223,6 +260,9 @@ export async function profileData(buyerId: string, now = new Date()) {
       return { ...base, closesAt: c.group.closesAt, offer: null, pickup: null, cancelLockedBy: null };
     }),
   );
+
+  // "Gata de ridicare" first (requested 2026-11-07), then the rest newest first.
+  orders.sort((a, b) => Number(b.status === "AWAITING_PICKUP") - Number(a.status === "AWAITING_PICKUP"));
 
   return {
     user: { name: user.name, email: user.email, preferences: (user.preferences ?? {}) as { firstName?: string; lastName?: string } },

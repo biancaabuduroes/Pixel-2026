@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { cn } from "cn";
-import { EmptyState } from "@/components/ds/empty-state";
-import { GroupDealCard } from "@/components/buyer/group-deal-card";
+import { HomeDeals } from "@/components/buyer/home-deals";
 import { BuyerScreen, SectionTitle } from "@/components/buyer/buyer-screen";
 import { Icon } from "@/components/ds/icon";
 import { Tag } from "@/components/ds/tag";
@@ -22,8 +20,6 @@ export default function Home(props: PageProps<"/">) {
   );
 }
 
-const SOON_COUNT = 5;
-
 async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const [profile, params] = await Promise.all([currentProfile(), searchParams]);
   if (profile?.role === "SELLER") redirect("/seller/pickup");
@@ -31,12 +27,10 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
   const now = new Date();
   const { cards, myGroups, totalSavings, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);
 
-  const visible = category ? cards.filter((c) => c.category === category) : cards;
-  const soon = [...visible].sort((a, b) => a.closesAt.getTime() - b.closesAt.getTime()).slice(0, SOON_COUNT);
   const usedCategories = CATEGORIES.filter((c) => cards.some((card) => card.category === c.value));
 
   return (
-    <BuyerScreen>
+    <BuyerScreen className="pb-24">
       <header className="flex items-center justify-between gap-3 pt-2">
         <Link href="/onboarding/locatie" className="flex min-w-0 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
           <span className="flex size-control-md shrink-0 items-center justify-center rounded-md bg-bg-brand-soft">
@@ -104,47 +98,7 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
         </section>
       )}
 
-      {usedCategories.length > 0 && (
-        <nav aria-label="Categorii" className="-mx-page flex gap-2 overflow-x-auto px-page [scrollbar-width:none]">
-          {[{ value: null, label: "Toate" }, ...usedCategories].map((c) => {
-            const selected = c.value === category;
-            return (
-              <Link
-                key={c.label}
-                href={c.value ? `/?categorie=${c.value}` : "/"}
-                aria-current={selected ? "page" : undefined}
-                className={cn(
-                  "flex h-control-sm shrink-0 items-center rounded-pill px-4 label-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong",
-                  selected ? "bg-bg-action text-text-inverse" : "bg-bg-muted text-text-primary",
-                )}
-              >
-                {c.label}
-              </Link>
-            );
-          })}
-        </nav>
-      )}
-
-      {visible.length === 0 ? (
-        <EmptyState icon="users-96-brand" title="Niciun grup deschis" body="Revino curând: grupurile noi apar aici imediat ce se deschid." />
-      ) : (
-        <>
-          <section className="flex flex-col gap-3">
-            <SectionTitle>Se închid curând</SectionTitle>
-            <div className="-mx-page flex gap-3 overflow-x-auto px-page pb-1 [scrollbar-width:none]">
-              {soon.map((c) => (
-                <GroupDealCard key={c.productId} {...c} className="w-[300px] shrink-0" />
-              ))}
-            </div>
-          </section>
-          <section className="flex flex-col gap-3">
-            <SectionTitle>Grupuri lângă tine</SectionTitle>
-            {visible.map((c) => (
-              <GroupDealCard key={c.productId} {...c} />
-            ))}
-          </section>
-        </>
-      )}
+      <HomeDeals cards={cards} categories={usedCategories} initialCategory={category} />
     </BuyerScreen>
   );
 }

@@ -53,6 +53,7 @@
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
 | Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
 | QuantityStepper | `ds/quantity-stepper.tsx` |
+| SearchDock · compact (85:4519) + Search drawer B3.2 (85:4587) | `buyer/home-deals.tsx`, `buyer/search-drawer.tsx`, `ds/bottom-sheet.tsx` (`header="nav"`) |
 | SummaryRow (Joined / Pickup code sheets) | `ds/summary-row.tsx` |
 | BottomSheet with left title (B4.1, B5.1b) | `ds/bottom-sheet.tsx` (`header="left"`) |
 | GroupDealCard (B3.1) | `buyer/group-deal-card.tsx` |
@@ -76,7 +77,8 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - On screens wider than a phone, the column stays 430px wide and centred.
 - **Buyer flow copy:** "persoane" → "unități" (thresholds are units); "Probabil plătești" carries "(estimare)"; no store distance (no store coordinates yet).
 - **Buyer flow states not in Figma** (built from existing components): insufficient balance, already in the group, group closed, sold out, not signed in (InlineAlert / EmptyState); cancel button and cancel-locked note on order cards; wallet history list; quantity row in the bottom bar; pickup details sheet; 6-digit manual code row in the pickup sheet.
-- **Skipped (out of scope):** search drawer (B3.2), share button, carousel dots, "Compară vânzătorii", invite card in the Joined sheet, edit profile (B5.1a), notifications bell, account/notification rows.
+- **Baskets (not in Figma):** "Coșuri de cumpărături" / "Produse individuale" section titles, "Coș · N produse" line on deal cards, "Ce conține coșul" list on the Pool page. The search field has no clear (×) button yet (Filled state).
+- **Skipped (out of scope):** share button, carousel dots, "Compară vânzătorii", invite card in the Joined sheet, edit profile (B5.1a), notifications bell, account/notification rows.
 
 ## 5. BunDeals screens still to build (map to the Figma components above)
 

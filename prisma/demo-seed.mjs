@@ -29,6 +29,16 @@ const PRODUCTS = [
     tiers: [[1, 4999], [15, 3999], [30, 3499]], groups: [[120, 50, 13]] },
   { id: "seed-detergent", name: "Detergent de vase 5 L", desc: "Canistră 5 L · concentrat", cat: "curatenie", loc: 1, cap: 3,
     tiers: [[1, 3999], [25, 3299], [50, 2999]], groups: [[24, 12, 14], [168, 70, 30]] },
+  // Seller-defined baskets (kind BASKET): sold as one unit; `items` is what the basket contains.
+  { id: "seed-cos-baza", kind: "BASKET", name: "Coș alimente de bază", desc: "Cămara pe o lună pentru 2 persoane", cat: "alimente", loc: 0, cap: 2,
+    tiers: [[1, 14999], [15, 12999], [30, 11499]], groups: [[48, 20, 12], [168, 30, 7]],
+    items: [["Ulei de floarea-soarelui 1 L", 2], ["Făină albă 1 kg", 2], ["Zahăr 1 kg", 1], ["Orez 1 kg", 1], ["Paste 500 g", 3], ["Roșii în bulion 400 g", 2]] },
+  { id: "seed-cos-ingrijire", kind: "BASKET", name: "Coș îngrijire personală", desc: "Esențialele de baie pentru o lună", cat: "ingrijire-personala", loc: 1, cap: 2,
+    tiers: [[1, 9999], [12, 8499], [25, 7499]], groups: [[72, 24, 9]],
+    items: [["Șampon 400 ml", 1], ["Gel de duș 500 ml", 2], ["Pastă de dinți 75 ml", 2], ["Săpun lichid 500 ml", 1], ["Deodorant 150 ml", 1]] },
+  { id: "seed-cos-premium", kind: "BASKET", name: "Coș alimente premium", desc: "Produse gourmet selectate de vânzător", cat: "alimente", loc: 0, cap: 1,
+    tiers: [[1, 29999], [10, 26999], [20, 24999]], groups: [[120, 40, 8]],
+    items: [["Ulei de măsline extravirgin 750 ml", 1], ["Parmigiano Reggiano 300 g", 1], ["Paste artizanale 500 g", 2], ["Cafea boabe 1 kg", 1], ["Ciocolată neagră 85% 100 g", 2]] },
 ];
 
 const SIM_BUYERS = 30;
@@ -113,8 +123,11 @@ function group(p, { id, durationHours, hoursSinceOpen, simUnits, demoQty = 0, si
 for (const p of PRODUCTS) {
   const loc = LOCATIONS[p.loc].id;
   sql(
-    `INSERT INTO "Product" (id, "sellerId", "pickupLocationId", name, description, category, "stockTotal", "perBuyerCap", "pickupDeadlineDays", status) SELECT ${q(p.id)}, id, ${q(loc)}, ${q(p.name)}, ${q(p.desc)}, ${q(p.cat)}, 200, ${p.cap}, 3, 'ACTIVE' FROM "User" WHERE email = 'vanzator@bundeals.ro' ON CONFLICT DO NOTHING;`,
+    `INSERT INTO "Product" (id, "sellerId", "pickupLocationId", name, description, category, kind, "stockTotal", "perBuyerCap", "pickupDeadlineDays", status) SELECT ${q(p.id)}, id, ${q(loc)}, ${q(p.name)}, ${q(p.desc)}, ${q(p.cat)}, ${q(p.kind ?? "ITEM")}, 200, ${p.cap}, 3, 'ACTIVE' FROM "User" WHERE email = 'vanzator@bundeals.ro' ON CONFLICT DO NOTHING;`,
   );
+  if (p.items) {
+    sql(`INSERT INTO "BasketItem" (id, "productId", position, name, quantity) VALUES ${p.items.map(([name, qty], i) => `(${q(`${p.id}-i${i + 1}`)}, ${q(p.id)}, ${i + 1}, ${q(name)}, ${qty})`).join(", ")} ON CONFLICT DO NOTHING;`);
+  }
   sql(`INSERT INTO "PriceTier" (id, "productId", "minQty", "unitPrice") VALUES ${p.tiers.map(([m, u]) => `(${q(`${p.id}-t${m}`)}, ${q(p.id)}, ${m}, ${u})`).join(", ")} ON CONFLICT DO NOTHING;`);
   sql(`INSERT INTO "ProductDuration" (id, "productId", "durationHours") VALUES ${p.groups.map(([h]) => `(${q(`${p.id}-d${h}`)}, ${q(p.id)}, ${h})`).join(", ")} ON CONFLICT DO NOTHING;`);
   // Each simulated buyer holds at most one ACTIVE commitment per product, so groups use distinct buyers.

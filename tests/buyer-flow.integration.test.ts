@@ -39,7 +39,14 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
 
   it("home lists one card per product and settles the buyer's past-due group", async () => {
     const home = await q.homeData("demo-buyer");
-    expect(home.cards).toHaveLength(6);
+    expect(home.cards).toHaveLength(9);
+    expect(home.cards.filter((c) => c.kind === "BASKET").map((c) => [c.productId, c.itemCount])).toEqual([
+      ["seed-cos-baza", 6],
+      ["seed-cos-ingrijire", 5],
+      ["seed-cos-premium", 5],
+    ]);
+    const scutece = home.cards.find((c) => c.productId === "seed-scutece");
+    expect(scutece).toMatchObject({ groupCount: 3, fromUnitPrice: 9499 });
     expect(home.myGroups.map((g) => g.productId)).toEqual(["seed-ulei"]);
     expect(home.totalSavings).toBe(1000); // honey: 49,99 committed → 39,99 final, 1 unit
     const honey = await db.commitment.findFirstOrThrow({ where: { buyerId: "demo-buyer", productId: "seed-miere" } });
@@ -58,11 +65,19 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     const profile = await q.profileData("demo-buyer");
     expect(profile?.wallet.reserved).toBe(2 * 5499);
     expect(profile?.history.map((h) => h.type)).toContain("SETTLE");
+    expect(profile?.orders[0].status).toBe("AWAITING_PICKUP"); // ready for pickup comes first
     const ready = profile?.orders.find((o) => o.status === "AWAITING_PICKUP");
     expect(ready?.pickup?.code).toMatch(/^\d{6}$/);
     expect(ready?.pickup?.qrSvg).toContain("<svg");
     const active = profile?.orders.find((o) => o.status === "ACTIVE");
     expect(active?.cancelLockedBy).toBeNull(); // ulei 168h group is below its first discount
+  });
+
+  it("pool page lists a basket's contents in order", async () => {
+    const pool = await q.productData("seed-cos-baza", null);
+    expect(pool?.product.kind).toBe("BASKET");
+    expect(pool?.product.basketItems[0]).toEqual({ name: "Ulei de floarea-soarelui 1 L", quantity: 2 });
+    expect(pool?.product.basketItems).toHaveLength(6);
   });
 
   it("group progress returns server-computed offer", async () => {

@@ -12,7 +12,22 @@ export function nextTierText(offer: GroupOffer): string {
 }
 
 /** Figma: GroupDealCard (B3.1). Media with discount tag, title, price + struck base, next tier + countdown. */
-export function GroupDealCard({ productId, name, closesAt, offer, className }: { productId: string; name: string; closesAt: Date; offer: GroupOffer; className?: string }) {
+export function GroupDealCard({
+  productId,
+  name,
+  closesAt,
+  offer,
+  basketItems = 0,
+  className,
+}: {
+  productId: string;
+  name: string;
+  closesAt: Date;
+  offer: GroupOffer;
+  /** Basket cards (not in Figma) add "Coș · N produse" under the title. */
+  basketItems?: number;
+  className?: string;
+}) {
   return (
     <Link
       href={`/produs/${productId}`}
@@ -24,13 +39,14 @@ export function GroupDealCard({ productId, name, closesAt, offer, className }: {
       </div>
       <div className="flex flex-col gap-1 px-4 pt-4 pb-3">
         <h3 className="title-lg text-text-primary">{name}</h3>
+        {basketItems > 0 && <p className="body-sm text-text-secondary">Coș · {basketItems} produse</p>}
         <p className="flex items-baseline gap-2">
           <span className="display-sm text-text-primary">{formatRon(offer.currentUnitPrice)}</span>
           {offer.discountPct > 0 && <s className="body-sm text-text-secondary">{formatRon(offer.baseUnitPrice)}</s>}
         </p>
         <div className="flex items-center justify-between gap-2">
           <span className="min-w-0 truncate body-sm text-text-secondary">{nextTierText(offer)}</span>
-          <DealCountdown closesAt={closesAt.toISOString()} />
+          <DealCountdown closesAt={new Date(closesAt).toISOString()} />
         </div>
       </div>
     </Link>

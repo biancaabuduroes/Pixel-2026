@@ -29,6 +29,7 @@
 | 2026-11-07 | AI recommendation: probability per label (Likely 80%, Possible 50%, Unlikely 20%); expected unit price = p × next-tier price + (1 − p) × current price; lowest expected price first (an already-unlocked discount counts); ties → earlier closing |
 | 2026-11-07 | Pickup deadline counts **calendar days**: `closesAt + pickupDeadlineDays × 24h` (UTC) |
 | 2026-11-07 | Stock used = commitments that are not `CANCELLED` or `REFUNDED` (a refund gives the units back) |
+| 2026-11-07 | Keep Prisma (not Supabase JS): it gives TypeScript transactions with row locks. Migrations run automatically on Vercel production deploys, guarded against the wrong Supabase project |
 | 2026-11-07 | Database schema approved. Pickup code derived from a server secret + commitment ID; only its hash is stored. P1 tables (Dispute, Notification, AiInsight) added when those features are built |
 
 ## Assumptions (not explicitly confirmed)

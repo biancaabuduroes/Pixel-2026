@@ -16,3 +16,8 @@ coverage/
 # Misc
 *.log
 .vercel
+
+# Next.js / TypeScript
+next-env.d.ts
+*.tsbuildinfo
+*.pem

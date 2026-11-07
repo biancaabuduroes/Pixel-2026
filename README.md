@@ -25,15 +25,32 @@ Next.js + TypeScript · Tailwind CSS + shadcn/ui · PostgreSQL (Supabase) + Pris
 
 ## Setup
 
-_Filled in during the project setup phase._ Expected:
+Requirements: **Node.js 22+** and npm.
 
 ```bash
 npm install
 cp .env.example .env.local   # fill in the values; never commit this file
+npm run dev                  # http://localhost:3000
+```
+
+| Script | What it does |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Production build |
+| `npm run lint` | ESLint |
+| `npm run typecheck` | Generate Next.js route types, then run the TypeScript compiler |
+| `npm test` | Run the Vitest tests once (`npm run test:watch` to keep watching) |
+
+The environment variables are listed in [`.env.example`](.env.example) (names only) and explained in [docs/TECH_STACK.md](docs/TECH_STACK.md#6-environment-variables-names-only).
+
+**Database:** the Prisma schema is added in the *Business logic core* phase. After that, set up the database with:
+
+```bash
 npx prisma migrate dev
 npx prisma db seed
-npm run dev
 ```
+
+**Adding UI components:** `npx shadcn@latest add <component>` (configuration in `components.json`; design tokens in `src/styles/globals.css`).
 
 ## Development workflow
 

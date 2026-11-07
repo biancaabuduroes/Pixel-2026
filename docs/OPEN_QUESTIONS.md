@@ -23,6 +23,7 @@
 | 2026-11-07 | Tech stack (see TECH_STACK.md); data model and lifecycles (see DATA_MODEL.md) |
 | 2026-11-07 | 5-hour hackathon cut: demo user switcher, demo-panel closing, template AI text, no disputes/notifications/uploads |
 | 2026-11-07 | Build with token-based default styling if Figma access is not available in time |
+| 2026-11-07 | Project setup: Next.js 16, shadcn/ui default `base-nova` style (Base UI), Prisma pinned to 7.10.1, Supabase key named `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` |
 
 ## Assumptions (not explicitly confirmed)
 

@@ -63,7 +63,7 @@
 | SectionHeader (35:347) — Text/title-xl | `ds/section-header.tsx` |
 | PriceTierList (38:374) + Tier row (38:373) | `ds/price-tier-list.tsx` |
 | Buyer frames discover-flow v2: B3.1 Home, B3.2 Search, B3.3 Pool, B3.4 Compare, B3.6 Magazin, B4.1 Joined, B5.1 Profile, B5.1a Edit, B5.1b Pickup | `src/app/page.tsx`, `src/app/produs/[id]`, `src/app/magazin/[id]`, `src/app/profil`, `components/buyer/**` |
-| Onboarding frames B1.1–B1.5 (top-up: 64:1385) | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
+| Onboarding frames B1.1–B1.5 (top-up: 64:1385). B1.1a–c illustrations and brand Continuă / Începe | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, real map `components/onboarding/real-map.tsx` |
 | Seller dashboard (not in Figma; desktop analytics shell from tokens) | `src/app/seller/**`, `components/seller/**` (SellerPanel, MetricPills, KPI accent cards, catalog/orders tables, SVG area chart, insight cards, groups filter, margin calculator) |
 
 Text styles added for the buyer flow: `title-xl` (20/26 bold) and `display-sm` (Barlow 800, 22/32).

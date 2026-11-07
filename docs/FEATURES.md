@@ -34,7 +34,7 @@
 - **Behaviour:** quantity selector (1…cap); shows the committed price per unit and the maximum amount; warns if the group has already unlocked a tier (cancelling won't be possible); confirm → funds reserved. BL §4.
 - **Edge cases:** insufficient balance (link to top-up); already committed to this product; group closed meanwhile; stock exhausted meanwhile.
 - **Acceptance:** two simultaneous joins can't oversell stock; the reserved amount = quantity × the displayed price; one active commitment per product.
-- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → `joinGroupAction` → "Ești în grup!" sheet (funds lock, estimate, progress, invite link with Copiază, "Ce urmează"). Edge cases shown with InlineAlert (not in Figma).
+- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → `joinGroupAction` → "Ești în grup!" sheet. The funds card is unchanged (Figma rows are still placeholders). Progress says how many units remain until the next price, the invite copies the real product URL, and "Ce urmează" is join → group close → final price. "Te anunțăm când prețul scade" is copy only; there is no notification. Edge cases shown with InlineAlert (not in Figma).
 
 ### F5. My purchases — buyer
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.

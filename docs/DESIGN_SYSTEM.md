@@ -58,7 +58,7 @@
 | BottomSheet with left title (B4.1, B5.1b) | `ds/bottom-sheet.tsx` (`header="left"`) |
 | GroupDealCard (B3.1) | `buyer/group-deal-card.tsx` |
 | Countdown · Inline, not urgent (`02z 06h 00m`) | `buyer/deal-countdown.tsx` |
-| Group progress bar (pool price card, Joined sheet) | `buyer/group-progress-bar.tsx` |
+| Group progress bar (Joined sheet) | `buyer/group-progress-bar.tsx` |
 | ProgressBar (34:248) — xs/sm/md × Brand/Success/Deal | `ds/progress-bar.tsx` |
 | SectionHeader (35:347) — Text/title-xl | `ds/section-header.tsx` |
 | PriceTierList (38:374) + Tier row (38:373) | `ds/price-tier-list.tsx` |

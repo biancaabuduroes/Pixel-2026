@@ -7,6 +7,7 @@ import { BottomSheet } from "@/components/ds/bottom-sheet";
 import { EmptyState } from "@/components/ds/empty-state";
 import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
+import { ProductImage } from "@/components/ds/product-image";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { SummaryRow } from "@/components/ds/summary-row";
 import { Tag } from "@/components/ds/tag";
@@ -197,9 +198,13 @@ function OrderCard({ order, onShowCode }: { order: ProfileOrder; onShowCode: () 
   return (
     <article className="flex flex-col gap-3 rounded-lg border border-border-default bg-bg-surface p-4">
       <div className="flex items-start gap-3">
-        <span className={inGroup ? "flex size-12 shrink-0 items-center justify-center rounded-md bg-bg-deal-soft" : "flex size-12 shrink-0 items-center justify-center rounded-md bg-bg-brand-soft"}>
-          <Icon name={inGroup ? "bag-24-deal" : "bag-24-brand"} size={24} />
-        </span>
+        {order.product.imageUrl ? (
+          <ProductImage src={order.product.imageUrl} alt={order.product.name} variant="thumb" className="size-12 shrink-0 rounded-md" />
+        ) : (
+          <span className={inGroup ? "flex size-12 shrink-0 items-center justify-center rounded-md bg-bg-deal-soft" : "flex size-12 shrink-0 items-center justify-center rounded-md bg-bg-brand-soft"}>
+            <Icon name={inGroup ? "bag-24-deal" : "bag-24-brand"} size={24} />
+          </span>
+        )}
         <div className="flex min-w-0 flex-1 flex-col">
           <h3 className="title-sm text-text-primary">
             {order.product.name}

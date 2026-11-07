@@ -53,6 +53,7 @@
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
 | Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
 | QuantityStepper | `ds/quantity-stepper.tsx` |
+| Product photo (all product images; see `docs/PRODUCT_IMAGES.md`) | `ds/product-image.tsx` (`ProductImage`) |
 | SearchDock · compact (85:4519) + Search drawer B3.2 (85:4587) | `buyer/home-deals.tsx`, `buyer/search-drawer.tsx`, `ds/bottom-sheet.tsx` (`header="nav"`) |
 | SummaryRow (Joined / Pickup code sheets) | `ds/summary-row.tsx` |
 | BottomSheet with left title (B4.1, B5.1b) | `ds/bottom-sheet.tsx` (`header="left"`) |
@@ -75,6 +76,7 @@ Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond ba
 - **Top-up under 10 RON:** not designed in 64:1385; uses the TextField error style and the Disabled button.
 - The NavBar progress follows the step (1/7 … 7/7); Figma shows a fixed 40% placeholder, as its description says to resize it per step.
 - On screens wider than a phone, the column stays 430px wide and centred.
+- **Product images:** deal card media use #FFF1EC (`bg-bg-brand-soft`) instead of grey, to match the photo background; with a photo, the Pool hero shows it instead of the bag icon and decorative circles.
 - **Buyer flow copy:** "persoane" → "unități" (thresholds are units); "Probabil plătești" carries "(estimare)"; no store distance (no store coordinates yet).
 - **Buyer flow states not in Figma** (built from existing components): insufficient balance, already in the group, group closed, sold out, not signed in (InlineAlert / EmptyState); cancel button and cancel-locked note on order cards; wallet history list; quantity row in the bottom bar; pickup details sheet; 6-digit manual code row in the pickup sheet.
 - **Baskets (not in Figma):** "Coșuri de cumpărături" / "Produse individuale" section titles, "Coș · N produse" line on deal cards, "Ce conține coșul" list on the Pool page. The search field has no clear (×) button yet (Filled state).

@@ -21,3 +21,6 @@ coverage/
 next-env.d.ts
 *.tsbuildinfo
 *.pem
+
+# Prisma generated client (rebuilt by `npm install` / `prisma generate`)
+/src/generated/

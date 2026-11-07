@@ -43,12 +43,13 @@ npm run dev                  # http://localhost:3000
 
 The environment variables are listed in [`.env.example`](.env.example) (names only) and explained in [docs/TECH_STACK.md](docs/TECH_STACK.md#6-environment-variables-names-only).
 
-**Database:** the Prisma schema is added in the *Business logic core* phase. After that, set up the database with:
+**Database:** `npm install` also generates the Prisma client (`src/generated/prisma`). Apply the migrations to the database in `DIRECT_URL` with:
 
 ```bash
-npx prisma migrate dev
-npx prisma db seed
+npx prisma migrate deploy
 ```
+
+Schema: `prisma/schema.prisma`. Extra database rules (checks, append-only ledger triggers) are in the migration SQL; see [docs/DATA_MODEL.md](docs/DATA_MODEL.md#enforced-by-the-database).
 
 **Adding UI components:** `npx shadcn@latest add <component>` (configuration in `components.json`; design tokens in `src/styles/globals.css`).
 

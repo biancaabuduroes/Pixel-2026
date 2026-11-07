@@ -22,7 +22,7 @@ export default function Home(props: PageProps<"/">) {
 
 async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["searchParams"] }) {
   const [profile, params] = await Promise.all([currentProfile(), searchParams]);
-  if (profile?.role === "SELLER") redirect("/seller/pickup");
+  if (profile?.role === "SELLER") redirect("/seller");
   const category = typeof params.categorie === "string" && CATEGORIES.some((c) => c.value === params.categorie) ? params.categorie : null;
   const now = new Date();
   const { cards, myGroups, totalSavings, preferences } = await homeData(profile?.role === "BUYER" ? profile.id : null, now);

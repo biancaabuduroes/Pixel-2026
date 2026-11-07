@@ -54,14 +54,15 @@
 - **Acceptance:** overlapping or non-decreasing tiers and a cap ≥ the first discount threshold are rejected, both in the form and on the server.
 
 ### F8. Groups and demand overview — seller
-- **Story:** As a seller, I want to see each open group's progress and simple demand statistics.
-- **Behaviour:** table of groups: quantity, buyers, current tier, time left. Statistics card: total committed, tiers unlocked, most popular duration.
-- **Acceptance:** numbers match the commitments in the database.
+- **Story:** As a seller, I want a desktop intelligence dashboard: stock, sales, potential units, group performance and AI insights, plus a group list and per-group details.
+- **Screens:** `/seller` (Dashboard), `/seller/grupuri` (list), `/seller/grupuri/[id]` (details). Login as the demo seller redirects here.
+- **Behaviour:** all numbers from the database + `src/domain/seller` (status, stock, metrics, insights). KPI period 7/30/90 days. Catalog filter/sort in the browser. Group list tabs: Toate / Active / Prag deblocat / Aproape de prag / Câștigate / Fără participanți. Details: financials, tier progress, pickup location, orders table, template AI insights, client-only margin calculator (not saved). No group-level QR (BL §8: only the buyer's pickup QR). Seller past-due groups settle lazily on page load (same demo assumption as the buyer flow).
+- **Acceptance:** KPI and lists match commitments/ledger; AI text is labelled as estimates; margin calculator never writes to the DB.
 
 ### F9. Orders and pickup confirmation — seller
 - **Story:** As a seller, I want to see orders to prepare and confirm pickups with the buyer's code.
-- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8.
-- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order. Screens: buyer `/purchases` (QR + code), seller `/seller/pickup`.
+- **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8. Optional `?group=<id>` filters to that group's awaiting orders (from group details).
+- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order. Screens: buyer `/profil` (QR + code), seller `/seller/pickup`.
 
 ### F10. Group settlement and renewal — system
 - **Behaviour:** close → final tier → `SETTLE` ledger entries → pickup codes → next group opens. Idempotent. BL §7.

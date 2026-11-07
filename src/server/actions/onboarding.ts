@@ -39,11 +39,11 @@ export async function loginAction(input: unknown) {
   const parsed = z.object({ email: z.email().max(120), password: z.string().min(1).max(200) }).safeParse(input);
   if (!parsed.success) return { ok: false, reason: "INVALID_INPUT" } as const;
   if (process.env.DEMO_MODE !== "true") return { ok: false, reason: "UNAVAILABLE" } as const;
-  const user = await db.user.findUnique({ where: { email: parsed.data.email.toLowerCase() }, select: { id: true, passwordHash: true } });
+  const user = await db.user.findUnique({ where: { email: parsed.data.email.toLowerCase() }, select: { id: true, passwordHash: true, role: true } });
   if (!user || !verifyPassword(parsed.data.password, user.passwordHash)) return { ok: false, reason: "WRONG_CREDENTIALS" } as const;
   await startSession(user.id);
   await markOnboardingDone();
-  redirect("/");
+  redirect(user.role === "SELLER" ? "/seller" : "/");
 }
 
 export async function logoutAction() {

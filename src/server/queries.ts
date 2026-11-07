@@ -16,10 +16,10 @@ export function buyerOrdersAwaitingPickup(buyerId: string) {
   });
 }
 
-/** The seller's orders waiting for pickup (never the code). One query. */
-export function sellerOrdersAwaitingPickup(sellerId: string) {
+/** The seller's orders waiting for pickup (never the code). One query. Optional group filter. */
+export function sellerOrdersAwaitingPickup(sellerId: string, groupId?: string) {
   return db.commitment.findMany({
-    where: { status: "AWAITING_PICKUP", product: { sellerId } },
+    where: { status: "AWAITING_PICKUP", product: { sellerId }, ...(groupId ? { groupId } : {}) },
     orderBy: { pickupDeadline: "asc" },
     select: { id: true, quantity: true, amountCharged: true, pickupDeadline: true, buyer: { select: { name: true } }, product: { select: { name: true } } },
   });

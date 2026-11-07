@@ -31,3 +31,19 @@ export function pickupDeadline(closesAt: Date, pickupDeadlineDays: number): Date
 export function isPickupExpired(status: CommitmentStatus, deadline: Date, now: Date): boolean {
   return status === "AWAITING_PICKUP" && now.getTime() > deadline.getTime();
 }
+
+/** BL §8: 5 wrong pickup codes lock entry for 15 minutes (assumption in OPEN_QUESTIONS.md). */
+export const MAX_PICKUP_ATTEMPTS = 5;
+export const PICKUP_LOCK_MS = 15 * 60 * 1000;
+
+export function isPickupLocked(codeLockedUntil: Date | null, now: Date): boolean {
+  return codeLockedUntil !== null && now.getTime() < codeLockedUntil.getTime();
+}
+
+/** State after a wrong code. The 5th failure locks entry and starts a fresh count for after the lock. */
+export function afterWrongPickupCode(failedCodeAttempts: number, now: Date): { failedCodeAttempts: number; codeLockedUntil: Date | null } {
+  const attempts = failedCodeAttempts + 1;
+  return attempts >= MAX_PICKUP_ATTEMPTS
+    ? { failedCodeAttempts: 0, codeLockedUntil: new Date(now.getTime() + PICKUP_LOCK_MS) }
+    : { failedCodeAttempts: attempts, codeLockedUntil: null };
+}

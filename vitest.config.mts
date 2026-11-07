@@ -10,5 +10,7 @@ export default defineConfig({
     environment: "node",
     // Domain tests live next to their code; cross-module tests live in tests/.
     include: ["src/**/*.test.ts", "tests/**/*.test.ts"],
+    // Database tests share one test database, so test files run one at a time.
+    fileParallelism: false,
   },
 });

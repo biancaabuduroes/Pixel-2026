@@ -50,7 +50,7 @@
 ### F9. Orders and pickup confirmation — seller
 - **Story:** As a seller, I want to see orders to prepare and confirm pickups with the buyer's code.
 - **Behaviour:** orders awaiting pickup (buyer name, quantity, amount, deadline); scan the buyer's QR (opens the confirm page with the code filled in) or type the code → order collected → earnings credited minus commission. Earnings balance shown. BL §8.
-- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order.
+- **Acceptance:** a wrong code is rejected; 5 failures lock entry for 15 minutes; a code works once and only for its own order. Screens: buyer `/purchases` (QR + code), seller `/seller/pickup`.
 
 ### F10. Group settlement and renewal — system
 - **Behaviour:** close → final tier → `SETTLE` ledger entries → pickup codes → next group opens. Idempotent. BL §7.

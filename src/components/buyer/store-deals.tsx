@@ -43,7 +43,7 @@ export function StoreDeals({ cards, categories }: { cards: DealCard[]; categorie
           <EmptyState icon="users-96-brand" title="Niciun grup deschis" body="Acest magazin nu are grupuri deschise pe filtrul ales." />
         ) : (
           visible.map((c) => (
-            <GroupDealCard key={c.productId} productId={c.productId} name={c.name} closesAt={c.closesAt} offer={c.offer} basketItems={c.itemCount} />
+            <GroupDealCard key={c.productId} productId={c.productId} name={c.name} closesAt={c.closesAt} offer={c.offer} basketItems={c.itemCount} imageUrl={c.imageUrl} />
           ))
         )}
       </section>

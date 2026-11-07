@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ds/empty-state";
 import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
 import { ListRow } from "@/components/ds/list-row";
+import { ProductImage } from "@/components/ds/product-image";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -47,6 +48,7 @@ type Props = {
     description: string;
     perBuyerCap: number;
     kind: "ITEM" | "BASKET";
+    imageUrl: string | null;
     basketItems: { name: string; quantity: number }[];
     priceTiers: { minQty: number; unitPrice: number }[];
     pickupLocation: { name: string; address: string; openingHours: string };
@@ -67,7 +69,7 @@ export function PoolView(props: Props) {
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
-      <Hero name={product.name} productId={product.id} />
+      <Hero name={product.name} productId={product.id} imageUrl={product.imageUrl} />
       <main className="flex flex-col gap-6 px-page pt-5">
         {group ? (
           <GroupSection key={group.id} {...props} group={group} onSelect={setGroupId} />
@@ -79,10 +81,15 @@ export function PoolView(props: Props) {
   );
 }
 
-function Hero({ name, productId }: { name: string; productId: string }) {
+function Hero({ name, productId, imageUrl }: { name: string; productId: string; imageUrl: string | null }) {
   return (
     <section className="relative h-[280px] overflow-hidden bg-bg-brand-soft">
-      <Icon name="bag-150-brand" size={96} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      {imageUrl ? (
+        // Product photo (#FFF1EC treatment, docs/PRODUCT_IMAGES.md); the bag icon stays as the fallback.
+        <ProductImage src={imageUrl} alt={name} priority className="absolute inset-x-0 top-6 bottom-8" />
+      ) : (
+        <Icon name="bag-150-brand" size={96} className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+      )}
       <Link
         href="/"
         aria-label="Înapoi"

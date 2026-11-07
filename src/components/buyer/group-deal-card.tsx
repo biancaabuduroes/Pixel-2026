@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn } from "cn";
-import { Icon } from "@/components/ds/icon";
+import { ProductImage } from "@/components/ds/product-image";
 import type { GroupOffer } from "@/domain/ai";
 import { formatRon } from "@/domain/money";
 import { units } from "@/lib/format";
@@ -18,6 +18,7 @@ export function GroupDealCard({
   closesAt,
   offer,
   basketItems = 0,
+  imageUrl = null,
   className,
 }: {
   productId: string;
@@ -26,6 +27,7 @@ export function GroupDealCard({
   offer: GroupOffer;
   /** Basket cards (not in Figma) add "Coș · N produse" under the title. */
   basketItems?: number;
+  imageUrl?: string | null;
   className?: string;
 }) {
   return (
@@ -33,8 +35,8 @@ export function GroupDealCard({
       href={`/produs/${productId}`}
       className={cn("flex flex-col overflow-hidden rounded-lg border border-border-default bg-bg-surface outline-none focus-visible:ring-2 focus-visible:ring-border-strong", className)}
     >
-      <div className="relative flex h-47 items-center justify-center bg-bg-subtle">
-        <Icon name="bag-40-secondary" size={40} />
+      <div className="relative h-47">
+        <ProductImage src={imageUrl} alt={name} iconSize={40} className="size-full" />
         {offer.discountPct > 0 && <span className="absolute top-3 left-3 rounded-pill bg-bg-deal px-2 py-0.5 label-sm text-text-primary">-{offer.discountPct}%</span>}
       </div>
       <div className="flex flex-col gap-1 px-4 pt-4 pb-3">

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { BottomSheet } from "@/components/ds/bottom-sheet";
 import { Icon } from "@/components/ds/icon";
+import { ProductImage } from "@/components/ds/product-image";
 import { formatRon } from "@/domain/money";
 import type { DealCard } from "@/server/buyer-queries";
 
@@ -69,8 +70,14 @@ export function SearchDrawer({ open, onOpenChange, cards, recentIds }: { open: b
                 {suggested.map((c) => (
                   <Link key={c.productId} href={`/produs/${c.productId}`} onClick={() => rememberOpened(c.productId)} className="flex w-39 shrink-0 flex-col gap-1.5 outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
                     <span className="relative size-39 overflow-hidden rounded-lg bg-bg-brand-soft">
-                      <Icon name="card-ellipse-brand" size={88} className="absolute top-[92px] -left-6" />
-                      <Icon name="bag-56-brand" size={56} className="absolute top-[50px] left-[50px]" />
+                      {c.imageUrl ? (
+                        <ProductImage src={c.imageUrl} alt={c.name} className="size-full" />
+                      ) : (
+                        <>
+                          <Icon name="card-ellipse-brand" size={88} className="absolute top-[92px] -left-6" />
+                          <Icon name="bag-56-brand" size={56} className="absolute top-[50px] left-[50px]" />
+                        </>
+                      )}
                       {c.offer.discountPct > 0 && <span className="absolute top-2 left-2 rounded-pill bg-bg-deal px-2 py-0.5 label-sm text-text-primary">-{c.offer.discountPct}%</span>}
                     </span>
                     <span className="truncate title-sm text-text-primary">{c.name}</span>
@@ -115,9 +122,13 @@ export function SearchDrawer({ open, onOpenChange, cards, recentIds }: { open: b
 function Row({ card }: { card: DealCard }) {
   return (
     <Link href={`/produs/${card.productId}`} onClick={() => rememberOpened(card.productId)} className="flex min-h-16 items-center gap-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
-      <span className="flex size-16 shrink-0 items-center justify-center rounded-md bg-bg-deal-soft">
-        <Icon name="bag-24-deal" size={24} />
-      </span>
+      {card.imageUrl ? (
+        <ProductImage src={card.imageUrl} alt={card.name} variant="thumb" className="size-16 shrink-0 rounded-md" />
+      ) : (
+        <span className="flex size-16 shrink-0 items-center justify-center rounded-md bg-bg-deal-soft">
+          <Icon name="bag-24-deal" size={24} />
+        </span>
+      )}
       <span className="flex min-w-0 flex-1 flex-col gap-1">
         <span className="truncate title-sm text-text-primary">{card.name}</span>
         <span className="truncate body-sm text-text-secondary">

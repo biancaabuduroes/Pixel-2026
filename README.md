@@ -43,11 +43,11 @@ npm run dev                  # http://localhost:3000
 
 The environment variables are listed in [`.env.example`](.env.example) (names only) and explained in [docs/TECH_STACK.md](docs/TECH_STACK.md#6-environment-variables-names-only).
 
-**Database:** `npm install` also generates the Prisma client (`src/generated/prisma`). Apply the migrations to the database in `DIRECT_URL` with:
+**Database:** `npm install` also generates the Prisma client (`src/generated/prisma`). The app connects with `DATABASE_URL` through the Prisma 7 `pg` adapter (`src/lib/db.ts`).
 
-```bash
-npx prisma migrate deploy
-```
+**Migrations run automatically on Vercel production deployments** (`vercel-build` → `scripts/migrate-production.mjs` → `prisma migrate deploy`, then `next build`). The script refuses to run if `DIRECT_URL` belongs to a different Supabase project than `NEXT_PUBLIC_SUPABASE_URL`. Preview deployments skip it. To apply them by hand instead: `npx prisma migrate deploy`.
+
+**Database tests** run against a disposable, migrated local database (never Supabase): `TEST_DATABASE_URL=postgresql://… npm test`. Without it they are skipped.
 
 Schema: `prisma/schema.prisma`. Extra database rules (checks, append-only ledger triggers) are in the migration SQL; see [docs/DATA_MODEL.md](docs/DATA_MODEL.md#enforced-by-the-database).
 

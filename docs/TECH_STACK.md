@@ -21,13 +21,13 @@ Browser (React UI) ──> Next.js server actions / API routes ──> domain lo
 | Forms | React Hook Form + Zod | Same validation schema on client and server | Manual validation | Free |
 | Data fetching | TanStack Query, refreshing every few seconds for group progress | Simple, reliable live updates | Supabase Realtime (P1) | Free |
 | Database | PostgreSQL on Supabase | Transactions, row locks, constraints for financial integrity | MongoDB (rejected: weaker consistency) | Free tier |
-| Database access | Prisma (raw SQL for row locks where needed) | Typed, beginner-friendly | Drizzle | Free |
+| Database access | Prisma 7 with the `@prisma/adapter-pg` driver adapter (raw SQL for row locks where needed) | Typed, beginner-friendly | Drizzle | Free |
 | Authentication | **[H]** Demo user switcher; full MVP: Supabase Auth | Saves ~1h in the hackathon | Auth.js, Clerk | Free |
 | File storage | **[H]** Pre-loaded images in `public/`; full MVP: Supabase Storage | — | S3 | Free |
 | Scheduled jobs | **[H]** Demo panel; full MVP: Supabase Cron calling a secured endpoint every minute | Idempotent close, renew and deadline jobs | Inngest, Trigger.dev | Free |
 | AI | Forecast in TypeScript; insight text from templates **[H]**, then Claude Haiku 5.5 (`claude-haiku-5-5`) with caching | Cheap, explainable, with a fallback | Other LLM providers | A few € |
 | Payments | `PaymentProvider` interface → `SimulatedProvider` **[H]**; Stripe test mode (P1) | Swappable without changing the wallet logic | — | Free |
-| Hosting | Vercel + Supabase | Deploys from GitHub, preview links | Railway, Render | Free (Vercel Hobby is non-commercial; a real launch needs Pro, about $20/month) |
+| Hosting | Vercel + Supabase; Prisma migrations run automatically before the build on production deployments only | Deploys from GitHub, preview links | Railway, Render | Free (Vercel Hobby is non-commercial; a real launch needs Pro, about $20/month) |
 | Monitoring | Sentry (P1) | Error reporting | Logs only | Free tier |
 | Testing | Vitest (domain logic) **[H]**; Playwright end-to-end (P1) | Money logic tested independently of the UI | Jest | Free |
 

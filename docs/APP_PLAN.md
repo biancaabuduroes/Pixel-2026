@@ -43,9 +43,9 @@ BunDeals is a collective buying platform. Instead of negotiating individually, c
 8. A buyer can hold **only one active commitment per product**.
 9. **Cancellation:** allowed until the group unlocks its first lower tier, and not after.
 10. Pickup only — no delivery.
-11. In-app RON wallet — no vouchers or QR redemption.
+11. In-app RON wallet — no vouchers or QR payments.
 12. Payment flow: reserve on join → final amount to *pending pickup* at close (difference released) → paid to the seller on pickup.
-13. Pickup is confirmed with a **6-digit code** shown to the buyer and typed in by the seller. It carries no value and is not a voucher (an approved clarification of rule 11).
+13. Pickup is confirmed with a **6-digit code** shown to the buyer, also as a **scannable QR** (approved 2026-11-07); the seller scans it or types the code. It carries no value and is not a voucher (an approved clarification of rule 11).
 14. If the buyer doesn't collect by the pickup deadline, the seller is paid anyway. Buyers can report a problem, and an admin resolves it manually (P1).
 15. AI predictions are estimates only and never decide prices or payments.
 16. One web app: mobile-first for buyers, desktop-first for the seller dashboard.

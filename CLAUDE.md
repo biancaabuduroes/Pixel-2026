@@ -8,7 +8,7 @@
 ## Approval rules
 - Never commit, push, deploy, install new dependencies outside the approved stack, or change the database schema without explicit approval.
 - Don't invent business rules. When a rule is missing, ask, then record the answer in `docs/OPEN_QUESTIONS.md`.
-- Out of scope unless approved: delivery, vouchers, QR codes, real money.
+- Out of scope unless approved: delivery, vouchers, real money. QR codes only for the approved pickup QR (BUSINESS_LOGIC.md §8).
 
 ## Money & integrity (non-negotiable)
 - Money is always an integer number of **bani**. No floats.

@@ -38,7 +38,7 @@
 | `GroupProgress` | Progress towards the next threshold | Tier unlocked (celebration), top tier reached |
 | `JoinSheet` | Quantity, committed price per unit, maximum amount, cancellation warning | Insufficient balance, already joined, group just closed |
 | `CommitmentCard` | Status, current/final price, savings, cancel | Cancel allowed vs locked (with reason) |
-| `PickupCode` | 6-digit code, location, deadline | Collected, expired |
+| `PickupCode` | 6-digit code + QR, location, deadline | Collected, expired |
 | `WalletSummary` | Available, reserved, pending pickup, savings | Empty wallet, demo-money label |
 | `TierEditor` (seller) | Tier rows, cap, durations | Validation errors |
 | `PickupCodeForm` (seller) | Code input | Wrong code, locked |

@@ -103,7 +103,7 @@ If no tier was unlocked, buyers pay the base price (= their committed price) and
 
 ## 8. Pickup
 
-- The buyer sees the 6-digit code in "My purchases", with a **QR code** of a link to the seller's confirm page with the code filled in (e.g. `/seller/pickup?code=123456`). The seller scans it with the phone camera, or types the code. Both paths run the same check; the QR carries no value and is not a voucher.
+- The buyer sees the 6-digit code in "My purchases", with a **QR code** of a link to the seller's confirm page with the order and code filled in (`/seller/pickup?order=<commitmentId>&code=123456`); the seller must be signed in as that order's seller. The seller scans it with the phone camera, or types the code. Both paths run the same check; the QR carries no value and is not a voucher.
 - Correct code → commitment `collected`; ledger `PAYOUT`: pending pickup → seller earnings (amount − commission) and → platform revenue (commission).
 - **Commission** = `round(amountCharged × commissionRate)`, rounding half up to whole bani. The seller gets the remainder, so the two parts always add up exactly to the amount. The rate is handled as integer basis points (`0.05` = 500 bp), so no floating-point maths touches money.
 - Wrong code: after 5 failed attempts on an order, entry is locked for 15 minutes. *(Assumption)*

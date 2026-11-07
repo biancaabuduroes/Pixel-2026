@@ -63,3 +63,8 @@ Schema: `prisma/schema.prisma`. Extra database rules (checks, append-only ledger
 - Commit prefixes: `feat:`, `fix:`, `docs:`, `test:`, `chore:`.
 - Business-logic changes include tests and an update to `docs/BUSINESS_LOGIC.md`.
 - Pull requests are reviewed (`/code-review` in Claude Code) before merging.
+
+## Demo presentation page (branch `demo-mode` only)
+
+`/demo` shows the real app inside a CSS phone frame (Buyer = this deployment's own `/`, same origin so login and onboarding cookies work) or a desktop browser window (Seller = the `feat/seller-dashboard` preview's `/seller/dashboard`). "Full screen" uses the browser Fullscreen API on the iframe (falls back to a new tab, e.g. on iOS Safari). It lives only on the `demo-mode` branch and is not merged into `main`.
+Open it at `https://pixel-2026-git-demo-mode-bun-deals.vercel.app/demo`.

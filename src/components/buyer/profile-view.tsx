@@ -24,6 +24,7 @@ import { EditProfileSheet } from "./edit-profile-sheet";
 type Props = {
   user: { name: string; email: string; preferences: { firstName?: string; lastName?: string; phone?: string } };
   wallet: { available: number; reserved: number };
+  totalSavings: number;
   history: { id: string; amount: number; type: string; createdAt: Date; productName: string | null }[];
   orders: ProfileOrder[];
   /** Shows the "Demo: închide grupul acum" button (DEMO_MODE only). */
@@ -48,7 +49,7 @@ const HISTORY_LABEL: Record<string, string> = {
 };
 const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
-export function ProfileView({ user, wallet, history, orders, demoMode = false }: Props) {
+export function ProfileView({ user, wallet, totalSavings, history, orders, demoMode = false }: Props) {
   const [tab, setTab] = useState<"active" | "past">("active");
   const [howOpen, setHowOpen] = useState(false);
   const [codeFor, setCodeFor] = useState<ProfileOrder | null>(null);
@@ -81,6 +82,20 @@ export function ProfileView({ user, wallet, history, orders, demoMode = false }:
             <button type="button" onClick={() => setEditOpen(true)} className="mt-1 self-start label-sm text-text-brand underline-offset-4 hover:underline">
               Editează profilul
             </button>
+          </div>
+        </section>
+
+        <section className="relative overflow-hidden rounded-lg bg-bg-success p-4 text-text-inverse" aria-label="Economiile tale">
+          <Icon name="promo-shape-back" size={90} className="absolute top-[65px] right-[60px]" />
+          <Icon name="promo-shape" size={150} className="absolute top-[86px] -right-[30px]" />
+          <div className="relative flex max-w-[190px] flex-col items-start gap-2">
+            <Tag tone="deal" className="bg-bg-deal text-text-primary">
+              Economiile tale
+            </Tag>
+            <p className="display-md">{formatRon(totalSavings)} economisiți</p>
+            <p className="body-compact">
+              {totalSavings > 0 ? "Față de prețul întreg, în grupurile încheiate." : "Intră în primul tău grup. La închidere vezi aici cât ai economisit față de prețul întreg."}
+            </p>
           </div>
         </section>
 

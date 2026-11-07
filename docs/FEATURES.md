@@ -46,7 +46,7 @@
 - **Story:** As a buyer, I want to see my available, reserved and pending money and add funds.
 - **Behaviour:** balances calculated from the ledger; simulated top-up labelled as demo money; transaction history; total savings. BL §9.
 - **Acceptance:** submitting the same top-up twice credits it only once; available + reserved + pending = top-ups − payouts.
-- **Built:** wallet card on `/profil` (available, reserved, "Încarcă" → top-up screen, "Cum funcționează" sheet) and "Istoric portofel" (last 20 movements of the available balance). Savings are on the Home banner.
+- **Built:** wallet card on `/profil` (available, reserved, "Încarcă" → top-up screen, "Cum funcționează" sheet), the "Economiile tale" banner (settled orders only, BL §6), and "Istoric portofel" (last 20 movements of the available balance).
 
 ### F7. Product management with tier editor — seller
 - **Story:** As a seller, I want to publish a product with price tiers, stock, a per-buyer cap and group durations.

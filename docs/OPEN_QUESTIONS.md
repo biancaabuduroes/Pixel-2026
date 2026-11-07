@@ -30,6 +30,7 @@
 | 2026-11-07 | Pickup deadline counts **calendar days**: `closesAt + pickupDeadlineDays × 24h` (UTC) |
 | 2026-11-07 | Stock used = commitments that are not `CANCELLED` or `REFUNDED` (a refund gives the units back) |
 | 2026-11-07 | Keep Prisma (not Supabase JS): it gives TypeScript transactions with row locks. Migrations run automatically on Vercel production deploys, guarded against the wrong Supabase project |
+| 2026-11-07 | Claude sessions reach the Supabase database through the Management API (HTTPS) with a personal access token stored as an environment network secret. Verified: migration `20261107150000_init` applied by Vercel (checksum matches), 13 tables, 20 checks, 3 partial indexes, 4 ledger triggers active |
 | 2026-11-07 | Database schema approved. Pickup code derived from a server secret + commitment ID; only its hash is stored. P1 tables (Dispute, Notification, AiInsight) added when those features are built |
 
 ## Assumptions (not explicitly confirmed)

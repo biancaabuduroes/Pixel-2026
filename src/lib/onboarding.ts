@@ -8,6 +8,14 @@ export type OnboardingStep = (typeof ONBOARDING_STEPS)[number];
 export const stepNumber = (step: OnboardingStep) => ONBOARDING_STEPS.indexOf(step) + 1;
 export const TOTAL_STEPS = ONBOARDING_STEPS.length;
 
+/** Phone step (mock): accepts "712 345 678", "0712 345 678", "+40 712 345 678" → "712345678". */
+export function nationalNumber(typed: string): string {
+  const d = typed.replace(/\D/g, "");
+  if (d.length === 11 && d.startsWith("40")) return d.slice(2);
+  if (d.length === 10 && d.startsWith("0")) return d.slice(1);
+  return d;
+}
+
 export const LOCAL_PREFERENCE = [
   { value: "local", label: "Da, prefer local" },
   { value: "good-price", label: "Când prețul e bun" },

@@ -7,17 +7,18 @@ import { Icon } from "@/components/ds/icon";
 import { TextField } from "@/components/ds/text-field";
 import { OnboardingScreen, ScreenTitle } from "@/components/onboarding/onboarding-screen";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { stepNumber, TOTAL_STEPS } from "@/lib/onboarding";
+import { nationalNumber, stepNumber, TOTAL_STEPS } from "@/lib/onboarding";
 
 // Figma B1.2a Sign up · phone. Mock: no SMS is sent (decision 2026-11-07).
 export default function PhonePage() {
   const router = useRouter();
-  const [digits, setDigits] = useState("");
-  const valid = /^7\d{8}$/.test(digits); // Romanian mobile, without the leading 0
+  const [phone, setPhone] = useState("");
+  const digits = nationalNumber(phone);
+  const valid = digits.length === 9; // mock: any 9-digit Romanian number
 
   return (
     <OnboardingScreen
-      nav={{ backHref: "/onboarding", step: stepNumber("telefon"), totalSteps: TOTAL_STEPS }}
+      nav={{ backHref: "/onboarding/bun-venit", step: stepNumber("telefon"), totalSteps: TOTAL_STEPS }}
       footer={
         <>
           <Link href="/autentificare" className={buttonVariants({ variant: "secondary", className: "w-full" })}>
@@ -39,9 +40,9 @@ export default function PhonePage() {
         inputMode="numeric"
         autoComplete="tel-national"
         placeholder="712 345 678"
-        maxLength={11}
-        value={digits.replace(/(\d{3})(?=\d)/g, "$1 ")}
-        onChange={(e) => setDigits(e.target.value.replace(/\D/g, "").slice(0, 9))}
+        maxLength={16}
+        value={phone}
+        onChange={(e) => setPhone(e.target.value.replace(/[^\d +]/g, ""))}
       />
       <p className="caption text-text-secondary">Îți trimitem un cod de verificare prin SMS. Dacă ai deja cont, te autentificăm direct.</p>
     </OnboardingScreen>

@@ -46,6 +46,8 @@
 - Buyers can join until the group's closing time (server clock).
 - Cancelling also ends at the group's closing time: "still open" (BL §5) means status `open` **and** `now < closesAt`, the same window as joining.
 - The highest tier threshold must be ≤ stock.
+- Splash (Figma 53:1330) has no specified timing: it opens the welcome slides after 1.5 s or on tap.
+- Phone step (mock) accepts any 9-digit number typed as `712…`, `0712…` or `+40 712…`.
 - Pickup code: single use; 5 wrong attempts → 15-minute lock; after the lock the count starts again from 0.
 - A top-up is limited to 100,000 RON per request. This only protects the integer database column; it is not a business rule.
 - Renewal stops when the product is inactive, the duration is removed, or stock is exhausted; open groups always settle.

@@ -7,9 +7,9 @@
 
 ### F0. Buyer onboarding — buyer (Figma "onboarding-flow", B1.1–B1.5)
 - **Story:** As a new buyer, I want a short introduction and setup so I understand group buying, bunToken and can top up before my first group.
-- **Screens (Romanian):** 3 welcome slides → phone → code → name → shopping preferences → budget → location → top up bunToken (optional), with the "Cum funcționează bunToken?" sheet. Then a home placeholder.
+- **Screens (Romanian):** splash (logo) → 3 welcome slides → phone → code → name → shopping preferences → budget → location → top up bunToken (optional), with the "Cum funcționează bunToken?" sheet. Then a home placeholder.
 - **Behaviour:** phone and SMS code are **mocks** (any number, any 6 digits; nothing is sent) that sign in as the predefined demo buyer. Answers are saved to `User.preferences` (display only; no effect on prices or money). Address and map are mocked. Top-up uses the simulated top-up (minimum 10 RON) and is labelled as demo money. Completion (or "Mai târziu") sets the `bd_onboarding_done` cookie; `/` sends visitors without it to `/onboarding`.
-- **Acceptance:** "Continuă" is disabled until each step is valid (9-digit mobile, first name, ≥ 1 category, an address, top-up ≥ 10 RON); the progress bar follows the step; reloading `/` after completion stays on home.
+- **Acceptance:** "Continuă" is disabled until each step is valid (a 9-digit number typed as `712…`, `0712…` or `+40 712…`, first name, ≥ 1 category, an address, top-up ≥ 10 RON); the progress bar follows the step; reloading `/` after completion stays on home.
 
 ### F1. Demo login — all roles
 - **Story:** As a presenter, I want to sign in as the demo buyer or seller so I can show every journey.

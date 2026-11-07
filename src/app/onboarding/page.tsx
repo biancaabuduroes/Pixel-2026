@@ -1,63 +1,27 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { Icon, type FigmaIconName } from "@/components/ds/icon";
-import { PageDots } from "@/components/ds/page-dots";
-import { OnboardingScreen } from "@/components/onboarding/onboarding-screen";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { useEffect } from "react";
 
-// Figma B1.1a–c Welcome slides.
-const SLIDES: { icon: FigmaIconName; title: string; lead: string }[] = [
-  {
-    icon: "users-96-brand",
-    title: "Cumpără împreună, plătește mai puțin",
-    lead: "De la scutece la ulei și detergent: intri în grup cu alții și, cu cât sunteți mai mulți, cu atât scade prețul.",
-  },
-  {
-    icon: "lock-96-brand",
-    title: "Plătești doar prețul final",
-    lead: "Plătești cu bunToken din portofel, 1 bunToken = 1 RON. Blocăm prețul maxim când intri, iar diferența îți revine automat la închidere.",
-  },
-  {
-    icon: "compass-96-brand",
-    title: "Intră în grupurile din zona ta",
-    lead: "Vecinii tăi cumpără deja împreună. Intră în grupurile lor și scade prețul pentru toți. Nu găsești ce cauți? Abia atunci pornești tu unul.",
-  },
-];
+const SPLASH_MS = 1500;
 
-export default function WelcomePage() {
+// Figma 53:1330 Splash (logo on white). Opens the welcome slides after a short pause or on tap.
+export default function SplashPage() {
   const router = useRouter();
-  const [index, setIndex] = useState(0);
-  const slide = SLIDES[index];
-  const last = index === SLIDES.length - 1;
+  useEffect(() => {
+    const t = setTimeout(() => router.replace("/onboarding/bun-venit"), SPLASH_MS);
+    return () => clearTimeout(t);
+  }, [router]);
 
   return (
-    <OnboardingScreen
-      footer={
-        <>
-          <PageDots count={SLIDES.length} active={index} />
-          <Button className="w-full" onClick={() => (last ? router.push("/onboarding/telefon") : setIndex(index + 1))}>
-            {last ? "Începe" : "Continuă"}
-          </Button>
-          <div className="flex justify-center">
-            <Link href="/autentificare" className={buttonVariants({ variant: "link", size: "md" })}>
-              Am deja cont
-            </Link>
-          </div>
-        </>
-      }
+    <button
+      type="button"
+      onClick={() => router.replace("/onboarding/bun-venit")}
+      className="mx-auto flex min-h-dvh w-full max-w-[430px] cursor-pointer items-center justify-center bg-bg-canvas px-page pt-6 pb-8"
+      aria-label="BunDeals — continuă"
     >
-      <div className="flex flex-1 items-center justify-center">
-        <div className="flex size-60 items-center justify-center rounded-pill bg-bg-brand-soft">
-          <Icon name={slide.icon} size={96} />
-        </div>
-      </div>
-      <section aria-live="polite" className="flex flex-col gap-4">
-        <h1 className="text-center display-lg text-text-primary">{slide.title}</h1>
-        <p className="text-center body-lg text-text-secondary">{slide.lead}</p>
-      </section>
-    </OnboardingScreen>
+      <Image src="/figma/bundeals-logo.png" alt="BunDeals — Better deals, together." width={240} height={80} priority unoptimized />
+    </button>
   );
 }

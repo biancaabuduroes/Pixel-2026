@@ -26,7 +26,7 @@ export default function LoginPage() {
   };
 
   return (
-    <OnboardingScreen nav={{ backHref: "/onboarding", step: 0, totalSteps: 1 }}>
+    <OnboardingScreen nav={{ backHref: "/onboarding/bun-venit", step: 0, totalSteps: 1 }}>
       <form onSubmit={submit} className="flex flex-1 flex-col gap-4">
         <ScreenTitle>Intră în cont</ScreenTitle>
         <ScreenLead>Folosește unul dintre conturile demo.</ScreenLead>

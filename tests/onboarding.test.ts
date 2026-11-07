@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { DEMO_PASSWORD, stepNumber, TOTAL_STEPS } from "@/lib/onboarding";
+import { DEMO_PASSWORD, nationalNumber, stepNumber, TOTAL_STEPS } from "@/lib/onboarding";
 import { PreferencesSchema } from "@/server/onboarding";
 import { hashPassword, verifyPassword } from "@/server/password";
 import { createSessionToken, readSessionToken } from "@/server/session-token";
@@ -55,6 +55,13 @@ describe("onboarding preferences", () => {
 
   it("drops unknown keys instead of storing them", () => {
     expect(PreferencesSchema.parse({ firstName: "Ioana", role: "ADMIN" })).toEqual({ firstName: "Ioana" });
+  });
+
+  it("accepts the usual ways of typing a Romanian phone number", () => {
+    for (const typed of ["712345678", "712 345 678", "0712345678", "0712 345 678", "+40712345678", "+40 712 345 678", "40712345678"]) {
+      expect(nationalNumber(typed)).toBe("712345678");
+    }
+    expect(nationalNumber("0712")).toBe("0712"); // still typing: not 9 digits yet
   });
 
   it("orders the 7 steps for the progress bar", () => {

@@ -51,6 +51,7 @@
 | EmptyState (36:341) | `ds/empty-state.tsx` |
 | BottomSheet (37:305) | `ds/bottom-sheet.tsx` (Base UI Drawer) |
 | GroupStatusTimeline (36:438) + Timeline step (36:437) | `ds/timeline.tsx` |
+| Splash (53:1330, logo image `public/figma/bundeals-logo.png`) | `src/app/onboarding/page.tsx` |
 | Onboarding frames B1.1–B1.5 | `src/app/onboarding/**`, shared frame `components/onboarding/onboarding-screen.tsx`, map `components/onboarding/map-mock.tsx` |
 
 Not built yet (no screen uses them): Tabs, TabBar, IconButton variants beyond back/close, Avatar, ProductCard, TierProgress, GroupDealCard, Toast, Skeleton, Accordion, QuantityStepper, PriceDisplay, PromoBanner, and the other cards. They are built when their screens are.

@@ -66,5 +66,5 @@ Schema: `prisma/schema.prisma`. Extra database rules (checks, append-only ledger
 
 ## Demo presentation page (branch `demo-mode` only)
 
-`/demo` shows the real app inside a CSS phone frame (Buyer = this deployment's own `/`, same origin so login and onboarding cookies work) or a desktop browser window (Seller = the `feat/seller-dashboard-v2` preview's `/seller`). "Full screen" uses the browser Fullscreen API on the iframe (falls back to a new tab, e.g. on iOS Safari). It lives only on the `demo-mode` branch and is not merged into `main`.
+`/demo` shows the real app inside a CSS phone frame (Buyer = this deployment's own `/`, same origin so login and onboarding cookies work) or a desktop browser window (Seller = this deployment's `/seller`, no login in demo mode). "Full screen" uses the browser Fullscreen API on the iframe (falls back to a new tab, e.g. on iOS Safari). It lives only on the `demo-mode` branch and is not merged into `main`.
 Open it at `https://pixel-2026-git-demo-mode-bun-deals.vercel.app/demo`.

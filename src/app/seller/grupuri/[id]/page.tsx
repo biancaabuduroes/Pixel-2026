@@ -14,7 +14,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { formatRon } from "@/domain/money";
 import { dayLabel, timeLabel, units } from "@/lib/format";
 import { sellerGroupDetails } from "@/server/seller-queries";
-import { currentUser } from "@/server/session";
+import { currentSeller } from "@/server/session";
 import { cn } from "cn";
 
 export const metadata: Metadata = { title: "Detalii grup · BunDeals" };
@@ -28,7 +28,7 @@ export default function SellerGroupDetailsPage(props: PageProps<"/seller/grupuri
 }
 
 async function Details({ params }: { params: PageProps<"/seller/grupuri/[id]">["params"] }) {
-  const seller = await currentUser("SELLER");
+  const seller = await currentSeller();
   if (!seller) return null;
   const { id } = await params;
   const now = new Date();

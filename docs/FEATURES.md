@@ -16,6 +16,7 @@
 - **Behaviour:** `/autentificare` (from "Am deja cont" or "Continuă cu email"): email + password for the 2 predefined users (`prisma/seed.sql`). The session is a signed cookie. Only available with `DEMO_MODE`. Replaces the earlier user-switcher idea (decision 2026-11-07).
 - **Acceptance:** a wrong password is rejected; an edited session cookie is rejected; sign-out returns to the login.
 
+- **Seller (2026-11-08):** in DEMO_MODE the seller pages need no login; they open as the demo seller (Penny).
 ### F2. Product discovery and details — buyer
 - **Story:** As a buyer, I want to browse products and see the price tiers so I understand how the price can drop.
 - **Screens:** home/product list, product detail.

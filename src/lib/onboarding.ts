@@ -59,3 +59,5 @@ export const TOP_UP_MIN_RON = 10;
 export const DEMO_BUYER_EMAIL = "cumparator@bundeals.ro";
 export const DEMO_SELLER_EMAIL = "vanzator@bundeals.ro";
 export const DEMO_PASSWORD = "bundeals2026";
+/** Prefilled on the phone step in DEMO_MODE (decision 2026-11-08). Each sign-up still creates a new buyer. */
+export const DEMO_PHONE = "712 345 678";

@@ -162,6 +162,7 @@ active ──group settles──> awaiting_pickup ──code entered──> coll
 - **"Closest to unlocking":** the exact number of units missing to the next tier. This is a calculation, not AI.
 - **Recommendation:** rank the open groups the buyer can join by **expected unit price** = `p × next-tier price + (1 − p) × current price`, with p = 80% (Likely), 50% (Possible), 20% (Unlikely); lowest first, so a discount already unlocked counts. Earlier closing breaks ties. Always show the reasons.
 - **Insight text:** generated from computed numbers only (templates in the hackathon MVP; Claude Haiku 5.5 later, with a template fallback).
+- **Seller insights** (`src/domain/seller/insights.ts`): Romanian templates in four categories (Performanță / Oportunitate / Recomandare / Atenție). Each insight carries a supporting metric and period. Built only from sales, stock and open-group numbers (e.g. top product revenue share, rising category %, units to next tier, critical stock). If fewer than 3 settled groups and no actionable signal, show "Date insuficiente…". Pool-level insights summarise that group's revenue, buyers and tier unlock. Never invent rankings without a computed metric.
 - AI output never feeds into pricing, settlement or the wallet.
 
 ## 12. Hackathon demo controls (demo environment only)

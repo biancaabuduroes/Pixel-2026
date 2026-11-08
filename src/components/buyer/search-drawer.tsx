@@ -105,8 +105,13 @@ export function SearchDrawer({ open, onOpenChange, cards, recentIds }: { open: b
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Caută"
             enterKeyHint="search"
-            className="min-w-0 flex-1 bg-transparent body-lg [&::-webkit-search-cancel-button]:appearance-none text-text-primary outline-none placeholder:text-text-primary placeholder:opacity-70"
+            className="min-w-0 flex-1 bg-transparent body-lg text-text-primary outline-none placeholder:text-text-primary placeholder:opacity-70 [&::-webkit-search-cancel-button]:appearance-none"
           />
+          {query.length > 0 && (
+            <button type="button" aria-label="Șterge căutarea" onClick={() => setQuery("")} className="flex size-6 items-center justify-center rounded-pill bg-bg-muted">
+              <Icon name="close-12" size={12} />
+            </button>
+          )}
         </label>
       </div>
     </BottomSheet>

@@ -3,6 +3,7 @@ import { evaluateCancel, stockRemaining } from "@/domain/groups";
 import { savings } from "@/domain/pricing";
 import { groupOffer, recommendGroups, segmentGroups, type GroupOffer, type Segment } from "@/domain/ai";
 import { db } from "@/lib/db";
+import { storeLogo } from "@/lib/store-brand";
 import { pickupCodeFor } from "./pickup-code";
 import { requestOrigin } from "./queries";
 import { settleGroup } from "./settlement";
@@ -49,10 +50,10 @@ export type DealCard = {
   fromUnitPrice: number;
 };
 
-/** Home (B3.1): one card per active product with an open group, plus the buyer's own groups and savings. 2 queries. */
+/** Home (B3.1): one card per active product with an open group, plus the buyer's own open groups. Savings live on the profile. */
 export async function homeData(buyerId: string | null, now = new Date()) {
   if (buyerId) await settleDueGroups(buyerId, now);
-  const [products, buyer] = await Promise.all([
+  const [products, buyer, stores] = await Promise.all([
     db.product.findMany({
       where: { status: "ACTIVE" },
       orderBy: [{ createdAt: "asc" }, { id: "asc" }], // stable order for products created together
@@ -86,6 +87,7 @@ export async function homeData(buyerId: string | null, now = new Date()) {
           },
         })
       : null,
+    storesForHome(now),
   ]);
 
   const cards: DealCard[] = [];
@@ -112,12 +114,113 @@ export async function homeData(buyerId: string | null, now = new Date()) {
   const myGroups = commitments
     .filter((c) => c.status === "ACTIVE")
     .map((c) => ({ productId: c.product.id, name: c.product.name, closesAt: c.group.closesAt, offer: offerFor(c.product.priceTiers, c.group, now) }));
-  // BL §6: savings = quantity × (base price − final unit price), for settled orders only.
-  const totalSavings = commitments
-    .filter((c) => c.status !== "ACTIVE" && c.finalUnitPrice !== null)
-    .reduce((sum, c) => sum + savings(c.product.priceTiers, c.quantity, c.finalUnitPrice!), 0);
 
-  return { cards, myGroups, totalSavings, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+  return { cards, myGroups, stores, preferences: (buyer?.preferences ?? {}) as { address?: string; radiusKm?: number } };
+}
+
+const SETTLED_FOR_SAVINGS = new Set(["AWAITING_PICKUP", "COLLECTED", "EXPIRED_PAID"]);
+
+/** BL §6: savings = quantity × (base price − final unit price), for settled orders only. */
+function settledSavings(
+  commitments: readonly { status: string; quantity: number; finalUnitPrice: number | null; product: { priceTiers: { minQty: number; unitPrice: number }[] } }[],
+) {
+  return commitments
+    .filter((c) => SETTLED_FOR_SAVINGS.has(c.status) && c.finalUnitPrice !== null)
+    .reduce((sum, c) => sum + savings(c.product.priceTiers, c.quantity, c.finalUnitPrice!), 0);
+}
+
+export type StoreCard = {
+  id: string;
+  name: string;
+  address: string;
+  openingHours: string;
+  openGroupCount: number;
+  /** Supermarket logo (src/lib/store-brand.ts), null when the seller has none. */
+  logo: string | null;
+};
+
+/** Home rail: pickup locations that still have an open group. */
+export async function storesForHome(now = new Date()): Promise<StoreCard[]> {
+  const locations = await db.pickupLocation.findMany({
+    orderBy: { name: "asc" },
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      openingHours: true,
+      seller: { select: { sellerProfile: { select: { businessName: true } } } },
+      products: {
+        where: { status: "ACTIVE" },
+        select: { groups: { where: { status: "OPEN", closesAt: { gt: now } }, select: { id: true } } },
+      },
+    },
+  });
+  return locations
+    .map((l) => ({
+      id: l.id,
+      name: l.name,
+      address: l.address,
+      openingHours: l.openingHours,
+      openGroupCount: l.products.reduce((sum, p) => sum + p.groups.length, 0),
+      logo: storeLogo(l.seller.sellerProfile?.businessName),
+    }))
+    .filter((l) => l.openGroupCount > 0);
+}
+
+/** Store page (B3.6): one pickup location and its open-group products. */
+export async function storePageData(locationId: string, now = new Date()) {
+  const location = await db.pickupLocation.findUnique({
+    where: { id: locationId },
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      openingHours: true,
+      seller: { select: { sellerProfile: { select: { businessName: true } } } },
+      products: {
+        where: { status: "ACTIVE" },
+        orderBy: { name: "asc" },
+        select: {
+          id: true,
+          name: true,
+          category: true,
+          kind: true,
+          imageUrl: true,
+          _count: { select: { basketItems: true } },
+          priceTiers: tiersAsc,
+          groups: { ...openGroups(now), select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } } },
+        },
+      },
+    },
+  });
+  if (!location) return null;
+
+  const cards: DealCard[] = [];
+  for (const p of location.products) {
+    const g = recommendedGroup(p.priceTiers, p.groups, now);
+    if (!g) continue;
+    const offers = p.groups.map((x) => offerFor(p.priceTiers, x, now));
+    cards.push({
+      productId: p.id,
+      name: p.name,
+      category: p.category,
+      kind: p.kind,
+      imageUrl: p.imageUrl,
+      itemCount: p._count.basketItems,
+      closesAt: g.closesAt,
+      offer: offerFor(p.priceTiers, g, now),
+      groupCount: p.groups.length,
+      buyers: p.groups.reduce((sum, x) => sum + x._count.commitments, 0),
+      fromUnitPrice: Math.min(...offers.map((o) => o.currentUnitPrice)),
+    });
+  }
+  const nextClose = cards.reduce<Date | null>((min, c) => (!min || c.closesAt < min ? c.closesAt : min), null);
+  return {
+    store: { id: location.id, name: location.name, address: location.address, openingHours: location.openingHours, logo: storeLogo(location.seller.sellerProfile?.businessName) },
+    openGroupCount: cards.reduce((sum, c) => sum + c.groupCount, 0),
+    nextClose,
+    cards,
+  };
 }
 
 export type PoolGroup = { id: string; segment: Segment | null; closesAt: Date; buyers: number; offer: GroupOffer };
@@ -138,7 +241,7 @@ export async function productData(productId: string, buyerId: string | null, now
         imageUrl: true,
         basketItems: { orderBy: { position: "asc" }, select: { name: true, quantity: true } },
         priceTiers: tiersAsc,
-        pickupLocation: { select: { name: true, address: true, openingHours: true } },
+        pickupLocation: { select: { name: true, address: true, openingHours: true, seller: { select: { sellerProfile: { select: { businessName: true } } } } } },
         groups: {
           ...openGroups(now),
           select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } },
@@ -271,6 +374,7 @@ export async function profileData(buyerId: string, now = new Date()) {
   return {
     user: { name: user.name, email: user.email, preferences: (user.preferences ?? {}) as { firstName?: string; lastName?: string; phone?: string } },
     wallet: { available: sum("BUYER_AVAILABLE"), reserved: sum("BUYER_RESERVED") },
+    totalSavings: settledSavings(user.commitments),
     history: history.map((e) => ({ id: e.id, amount: e.amount, type: e.transaction.type, createdAt: e.transaction.createdAt, productName: e.transaction.commitment?.product.name ?? null })),
     orders,
   };

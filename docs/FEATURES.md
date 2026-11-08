@@ -27,14 +27,14 @@
 - **Story:** As a buyer, I want to compare the open groups and see which one is most likely to get me a lower price.
 - **Behaviour:** one card per open group: time left, total quantity, buyer count, current price, units to the next tier, forecast (Likely / Possible / Unlikely). Labels "Recommended" (AI) and "Closest to unlocking" (calculated). Every recommendation shows its reasons. BL §11.
 - **Acceptance:** every AI statement is labelled as an estimate; "units to the next tier" is exact.
-- **Built:** the Pool page selector maps open groups by closing time (Rapid / Echilibrat / Cel mai ieftin; hidden with one group), the AI-recommended group is pre-selected and marked "Recomandat pentru tine". Live progress is polled every 10 s. The compare-sellers sheet (B3.4) is no longer on the product page.
+- **Built:** the Rapid / Echilibrat / Cel mai ieftin selector is removed. The page shows the group the buyer already joined, otherwise the recommended open group. Live progress is polled every 10 s. The compare-sellers sheet (B3.4) is no longer on the product page.
 
 ### F4. Join a group — buyer
 - **Story:** As a buyer, I want to choose a quantity and join, knowing my maximum cost.
 - **Behaviour:** quantity is chosen only with the stepper in the bottom bar (1…cap); shows the committed price per unit and the maximum amount; warns if the group has already unlocked a tier (cancelling won't be possible); confirm → funds reserved. BL §4.
 - **Edge cases:** insufficient balance (link to top-up); already committed to this product; group closed meanwhile; stock exhausted meanwhile.
 - **Acceptance:** two simultaneous joins can't oversell stock; the reserved amount = quantity × the displayed price; one active commitment per product.
-- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · max X bunToken" → confirm sheet (not in Figma: locked amount, final price, cancel rule from BL §5) → `joinGroupAction` → "Ești în grup!" sheet. The funds card is unchanged (Figma rows are still placeholders). Progress says how many units remain until the next price, the invite copies the real product URL, and "Ce urmează" is join → group close → final price. "Te anunțăm când prețul scade" is copy only; there is no notification. Edge cases shown with InlineAlert (not in Figma).
+- **Built (Figma B4.1):** fixed bottom bar with QuantityStepper and "Intră în grup · {total}" (quantity × current unit price, updates with the stepper) → confirm sheet (not in Figma: locked amount, final price, cancel rule from BL §5) → `joinGroupAction` → "Ești în grup!" sheet. The funds card is unchanged (Figma rows are still placeholders). Progress says how many units remain until the next price, the invite copies the real product URL, and "Ce urmează" is join → group close → final price. "Te anunțăm când prețul scade" is copy only; there is no notification. Edge cases shown with InlineAlert (not in Figma).
 
 ### F5. My purchases — buyer
 - **Story:** As a buyer, I want to track my commitments, the current price, and my final price and savings.

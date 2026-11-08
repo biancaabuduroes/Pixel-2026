@@ -14,6 +14,7 @@ const q = (s) => `'${String(s).replaceAll("'", "''")}'`;
 const LOCATIONS = [
   { id: "seed-loc-romana", name: "Magazin partener Romana", address: "Piața Romană 5, București", hours: "L–V 9–20, S 10–16" },
   { id: "seed-loc-dorobanti", name: "Magazin partener Dorobanți", address: "Calea Dorobanților 18, București", hours: "L–S 8–21" },
+  { id: "seed-loc-penny", name: "Penny", address: "Șoseaua Pantelimon 245, București", hours: "L–D 8–22" },
 ];
 
 // tiers: [minQty, unitPrice in bani]; perBuyerCap < second tier minQty (pricing rule 4).
@@ -21,18 +22,18 @@ const LOCATIONS = [
 const PRODUCTS = [
   { id: "seed-scutece", name: "Scutece nr. 4, 104 buc", desc: "104 bucăți · mărimea 4 (9–14 kg) · pachet lunar", cat: "scutece-bebelusi", loc: 0, cap: 3,
     tiers: [[1, 12499], [20, 9499], [50, 8699]], groups: [[24, 20, 17], [72, 10, 26], [168, 30, 12]] },
-  { id: "seed-ulei", name: "Ulei de floarea-soarelui 5 L", desc: "Bidon 5 L · presat la rece · producător local", cat: "ulei-camara", loc: 1, cap: 4,
+  { id: "seed-ulei", name: "Ulei de floarea-soarelui 5 L", desc: "Bidon 5 L · presat la rece · producător local", cat: "ulei-camara", loc: 2, cap: 4,
     tiers: [[1, 5499], [15, 4999], [30, 4499], [60, 3999]], groups: [[48, 6, 21], [168, 40, 9]] },
-  { id: "seed-lapte", name: "Lapte praf de continuare 2, 800 g", desc: "800 g · de la 6 luni", cat: "scutece-bebelusi", loc: 0, cap: 3,
+  { id: "seed-lapte", name: "Lapte praf de continuare 2, 800 g", desc: "800 g · de la 6 luni", cat: "scutece-bebelusi", loc: 2, cap: 3,
     tiers: [[1, 6999], [10, 6499], [25, 5999]], groups: [[96, 30, 11]] },
   { id: "seed-servetele", name: "Șervețele umede, 12 × 64 buc", desc: "12 pachete × 64 bucăți · fără parfum", cat: "ingrijire-personala", loc: 1, cap: 5,
     tiers: [[1, 7999], [20, 5999], [40, 4999]], groups: [[24, 3, 9], [72, 22, 31]] },
-  { id: "seed-miere", name: "Miere polifloră 1 kg, de la apicultor", desc: "Borcan 1 kg · recolta 2026", cat: "alimente", loc: 0, cap: 2,
+  { id: "seed-miere", name: "Miere polifloră 1 kg, de la apicultor", desc: "Borcan 1 kg · recolta 2026", cat: "alimente", loc: 2, cap: 2,
     tiers: [[1, 4999], [15, 3999], [30, 3499]], groups: [[120, 50, 13]] },
-  { id: "seed-detergent", name: "Detergent de vase 5 L", desc: "Canistră 5 L · concentrat", cat: "curatenie", loc: 1, cap: 3,
+  { id: "seed-detergent", name: "Detergent de vase 5 L", desc: "Canistră 5 L · concentrat", cat: "curatenie", loc: 2, cap: 3,
     tiers: [[1, 3999], [25, 3299], [50, 2999]], groups: [[24, 12, 14], [168, 70, 30]] },
   // Seller-defined baskets (kind BASKET): sold as one unit; `items` is what the basket contains.
-  { id: "seed-cos-baza", kind: "BASKET", name: "Coș alimente de bază", desc: "Cămara pe o lună pentru 2 persoane", cat: "alimente", loc: 0, cap: 2,
+  { id: "seed-cos-baza", kind: "BASKET", name: "Coș alimente de bază", desc: "Cămara pe o lună pentru 2 persoane", cat: "alimente", loc: 2, cap: 2,
     tiers: [[1, 14999], [15, 12999], [30, 11499]], groups: [[48, 20, 12], [168, 30, 7]],
     items: [["Ulei de floarea-soarelui 1 L", 2], ["Făină albă 1 kg", 2], ["Zahăr 1 kg", 1], ["Orez 1 kg", 1], ["Paste 500 g", 3], ["Roșii în bulion 400 g", 2]] },
   { id: "seed-cos-ingrijire", kind: "BASKET", name: "Coș îngrijire personală", desc: "Esențialele de baie pentru o lună", cat: "ingrijire-personala", loc: 1, cap: 2,
@@ -172,10 +173,10 @@ for (const p of PRODUCTS) {
   sql(
     `INSERT INTO "Product" (id, "sellerId", "pickupLocationId", name, description, category, kind, "stockTotal", "perBuyerCap", "pickupDeadlineDays", status) SELECT ${q(p.id)}, id, ${q(loc)}, ${q(p.name)}, ${q(p.desc)}, ${q(p.cat)}, ${q(p.kind ?? "ITEM")}, 200, ${p.cap}, 3, 'ACTIVE' FROM "User" WHERE email = 'vanzator@bundeals.ro' ON CONFLICT DO NOTHING;`,
   );
-  // Keep re-runs in sync: name (e.g. the 2026-11-07 rename) and the photo, only if its file exists
-  // in public/products (scripts/prepare-product-image.sh). No photo → NULL → the app shows its fallback.
+  // Inserts skip existing rows. Keep name, photo and pickup store in sync on re-runs.
+  // No photo file → NULL → the app shows its fallback.
   const image = existsSync(new URL(`../public/products/${p.id}.webp`, import.meta.url)) ? q(`/products/${p.id}.webp`) : "NULL";
-  sql(`UPDATE "Product" SET name = ${q(p.name)}, "imageUrl" = ${image} WHERE id = ${q(p.id)};`);
+  sql(`UPDATE "Product" SET name = ${q(p.name)}, "imageUrl" = ${image}, "pickupLocationId" = ${q(loc)} WHERE id = ${q(p.id)};`);
   if (p.items) {
     sql(`INSERT INTO "BasketItem" (id, "productId", position, name, quantity) VALUES ${p.items.map(([name, qty], i) => `(${q(`${p.id}-i${i + 1}`)}, ${q(p.id)}, ${i + 1}, ${q(name)}, ${qty})`).join(", ")} ON CONFLICT DO NOTHING;`);
   }

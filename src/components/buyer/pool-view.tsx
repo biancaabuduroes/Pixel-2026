@@ -121,7 +121,7 @@ function Hero({ name, productId, imageUrl, discountPct, closesAt }: { name: stri
         <ShareIcon />
       </button>
       {closesAt && (
-        <div className="absolute inset-x-page top-28 z-10 flex items-center justify-between gap-3">
+        <div className="absolute inset-x-page bottom-4 z-10 flex items-center justify-between gap-3">
           {discountPct > 0 ? (
             <span className="rounded-pill bg-bg-deal px-2.5 py-1 label-sm text-text-primary shadow-raised">−{discountPct}%</span>
           ) : (
@@ -132,7 +132,7 @@ function Hero({ name, productId, imageUrl, discountPct, closesAt }: { name: stri
           </span>
         </div>
       )}
-      <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
+      <div className="absolute bottom-14 left-1/2 flex -translate-x-1/2 gap-1.5" aria-hidden>
         <span className="size-2 rounded-pill bg-text-primary" />
         <span className="size-2 rounded-pill bg-bg-strong" />
         <span className="size-2 rounded-pill bg-bg-strong" />

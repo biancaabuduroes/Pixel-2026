@@ -40,7 +40,7 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
 
   it("home lists one card per product and settles the buyer's past-due group", async () => {
     const home = await q.homeData("demo-buyer");
-    expect(home.cards).toHaveLength(14); // 9 base products + 5 birotica (15 retired 2026-11-08)
+    expect(home.cards).toHaveLength(12); // 9 base products + 3 birotica (17 retired 2026-11-08)
     expect(home.cards.filter((c) => c.kind === "BASKET").map((c) => [c.productId, c.itemCount])).toEqual([
       ["seed-cos-baza", 6],
       ["seed-cos-ingrijire", 5],

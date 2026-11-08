@@ -4205,7 +4205,7 @@ INSERT INTO "LedgerEntry" (id, "transactionId", "accountId", amount) SELECT 'see
 INSERT INTO "LedgerEntry" (id, "transactionId", "accountId", amount) SELECT 'seed-tx-payout-seed-hist-c12-10-e1', 'seed-tx-payout-seed-hist-c12-10', (SELECT id FROM "LedgerAccount" WHERE "ownerUserId" = 'demo-seller' AND type = 'SELLER_EARNINGS' AND currency = 'RON'), 8074 WHERE NOT EXISTS (SELECT 1 FROM "LedgerEntry" WHERE id = 'seed-tx-payout-seed-hist-c12-10-e1');
 INSERT INTO "LedgerEntry" (id, "transactionId", "accountId", amount) SELECT 'seed-tx-payout-seed-hist-c12-10-e2', 'seed-tx-payout-seed-hist-c12-10', (SELECT id FROM "LedgerAccount" WHERE "ownerUserId" IS NULL AND type = 'PLATFORM_REVENUE' AND currency = 'RON'), 425 WHERE NOT EXISTS (SELECT 1 FROM "LedgerEntry" WHERE id = 'seed-tx-payout-seed-hist-c12-10-e2');
 COMMIT;
--- One-off data change (approved 2026-11-08): Birotică keeps only pens, the agenda and staples.
+-- One-off data change (approved 2026-11-08): Birotică keeps only the blue pens, the agenda and staples.
 -- The 15 other birotica products are RETIRED, not deleted: the ledger is append-only, so their
 -- reserved money is released with normal RELEASE transactions, their orders and open groups are
 -- cancelled and the products set INACTIVE (hidden everywhere). Idempotent: a re-run finds nothing ACTIVE.
@@ -4215,7 +4215,9 @@ CREATE TEMP TABLE retired (id text PRIMARY KEY) ON COMMIT DROP;
 INSERT INTO retired VALUES
   ('seed-banda'), ('seed-biblioraft'), ('seed-caiet-dictando'), ('seed-caiet-mate'), ('seed-capsator'),
   ('seed-creion-hb'), ('seed-dosar'), ('seed-marker-evid'), ('seed-foarfeca'), ('seed-folii'),
-  ('seed-hartie-a4'), ('seed-hartie-a4-rec'), ('seed-hartie-a5'), ('seed-marker-perm'), ('seed-notes');
+  ('seed-hartie-a4'), ('seed-hartie-a4-rec'), ('seed-hartie-a5'), ('seed-marker-perm'), ('seed-notes'),
+  -- Added 2026-11-08 (no photo): black and red pens.
+  ('seed-pix-negru'), ('seed-pix-rosu');
 
 CREATE TEMP TABLE releases ON COMMIT DROP AS
 SELECT c.id AS commitment_id, c."groupId" AS group_id, c."buyerId" AS buyer_id, c."reservedAmount" AS amount,

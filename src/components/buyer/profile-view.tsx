@@ -226,7 +226,14 @@ function OrderCard({ order, demoMode, onShowCode }: { order: ProfileOrder; demoM
     startClosing(async () => {
       const r = await closeMyGroupNowAction({ commitmentId: order.id });
       if (r.ok) router.refresh(); // the card comes back as "Gata de ridicare" with the QR button
-      else setError("Nu am putut închide grupul. Încearcă din nou.");
+      else
+        setError(
+          r.reason === "GROUP_NOT_OPEN"
+            ? "Grupul e deja închis. Reîncarcă pagina."
+            : r.reason === "GROUP_INCONSISTENT"
+              ? "Datele demo ale acestui grup nu sunt consistente, așa că nu poate fi închis. Încearcă alt grup."
+              : "Nu am putut închide grupul. Încearcă din nou.",
+        );
     });
   }
 

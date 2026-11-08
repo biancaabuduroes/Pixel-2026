@@ -102,4 +102,17 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     const p = await q.groupProgress("seed-scutece-g24");
     expect(p?.offer).toMatchObject({ totalQty: 17, currentUnitPrice: 12499, next: { minQty: 20, unitsMissing: 3, unitPrice: 9499 } });
   });
+
+  it("a group that fails the settlement checks never crashes Home or Profile", async () => {
+    // Inconsistent demo data (stored total ≠ active orders) on a past-due group of the demo buyer.
+    const g = await db.group.create({
+      data: { productId: "seed-lapte", durationHours: 1, opensAt: new Date(Date.now() - 7_200_000), closesAt: new Date(Date.now() - 3_600_000), totalQty: 5 },
+    });
+    await db.commitment.create({
+      data: { groupId: g.id, productId: "seed-lapte", buyerId: "demo-buyer", quantity: 1, committedUnitPrice: 6999, reservedAmount: 6999 },
+    });
+    await expect(q.homeData("demo-buyer")).resolves.toBeTruthy();
+    await expect(q.profileData("demo-buyer")).resolves.toBeTruthy();
+    expect((await db.group.findUniqueOrThrow({ where: { id: g.id } })).status).toBe("OPEN"); // skipped, not half-settled
+  });
 });

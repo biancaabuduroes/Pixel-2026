@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { SettlementInvariantError } from "@/domain/groups";
 import { db } from "@/lib/db";
 import { settleGroup } from "../settlement";
 import { currentUser } from "../session";
@@ -26,8 +27,19 @@ export async function closeMyGroupNowAction(input: unknown) {
   if (!buyer) return { ok: false, reason: "UNAUTHORIZED" } as const;
   const commitment = await db.commitment.findFirst({
     where: { id: parsed.data.commitmentId, buyerId: buyer.id, status: "ACTIVE" },
-    select: { groupId: true },
+    select: { groupId: true, group: { select: { status: true } } },
   });
   if (!commitment) return { ok: false, reason: "NOT_FOUND" } as const;
-  return settleGroup({ groupId: commitment.groupId, closeNow: true });
+  if (commitment.group.status !== "OPEN") return { ok: false, reason: "GROUP_NOT_OPEN" } as const;
+  try {
+    const result = await settleGroup({ groupId: commitment.groupId, closeNow: true });
+    return result.ok ? ({ ok: true } as const) : ({ ok: false, reason: result.reason } as const);
+  } catch (error) {
+    // The settlement checks refused (e.g. inconsistent group data): report it, don't crash the page.
+    if (error instanceof SettlementInvariantError) {
+      console.error("closeMyGroupNow refused", commitment.groupId, error.message);
+      return { ok: false, reason: "GROUP_INCONSISTENT" } as const;
+    }
+    throw error;
+  }
 }

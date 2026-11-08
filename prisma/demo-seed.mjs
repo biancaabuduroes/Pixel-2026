@@ -106,12 +106,14 @@ const account = (owner, type) => {
 };
 const FUNDING = `(SELECT id FROM "LedgerAccount" WHERE "ownerUserId" IS NULL AND type = 'EXTERNAL_FUNDING' AND currency = 'RON')`;
 
-function ledgerTx(id, operationId, type, extra, entries, createdAt) {
+// `guard` (SQL condition): post the transaction only when it holds — on re-runs, a reservation is
+// only recorded for a commitment this run actually inserted (so the ledger always matches orders).
+function ledgerTx(id, operationId, type, extra, entries, createdAt, guard = "TRUE") {
   sql(
-    `INSERT INTO "LedgerTransaction" (id, "operationId", type, "commitmentId", "groupId", "topUpId", "createdAt") VALUES (${q(id)}, ${q(operationId)}, ${q(type)}, ${extra.commitmentId ? q(extra.commitmentId) : "NULL"}, ${extra.groupId ? q(extra.groupId) : "NULL"}, ${extra.topUpId ? q(extra.topUpId) : "NULL"}, ${createdAt}) ON CONFLICT DO NOTHING;`,
+    `INSERT INTO "LedgerTransaction" (id, "operationId", type, "commitmentId", "groupId", "topUpId", "createdAt") SELECT ${q(id)}, ${q(operationId)}, ${q(type)}, ${extra.commitmentId ? q(extra.commitmentId) : "NULL"}, ${extra.groupId ? q(extra.groupId) : "NULL"}, ${extra.topUpId ? q(extra.topUpId) : "NULL"}, ${createdAt} WHERE ${guard} ON CONFLICT DO NOTHING;`,
   );
   entries.forEach(([acct, amount], i) =>
-    sql(`INSERT INTO "LedgerEntry" (id, "transactionId", "accountId", amount) SELECT ${q(`${id}-e${i}`)}, ${q(id)}, ${acct}, ${amount} WHERE NOT EXISTS (SELECT 1 FROM "LedgerEntry" WHERE id = ${q(`${id}-e${i}`)});`),
+    sql(`INSERT INTO "LedgerEntry" (id, "transactionId", "accountId", amount) SELECT ${q(`${id}-e${i}`)}, ${q(id)}, ${acct}, ${amount} WHERE EXISTS (SELECT 1 FROM "LedgerTransaction" WHERE id = ${q(id)}) AND NOT EXISTS (SELECT 1 FROM "LedgerEntry" WHERE id = ${q(`${id}-e${i}`)});`),
   );
 }
 
@@ -139,12 +141,14 @@ const commissionOf = (amount) => Math.floor((amount * 500 + 5_000) / 10_000);
 let commitmentNo = 0;
 function commit({ groupId, productId, buyerId, quantity, unitPrice, createdAt, simulated }) {
   const id = `seed-c-${++commitmentNo}`;
-  sql(
-    `INSERT INTO "Commitment" (id, "groupId", "productId", "buyerId", quantity, "committedUnitPrice", "reservedAmount", status, "createdAt", "updatedAt") VALUES (${q(id)}, ${q(groupId)}, ${q(productId)}, ${q(buyerId)}, ${quantity}, ${unitPrice}, ${quantity * unitPrice}, 'ACTIVE', ${createdAt}, ${createdAt}) ON CONFLICT DO NOTHING;`,
-  );
-  sql(`INSERT INTO "JoinEvent" (id, "groupId", quantity, simulated, "createdAt") VALUES (${q(`seed-je-${commitmentNo}`)}, ${q(groupId)}, ${quantity}, ${simulated}, ${createdAt}) ON CONFLICT DO NOTHING;`);
   const amount = quantity * unitPrice;
-  ledgerTx(`seed-tx-reserve-${id}`, `reserve:${id}`, "RESERVE", { commitmentId: id, groupId }, [[account(buyerId, "BUYER_AVAILABLE"), -amount], [account(buyerId, "BUYER_RESERVED"), amount]], createdAt);
+  // Re-run safety (2026-11-08): never add orders to a group that is no longer open.
+  sql(
+    `INSERT INTO "Commitment" (id, "groupId", "productId", "buyerId", quantity, "committedUnitPrice", "reservedAmount", status, "createdAt", "updatedAt") SELECT ${q(id)}, ${q(groupId)}, ${q(productId)}, ${q(buyerId)}, ${quantity}, ${unitPrice}, ${amount}, 'ACTIVE', ${createdAt}, ${createdAt} WHERE EXISTS (SELECT 1 FROM "Group" WHERE id = ${q(groupId)} AND status = 'OPEN') ON CONFLICT DO NOTHING;`,
+  );
+  const mine = `EXISTS (SELECT 1 FROM "Commitment" WHERE id = ${q(id)} AND "groupId" = ${q(groupId)} AND "buyerId" = ${q(buyerId)} AND "reservedAmount" = ${amount} AND status = 'ACTIVE')`;
+  sql(`INSERT INTO "JoinEvent" (id, "groupId", quantity, simulated, "createdAt") SELECT ${q(`seed-je-${commitmentNo}`)}, ${q(groupId)}, ${quantity}, ${simulated}, ${createdAt} WHERE ${mine} ON CONFLICT DO NOTHING;`);
+  ledgerTx(`seed-tx-reserve-${id}`, `reserve:${id}`, "RESERVE", { commitmentId: id, groupId }, [[account(buyerId, "BUYER_AVAILABLE"), -amount], [account(buyerId, "BUYER_RESERVED"), amount]], createdAt, mine);
 }
 
 /** One group with `simUnits` units from simulated buyers (+ optional demo buyer), joined evenly since it opened. */
@@ -294,6 +298,8 @@ for (let hi = 0; hi < HISTORY.length; hi++) {
   });
 }
 
+// Open groups' totals always equal their active orders (DATA_MODEL rule 5; settlement checks it).
+sql(`UPDATE "Group" g SET "totalQty" = COALESCE((SELECT SUM(quantity) FROM "Commitment" c WHERE c."groupId" = g.id AND c.status = 'ACTIVE'), 0) WHERE g.status = 'OPEN';`);
 sql("COMMIT;");
 // Approved 2026-11-08: Birotică keeps only pens, the agenda and staples. The other 15 stay in the
 // generator (so seed ids don't shift) and are retired right after, exactly as on the live database.

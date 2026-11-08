@@ -1,5 +1,5 @@
 import QRCode from "qrcode";
-import { evaluateCancel, stockRemaining } from "@/domain/groups";
+import { evaluateCancel, stockRemaining, SettlementInvariantError } from "@/domain/groups";
 import { savings } from "@/domain/pricing";
 import { groupOffer, recommendGroups, segmentGroups, type GroupOffer, type Segment } from "@/domain/ai";
 import { db } from "@/lib/db";
@@ -302,7 +302,15 @@ async function settleDueGroups(buyerId: string, now: Date) {
     where: { status: "OPEN", closesAt: { lte: now }, commitments: { some: { buyerId, status: "ACTIVE" } } },
     select: { id: true },
   });
-  for (const g of due) await settleGroup({ groupId: g.id, now });
+  for (const g of due) {
+    // A group that fails the settlement checks is left as is: Home and Profile must still load.
+    try {
+      await settleGroup({ groupId: g.id, now });
+    } catch (error) {
+      if (!(error instanceof SettlementInvariantError)) throw error;
+      console.error("settleDueGroups skipped", g.id, error.message);
+    }
+  }
 }
 
 const HISTORY_LIMIT = 20;

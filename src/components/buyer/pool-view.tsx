@@ -14,9 +14,8 @@ import { ProductImage } from "@/components/ds/product-image";
 import { storeLogo } from "@/lib/store-brand";
 import { StoreLogo } from "./store-logo";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
-import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
-import { tierLadder, type Segment } from "@/domain/ai";
+import { tierLadder } from "@/domain/ai";
 import { formatRon, multiplyBani } from "@/domain/money";
 import { isFirstDiscountUnlocked } from "@/domain/pricing";
 import { dayLabel, formatToken, inDuration, priceNumber, timeLabel, units } from "@/lib/format";
@@ -27,7 +26,6 @@ import { ConfirmJoinSheet } from "./confirm-join-sheet";
 import { JoinedSheet, type Joined } from "./joined-sheet";
 import { useGroupProgress, type GroupProgressJson } from "./use-group-progress";
 
-const SEGMENT_LABEL: Record<Segment, string> = { RAPID: "Rapid", ECHILIBRAT: "Echilibrat", CEL_MAI_IEFTIN: "Cel mai ieftin" };
 const CHANCE = { LIKELY: "mari", POSSIBLE: "medii", UNLIKELY: "mici" } as const;
 
 const JOIN_ERRORS: Record<string, string> = {
@@ -63,13 +61,13 @@ type Props = {
 
 export function PoolView(props: Props) {
   const { product, groups } = props;
-  const [groupId, setGroupId] = useState(props.activeCommitment?.groupId ?? props.recommendedGroupId ?? groups[0]?.id ?? null);
+  const groupId = props.activeCommitment?.groupId ?? props.recommendedGroupId ?? groups[0]?.id ?? null;
   const group = groups.find((g) => g.id === groupId) ?? groups[0] ?? null;
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col bg-bg-canvas pb-44">
       {group ? (
-        <ActivePool key={group.id} {...props} group={group} onSelect={setGroupId} />
+        <ActivePool key={group.id} {...props} group={group} />
       ) : (
         <>
           <Hero name={product.name} productId={product.id} imageUrl={product.imageUrl} discountPct={0} closesAt={null} />
@@ -82,13 +80,13 @@ export function PoolView(props: Props) {
   );
 }
 
-function ActivePool({ group, onSelect, ...props }: Props & { group: PoolGroup; onSelect: (id: string) => void }) {
+function ActivePool({ group, ...props }: Props & { group: PoolGroup }) {
   const live = useGroupProgress(group.id, { status: "OPEN", buyers: group.buyers, offer: group.offer });
   return (
     <>
       <Hero name={props.product.name} productId={props.product.id} imageUrl={props.product.imageUrl} discountPct={live.offer.discountPct} closesAt={new Date(group.closesAt).toISOString()} />
       <main className="flex flex-col gap-6 px-page pt-5">
-        <GroupSection {...props} group={group} live={live} onSelect={onSelect} />
+        <GroupSection {...props} group={group} live={live} />
       </main>
     </>
   );
@@ -163,7 +161,7 @@ function ShareIcon() {
   );
 }
 
-function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, live, onSelect }: Props & { group: PoolGroup; live: GroupProgressJson; onSelect: (id: string) => void }) {
+function GroupSection({ product, groups, recommendedGroupId, availableBalance, activeCommitment, stockRemaining, signedIn, group, live }: Props & { group: PoolGroup; live: GroupProgressJson }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const offer = live.offer;
@@ -184,7 +182,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
   const soldOut = stockRemaining < 1;
   const closed = live.status !== "OPEN" || new Date(group.closesAt).getTime() <= now;
   const short = signedIn && !activeCommitment && availableBalance < lockAmount;
-  const segments = groups.filter((g) => g.segment);
   const closesAt = new Date(group.closesAt);
   const pickupDay = dayLabel(closesAt, new Date(now));
   const tierTarget = offer.next?.minQty ?? offer.totalQty;
@@ -231,15 +228,6 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         <Fact icon="lock-20" label="Plătești la final" />
         <Fact icon="store-20-success" label={`Ridici ${pickupDay}`} />
       </ul>
-
-      {segments.length > 1 && (
-        <SegmentedControl
-          label="Alege grupul"
-          options={segments.map((g) => ({ value: g.id, label: SEGMENT_LABEL[g.segment!] }))}
-          value={group.id}
-          onValueChange={onSelect}
-        />
-      )}
 
       <section className="flex flex-col gap-4 rounded-xl border border-border-subtle bg-bg-surface p-4" aria-label="Prețul grupului">
         <h2 className="title-xl text-text-primary">Prețul grupului</h2>
@@ -338,7 +326,7 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
             <div className="flex items-center gap-3">
               <QuantityStepper label="Cantitate" value={quantity} max={maxQty} onChange={setQuantity} />
               <Button className="min-w-0 flex-1" disabled={pending || soldOut || closed || short} onClick={() => setConfirmOpen(true)}>
-                {pending ? "Se blochează…" : `Intră în grup · ${priceNumber(offer.currentUnitPrice)}`}
+                {pending ? "Se blochează…" : `Intră în grup · ${priceNumber(lockAmount)}`}
               </Button>
             </div>
             <p className="text-center caption text-text-secondary">

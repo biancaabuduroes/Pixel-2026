@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { db } from "@/lib/db";
+import { DEMO_SELLER_EMAIL } from "@/lib/onboarding";
 import type { Role } from "@/generated/prisma/enums";
 import { createSessionToken, readSessionToken } from "./session-token";
 
@@ -45,4 +46,16 @@ export async function currentProfile() {
   const id = await sessionUserId();
   if (!id) return null;
   return db.user.findUnique({ where: { id }, select: { id: true, name: true, role: true, preferences: true } });
+}
+
+/**
+ * Seller pages and actions (decision 2026-11-08): no login page for the seller in the demo.
+ * Returns the signed-in seller; in DEMO_MODE, when nobody is signed in as a seller, the demo
+ * seller (prisma/seed.sql). Outside DEMO_MODE a seller login is still required. One query.
+ */
+export async function currentSeller(): Promise<{ id: string; name: string } | null> {
+  const id = await sessionUserId();
+  const signedIn = id ? await db.user.findFirst({ where: { id, role: "SELLER" }, select: { id: true, name: true } }) : null;
+  if (signedIn || process.env.DEMO_MODE !== "true") return signedIn;
+  return db.user.findFirst({ where: { email: DEMO_SELLER_EMAIL, role: "SELLER" }, select: { id: true, name: true } });
 }

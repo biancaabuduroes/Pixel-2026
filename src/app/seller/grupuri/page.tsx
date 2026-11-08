@@ -8,7 +8,7 @@ import { SummaryRow } from "@/components/ds/summary-row";
 import { formatRon } from "@/domain/money";
 import { units } from "@/lib/format";
 import { sellerGroupsData } from "@/server/seller-queries";
-import { currentUser } from "@/server/session";
+import { currentSeller } from "@/server/session";
 
 export const metadata: Metadata = { title: "Grupuri · BunDeals" };
 
@@ -21,7 +21,7 @@ export default function SellerGroupsPage() {
 }
 
 async function Groups() {
-  const seller = await currentUser("SELLER");
+  const seller = await currentSeller();
   if (!seller) return null;
   const now = new Date();
   const data = await sellerGroupsData(seller.id, now);

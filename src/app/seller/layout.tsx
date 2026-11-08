@@ -7,7 +7,7 @@ import { Tag } from "@/components/ds/tag";
 import { Button } from "@/components/ui/button";
 import { storeWordmark } from "@/lib/store-brand";
 import { logoutAction } from "@/server/actions/onboarding";
-import { currentProfile, currentUser } from "@/server/session";
+import { currentSeller } from "@/server/session";
 
 export default function SellerLayout({ children }: LayoutProps<"/seller">) {
   return (
@@ -18,9 +18,10 @@ export default function SellerLayout({ children }: LayoutProps<"/seller">) {
 }
 
 async function SellerShell({ children }: { children: React.ReactNode }) {
-  const seller = await currentUser("SELLER");
-  if (!seller) redirect("/autentificare");
-  const profile = await currentProfile();
+  // Demo (decision 2026-11-08): no seller login page; the dashboard opens directly as the demo seller.
+  const seller = await currentSeller();
+  if (!seller) redirect("/autentificare"); // only outside DEMO_MODE
+  const demo = process.env.DEMO_MODE === "true";
 
   return (
     <div className="min-h-dvh bg-bg-subtle">
@@ -33,18 +34,20 @@ async function SellerShell({ children }: { children: React.ReactNode }) {
             <SellerNav className="hidden md:flex" />
           </div>
           <div className="flex items-center gap-3">
-            {storeWordmark(profile?.name) ? (
+            {storeWordmark(seller.name) ? (
               // Seller brand (src/lib/store-brand.ts), e.g. the Penny wordmark.
-              <Image src={storeWordmark(profile?.name)!} alt={profile?.name ?? "Vânzător"} width={80} height={28} unoptimized className="h-7 w-auto rounded-xs" />
+              <Image src={storeWordmark(seller.name)!} alt={seller.name} width={80} height={28} unoptimized className="h-7 w-auto rounded-xs" />
             ) : (
-              <span className="hidden label-md text-text-secondary sm:inline">{profile?.name ?? "Vânzător"}</span>
+              <span className="hidden label-md text-text-secondary sm:inline">{seller.name}</span>
             )}
-            <Tag tone="info">Mod demo</Tag>
-            <form action={logoutAction}>
-              <Button type="submit" variant="tertiary" size="sm">
-                Ieși
-              </Button>
-            </form>
+            {demo && <Tag tone="info">Mod demo</Tag>}
+            {!demo && (
+              <form action={logoutAction}>
+                <Button type="submit" variant="tertiary" size="sm">
+                  Ieși
+                </Button>
+              </form>
+            )}
           </div>
         </div>
         <div className="border-t border-border-subtle px-4 py-2 md:hidden">

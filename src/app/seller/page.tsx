@@ -12,7 +12,7 @@ import { Tag } from "@/components/ds/tag";
 import { formatRon } from "@/domain/money";
 import { dayLabel, units } from "@/lib/format";
 import { sellerDashboardData, type SellerPeriod } from "@/server/seller-queries";
-import { currentUser } from "@/server/session";
+import { currentSeller } from "@/server/session";
 
 export const metadata: Metadata = { title: "Dashboard vânzător · BunDeals" };
 
@@ -25,7 +25,7 @@ export default function SellerDashboardPage(props: PageProps<"/seller">) {
 }
 
 async function Dashboard({ searchParams }: { searchParams: PageProps<"/seller">["searchParams"] }) {
-  const seller = await currentUser("SELLER");
+  const seller = await currentSeller();
   if (!seller) return null;
   const params = await searchParams;
   const raw = typeof params.perioada === "string" ? Number(params.perioada) : 30;

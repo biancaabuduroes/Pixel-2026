@@ -4,7 +4,7 @@ import { PickupCodeForm } from "@/components/seller/pickup-code-form";
 import { SellerPanel } from "@/components/seller/seller-panel";
 import { formatRon } from "@/domain/money";
 import { sellerOrdersAwaitingPickup } from "@/server/queries";
-import { currentUser } from "@/server/session";
+import { currentSeller } from "@/server/session";
 
 /** Opened by scanning the buyer's QR (?order=…&code=…), or filtered by ?group= from group details. */
 export default function SellerPickupPage({ searchParams }: PageProps<"/seller/pickup">) {
@@ -33,7 +33,7 @@ async function Orders({ searchParams }: { searchParams: PageProps<"/seller/picku
   const code = typeof params.code === "string" && /^\d{6}$/.test(params.code) ? params.code : undefined;
   const groupId = typeof params.group === "string" ? params.group : undefined;
 
-  const seller = await currentUser("SELLER");
+  const seller = await currentSeller();
   if (!seller) return <p className="body-md text-text-secondary">Intră în contul de vânzător ca să confirmi ridicări.</p>;
   const orders = await sellerOrdersAwaitingPickup(seller.id, groupId);
 

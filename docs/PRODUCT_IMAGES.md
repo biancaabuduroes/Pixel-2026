@@ -24,20 +24,20 @@ Shared prompt suffix: *"professional e-commerce studio photograph, centered, squ
 
 | Product id | Prompt (+ suffix) | Status |
 |---|---|---|
-| seed-scutece | a stacked large pack of baby diapers size 4 in plain white soft plastic packaging | missing — supplied photo had a Shutterstock watermark (unlicensed preview), not used |
-| seed-ulei | a single 5 liter clear PET bottle of golden sunflower oil with a yellow cap and handle | ✅ supplied photo |
-| seed-lapte | a single 800 g white metal tin of infant follow-on milk formula with a scoop beside it | ✅ supplied photo — ⚠️ shows a real brand (Nestlé NAN 2) |
-| seed-servetele | a neat stack of 12 soft packs of baby wet wipes with plain white packaging | missing |
-| seed-miere | a 1 kg glass jar of golden polyfloral honey with a plain lid and a wooden honey dipper | ✅ supplied photo — ⚠️ real brand (Dapis), label says 700 g vs product 1 kg |
-| seed-detergent | a 5 liter plain white plastic canister of dishwashing liquid with a green cap | ✅ supplied photo (white bottle: prepared with fuzz 1 %) |
-| seed-cos-baza | a natural wicker basket containing 2 bottles of sunflower oil 1 L, 2 paper bags of white flour 1 kg, a bag of sugar 1 kg, a bag of rice 1 kg, 3 packs of dry pasta 500 g and 2 cans of tomato passata | ✅ supplied photo (confirmed 2026-11-07), background removed — contents (vegetables, eggs, bread, salmon) differ from the listed items |
-| seed-cos-ingrijire | a natural wicker basket containing a shampoo bottle, 2 shower gel bottles, 2 toothpaste tubes, a liquid soap pump bottle and a deodorant spray | ✅ supplied photo, background and props removed — ⚠️ spa gift set, not the exact listed items |
-| seed-cos-premium | a natural wicker basket containing a bottle of extra virgin olive oil 750 ml, a wedge of Parmigiano Reggiano, 2 packs of artisan pasta, a bag of coffee beans 1 kg and 2 bars of dark chocolate | missing |
-| seed-pix-albastru | a box of 50 blue ballpoint pens, a few pens fanned out in front | missing |
-| seed-pix-negru | a pack of 12 black gel pens, a few pens fanned out in front | missing |
-| seed-pix-rosu | a pack of 10 red ballpoint pens | missing |
-| seed-agenda | a closed undated A5 notebook planner with a plain hard cover and an elastic band | missing |
-| seed-capse | a small box of 1000 metal staples 24/6 with a strip of staples beside it | missing |
+| seed-scutece | a stacked large pack of baby diapers size 4 in plain white soft plastic packaging | ✅ generated grid (2026-11-08), unbranded |
+| seed-ulei | a single 5 liter clear PET bottle of golden sunflower oil with a yellow cap and handle | ✅ supplied photo (kept, 2026-11-08) |
+| seed-lapte | a single 800 g white metal tin of infant follow-on milk formula with a scoop beside it | ✅ generated grid (2026-11-08), unbranded (replaces the NAN photo) |
+| seed-servetele | a neat stack of 12 soft packs of baby wet wipes with plain white packaging | ✅ generated grid (2026-11-08) |
+| seed-miere | a 1 kg glass jar of golden polyfloral honey with a plain lid and a wooden honey dipper | ✅ generated grid (2026-11-08), unbranded (replaces the Dapis photo) |
+| seed-detergent | a 5 liter plain white plastic canister of dishwashing liquid with a green cap | ✅ generated grid (2026-11-08) |
+| seed-cos-baza | a natural wicker basket containing 2 bottles of sunflower oil 1 L, 2 paper bags of white flour 1 kg, a bag of sugar 1 kg, a bag of rice 1 kg, 3 packs of dry pasta 500 g and 2 cans of tomato passata | ✅ generated grid (2026-11-08), wicker basket |
+| seed-cos-ingrijire | a natural wicker basket containing a shampoo bottle, 2 shower gel bottles, 2 toothpaste tubes, a liquid soap pump bottle and a deodorant spray | ✅ generated grid (2026-11-08), wicker basket |
+| seed-cos-premium | a natural wicker basket containing a bottle of extra virgin olive oil 750 ml, a wedge of Parmigiano Reggiano, 2 packs of artisan pasta, a bag of coffee beans 1 kg and 2 bars of dark chocolate | ✅ generated grid (2026-11-08), wicker basket (includes a wine bottle not in the listed items) |
+| seed-pix-albastru | a box of 50 blue ballpoint pens, a few pens fanned out in front | ✅ generated grid (2026-11-08) |
+| seed-pix-negru | a pack of 12 black gel pens, a few pens fanned out in front | missing (the grid had only blue pens) |
+| seed-pix-rosu | a pack of 10 red ballpoint pens | missing (the grid had only blue pens) |
+| seed-agenda | a closed undated A5 notebook planner with a plain hard cover and an elastic band | ✅ generated grid (2026-11-08) |
+| seed-capse | a small box of 1000 metal staples 24/6 with a strip of staples beside it | ✅ generated grid (2026-11-08) |
 | paine (seller demo) | a round rustic sourdough bread loaf | missing |
 | ulei (seller demo) | a 1 liter glass bottle of extra virgin olive oil | missing |
 | cafea (seller demo) | a 1 kg plain kraft bag of roasted coffee beans with a few beans in front | missing |

@@ -49,7 +49,7 @@ describe.skipIf(!url)("buyer flow loaders (database, demo seed)", () => {
     const scutece = home.cards.find((c) => c.productId === "seed-scutece");
     expect(scutece).toMatchObject({ name: "Scutece nr. 4, 104 buc", groupCount: 3, fromUnitPrice: 9499 });
     // imageUrl is set only for products with a photo in public/products; the rest show the fallback.
-    expect(scutece?.imageUrl).toBeNull();
+    expect(scutece?.imageUrl).toBe("/products/seed-scutece.webp");
     expect(home.cards.find((c) => c.productId === "seed-ulei")?.imageUrl).toBe("/products/seed-ulei.webp");
     expect(home.myGroups.map((g) => g.productId)).toEqual(["seed-ulei"]);
     const honey = await db.commitment.findFirstOrThrow({ where: { buyerId: "demo-buyer", productId: "seed-miere" } });

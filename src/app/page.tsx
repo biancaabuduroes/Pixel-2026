@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { StoreLogo } from "@/components/buyer/store-logo";
 import { HomeDeals } from "@/components/buyer/home-deals";
 import { BuyerScreen, SectionTitle } from "@/components/buyer/buyer-screen";
 import { Icon } from "@/components/ds/icon";
@@ -93,9 +94,7 @@ async function HomeContent({ searchParams }: { searchParams: PageProps<"/">["sea
                 href={`/magazin/${s.id}`}
                 className="flex w-[220px] shrink-0 flex-col gap-1 rounded-xl border border-border-subtle bg-bg-surface p-4 shadow-card outline-none focus-visible:ring-2 focus-visible:ring-border-strong"
               >
-                <span className="flex size-10 items-center justify-center rounded-md bg-bg-brand-soft">
-                  <Icon name="store-20-success" size={20} />
-                </span>
+                <StoreLogo logo={s.logo} name={s.name} size={40} />
                 <span className="truncate title-md text-text-primary">{s.name}</span>
                 <span className="line-clamp-2 body-sm text-text-secondary">{s.address}</span>
                 <span className="label-sm text-text-secondary">{s.openGroupCount} grupuri active</span>

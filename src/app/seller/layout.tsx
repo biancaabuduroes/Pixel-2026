@@ -5,6 +5,7 @@ import { Suspense } from "react";
 import { SellerNav } from "@/components/seller/seller-nav";
 import { Tag } from "@/components/ds/tag";
 import { Button } from "@/components/ui/button";
+import { storeWordmark } from "@/lib/store-brand";
 import { logoutAction } from "@/server/actions/onboarding";
 import { currentProfile, currentUser } from "@/server/session";
 
@@ -32,7 +33,12 @@ async function SellerShell({ children }: { children: React.ReactNode }) {
             <SellerNav className="hidden md:flex" />
           </div>
           <div className="flex items-center gap-3">
-            <span className="hidden label-md text-text-secondary sm:inline">{profile?.name ?? "Vânzător"}</span>
+            {storeWordmark(profile?.name) ? (
+              // Seller brand (src/lib/store-brand.ts), e.g. the Penny wordmark.
+              <Image src={storeWordmark(profile?.name)!} alt={profile?.name ?? "Vânzător"} width={80} height={28} unoptimized className="h-7 w-auto rounded-xs" />
+            ) : (
+              <span className="hidden label-md text-text-secondary sm:inline">{profile?.name ?? "Vânzător"}</span>
+            )}
             <Tag tone="info">Mod demo</Tag>
             <form action={logoutAction}>
               <Button type="submit" variant="tertiary" size="sm">

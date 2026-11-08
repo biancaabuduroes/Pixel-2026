@@ -12,9 +12,9 @@ const at = (hours) => `${NOW} ${hours < 0 ? "-" : "+"} interval '${Math.abs(hour
 const q = (s) => `'${String(s).replaceAll("'", "''")}'`;
 
 const LOCATIONS = [
-  { id: "seed-loc-romana", name: "Magazin partener Romana", address: "Piața Romană 5, București", hours: "L–V 9–20, S 10–16" },
-  { id: "seed-loc-dorobanti", name: "Magazin partener Dorobanți", address: "Calea Dorobanților 18, București", hours: "L–S 8–21" },
-  { id: "seed-loc-penny", name: "Penny", address: "Șoseaua Pantelimon 245, București", hours: "L–D 8–22" },
+  { id: "seed-loc-romana", name: "Penny Romana", address: "Piața Romană 5, București", hours: "L–V 9–20, S 10–16" },
+  { id: "seed-loc-dorobanti", name: "Penny Dorobanți", address: "Calea Dorobanților 18, București", hours: "L–S 8–21" },
+  { id: "seed-loc-penny", name: "Penny Pantelimon", address: "Șoseaua Pantelimon 245, București", hours: "L–D 8–22" },
 ];
 
 // tiers: [minQty, unitPrice in bani]; perBuyerCap < second tier minQty (pricing rule 4).
@@ -127,6 +127,8 @@ sql(`INSERT INTO "User" (id, email, name, role) VALUES ${Array.from({ length: SI
 for (const l of LOCATIONS) {
   sql(`INSERT INTO "PickupLocation" (id, "sellerId", name, address, "openingHours") SELECT ${q(l.id)}, id, ${q(l.name)}, ${q(l.address)}, ${q(l.hours)} FROM "User" WHERE email = 'vanzator@bundeals.ro' ON CONFLICT DO NOTHING;`);
 }
+// All stores are Penny supermarkets (2026-11-08): keep names in sync on re-runs.
+for (const l of LOCATIONS) sql(`UPDATE "PickupLocation" SET name = ${q(l.name)} WHERE id = ${q(l.id)};`);
 // Extra top-up covers historical SETTLED groups for the seller dashboard (90 days).
 for (let i = 1; i <= SIM_BUYERS; i++) topUp(`seed-sim-${i}`, SIM_TOPUP * 2, at(-80));
 topUp(DEMO_BUYER, DEMO_TOPUP, at(-72));

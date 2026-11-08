@@ -11,6 +11,8 @@ import { Icon } from "@/components/ds/icon";
 import { InlineAlert } from "@/components/ds/inline-alert";
 import { ListRow } from "@/components/ds/list-row";
 import { ProductImage } from "@/components/ds/product-image";
+import { storeLogo } from "@/lib/store-brand";
+import { StoreLogo } from "./store-logo";
 import { QuantityStepper } from "@/components/ds/quantity-stepper";
 import { SegmentedControl } from "@/components/ds/segmented-control";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -49,7 +51,7 @@ type Props = {
     imageUrl: string | null;
     basketItems: { name: string; quantity: number }[];
     priceTiers: { minQty: number; unitPrice: number }[];
-    pickupLocation: { name: string; address: string; openingHours: string };
+    pickupLocation: { name: string; address: string; openingHours: string; seller: { sellerProfile: { businessName: string } | null } };
   };
   groups: PoolGroup[];
   recommendedGroupId: string | null;
@@ -208,7 +210,11 @@ function GroupSection({ product, groups, recommendedGroupId, availableBalance, a
         <div className="flex flex-col gap-1">
           <h1 className="title-xl text-text-primary">{product.name}</h1>
           <p className="flex items-center gap-1.5 body-sm text-text-secondary">
-            <Icon name="store-14" size={14} />
+            {storeLogo(product.pickupLocation.seller.sellerProfile?.businessName) ? (
+              <StoreLogo logo={storeLogo(product.pickupLocation.seller.sellerProfile?.businessName)} name={product.pickupLocation.name} size={18} className="rounded-xs" />
+            ) : (
+              <Icon name="store-14" size={14} />
+            )}
             {product.pickupLocation.name}
             {group.id === recommendedGroupId && groups.length > 1 ? " · recomandat" : ""}
           </p>

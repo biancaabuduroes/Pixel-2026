@@ -3,6 +3,7 @@ import { evaluateCancel, stockRemaining } from "@/domain/groups";
 import { savings } from "@/domain/pricing";
 import { groupOffer, recommendGroups, segmentGroups, type GroupOffer, type Segment } from "@/domain/ai";
 import { db } from "@/lib/db";
+import { storeLogo } from "@/lib/store-brand";
 import { pickupCodeFor } from "./pickup-code";
 import { requestOrigin } from "./queries";
 import { settleGroup } from "./settlement";
@@ -134,6 +135,8 @@ export type StoreCard = {
   address: string;
   openingHours: string;
   openGroupCount: number;
+  /** Supermarket logo (src/lib/store-brand.ts), null when the seller has none. */
+  logo: string | null;
 };
 
 /** Home rail: pickup locations that still have an open group. */
@@ -145,6 +148,7 @@ export async function storesForHome(now = new Date()): Promise<StoreCard[]> {
       name: true,
       address: true,
       openingHours: true,
+      seller: { select: { sellerProfile: { select: { businessName: true } } } },
       products: {
         where: { status: "ACTIVE" },
         select: { groups: { where: { status: "OPEN", closesAt: { gt: now } }, select: { id: true } } },
@@ -158,6 +162,7 @@ export async function storesForHome(now = new Date()): Promise<StoreCard[]> {
       address: l.address,
       openingHours: l.openingHours,
       openGroupCount: l.products.reduce((sum, p) => sum + p.groups.length, 0),
+      logo: storeLogo(l.seller.sellerProfile?.businessName),
     }))
     .filter((l) => l.openGroupCount > 0);
 }
@@ -171,6 +176,7 @@ export async function storePageData(locationId: string, now = new Date()) {
       name: true,
       address: true,
       openingHours: true,
+      seller: { select: { sellerProfile: { select: { businessName: true } } } },
       products: {
         where: { status: "ACTIVE" },
         orderBy: { name: "asc" },
@@ -210,7 +216,7 @@ export async function storePageData(locationId: string, now = new Date()) {
   }
   const nextClose = cards.reduce<Date | null>((min, c) => (!min || c.closesAt < min ? c.closesAt : min), null);
   return {
-    store: { id: location.id, name: location.name, address: location.address, openingHours: location.openingHours },
+    store: { id: location.id, name: location.name, address: location.address, openingHours: location.openingHours, logo: storeLogo(location.seller.sellerProfile?.businessName) },
     openGroupCount: cards.reduce((sum, c) => sum + c.groupCount, 0),
     nextClose,
     cards,
@@ -235,7 +241,7 @@ export async function productData(productId: string, buyerId: string | null, now
         imageUrl: true,
         basketItems: { orderBy: { position: "asc" }, select: { name: true, quantity: true } },
         priceTiers: tiersAsc,
-        pickupLocation: { select: { name: true, address: true, openingHours: true } },
+        pickupLocation: { select: { name: true, address: true, openingHours: true, seller: { select: { sellerProfile: { select: { businessName: true } } } } } },
         groups: {
           ...openGroups(now),
           select: { ...openGroups(now).select, _count: { select: { commitments: { where: { status: "ACTIVE" } } } } },

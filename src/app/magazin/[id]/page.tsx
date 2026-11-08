@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { StoreDeals } from "@/components/buyer/store-deals";
+import { StoreLogo } from "@/components/buyer/store-logo";
 import { BuyerScreen } from "@/components/buyer/buyer-screen";
 import { Icon } from "@/components/ds/icon";
 import { dayLabel } from "@/lib/format";
@@ -30,13 +31,11 @@ async function Store({ params }: { params: Promise<{ id: string }> }) {
         <Link href="/" aria-label="Înapoi" className="absolute left-1 flex size-control-md items-center justify-center rounded-pill outline-none focus-visible:ring-2 focus-visible:ring-border-strong">
           <Icon name="chevron-left-24" size={24} />
         </Link>
-        <h1 className="title-md text-text-primary">{data.store.name.replace(/^Magazin partener /, "")}</h1>
+        <h1 className="title-md text-text-primary">{data.store.name}</h1>
       </header>
       <main className="flex flex-1 flex-col gap-6 px-page pt-2 pb-8">
         <section className="flex items-center gap-3">
-          <span className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-bg-brand-soft">
-            <Icon name="bag-40-secondary" size={40} />
-          </span>
+          <StoreLogo logo={data.store.logo} name={data.store.name} size={56} className="rounded-xl" />
           <div className="min-w-0">
             <p className="title-lg text-text-primary">{data.store.name}</p>
             <p className="body-sm text-text-secondary">{data.store.address}</p>
